@@ -27,6 +27,9 @@ import Film from './Film.astro'
   :global(.no-intro) .intro, :global(.intro-done) .intro { opacity: 0; visibility: hidden; pointer-events: none; }
   :global(.no-intro) .intro { transition: none; }
   .intro :global(.intro__film) { position: absolute; inset: 0; background: #fcf0e0; }
+  /* the poster (the finished lockup) is only for a film that cannot play: shown before the film starts it would give
+     the ending away for a moment, so until then the screen stays the film's own blank cream */
+  .intro :global(.intro__film:not(.is-live):not(.is-still) video) { opacity: 0; }
   /* screens narrower than the 9:16 film would crop the lockup's ends: show the whole frame instead, its top and bottom
      melting into the same cream so no band shows */
   @media (max-aspect-ratio: 9 / 16) {
