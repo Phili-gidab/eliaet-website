@@ -37,6 +37,19 @@ export const STORY = {
   final: { id: 'elia', t0: 16, in: 16.4, label: 'ELIA' },
 }
 
+/* new: small labels that ride on the film, pinned to what they name (the stages of the work, the finished goods,
+   the export crate). Where each one is, frame by frame, comes from the film's cameras (public/film/pins.json,
+   made by blender/scripts/track6.py and pins6.py); a pin shows only while its thing is in view and in the open. */
+export const PINS: { id: string; label: string; n?: string }[] = [
+  { id: 'wringing', label: 'Wringing' },
+  { id: 'splitting', label: 'Splitting' },
+  { id: 'drying', label: 'Hang drying' },
+  { id: 'finishing', label: 'Finishing' },
+  { id: 'garments', label: 'Garments' },
+  { id: 'bags', label: 'Bags' },
+  { id: 'leather', label: 'Finished leather' },
+]
+
 /* legacy: the four slides of the current home-page carousel */
 export const HIGHLIGHTS = [
   {

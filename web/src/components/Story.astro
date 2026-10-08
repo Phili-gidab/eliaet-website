@@ -4,7 +4,7 @@
    before the next; the last chapter (the page's h1, the buttons) stays on the film's final frame.
    As the page scrolls on, the film steps back into a panel and the next section slides over it. */
 import Film from './Film.astro'
-import { STORY, HERO } from '../copy/home'
+import { STORY, HERO, PINS } from '../copy/home'
 import { ORG } from '../copy/site'
 import { AALF_2026 } from '../copy/aalf'
 
@@ -46,6 +46,16 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
       <img src="/film/tannery-end-1600.webp" alt="" decoding="async" />
     </picture>
     <div class="story__shade" aria-hidden="true"></div>
+
+    <div class="story__pins" aria-hidden="true" data-pins="/film/pins.json">
+      {PINS.map((p) => (
+        <div class="pin" data-pin={p.id}>
+          <i class="pin__dot"></i>
+          <span class="pin__stem"></span>
+          <span class="pin__tag">{p.n && <b>{p.n}</b>}{p.label}</span>
+        </div>
+      ))}
+    </div>
 
     <div class="story__copy wrap">
       {STORY.chapters.map((c, i) => (
@@ -107,6 +117,37 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
       linear-gradient(0deg, rgb(12 9 7 / 0.92) 0%, rgb(12 9 7 / 0.6) 22%, rgb(12 9 7 / 0) 50%),
       radial-gradient(110% 85% at 0% 100%, rgb(12 9 7 / 0.72), transparent 66%);
   }
+
+  /* the pins: a lit dot on the thing, a hairline up from it, its name on a small glass tag. They ride on the film
+     (scripts/story.ts moves them frame by frame) and come and go with what they name. */
+  .story__pins { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; transition: opacity 1s var(--ease); }
+  .pin { position: absolute; left: 0; top: 0; --stem: 46px; will-change: transform; }
+  .pin__dot {
+    position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--amber), 0 0 0 5px rgb(246 183 75 / 0.14), 0 0 22px rgb(246 183 75 / 0.55);
+    transform: scale(0); transition: transform 0.35s var(--ease);
+  }
+  .pin__dot::after { content: ''; position: absolute; inset: 3.5px; border-radius: 50%; background: var(--amber); }
+  .pin__stem {
+    position: absolute; left: -0.5px; bottom: 7px; width: 1px; height: var(--stem);
+    background: linear-gradient(0deg, rgb(246 183 75 / 0.95), rgb(245 236 223 / 0.5));
+    transform-origin: 50% 100%; transform: scaleY(0); transition: transform 0.3s var(--ease);
+  }
+  .pin__tag {
+    position: absolute; left: -1px; bottom: calc(var(--stem) + 9px); display: inline-flex; align-items: center; gap: 0.75em;
+    padding: 6px 11px 6px 9px; border-radius: 8px; white-space: nowrap;
+    font-family: var(--f-mono); font-size: 11px; font-weight: 450; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream);
+    background: rgb(18 13 10 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.16);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    opacity: 0; transform: translateY(6px); transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
+  }
+  .pin__tag b { color: var(--amber); font-weight: 500; }
+  .pin.is-l .pin__tag { left: auto; right: -1px; }
+  .pin.on .pin__dot { transform: scale(1); transition: transform 0.6s var(--spring); }
+  .pin.on .pin__stem { transform: scaleY(1); transition: transform 0.5s var(--ease) 0.12s; }
+  .pin.on .pin__tag { opacity: 1; transform: none; transition: opacity 0.5s var(--ease) 0.3s, transform 0.7s var(--ease) 0.3s; }
+  :global(.intro-on) .story__pins { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .story__pins { display: none; } }
 
   /* the chapters share one place, bottom left, above the rail */
   .story__copy {
@@ -184,6 +225,8 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     .ch__title--final { font-size: clamp(2.9rem, 13vw, 4.6rem); }
     .ch__line { font-size: 1rem; margin-top: 14px; }
     .ch__pill .geez { display: none; }
+    .pin { --stem: 34px; }
+    .pin__tag { font-size: 10px; padding: 5px 9px 5px 8px; letter-spacing: 0.1em; }
     .ch__dates { display: none; }
     .rail__lbl { display: none; }
     .rail__list { gap: 6px; }

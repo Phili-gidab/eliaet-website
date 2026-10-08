@@ -12,6 +12,14 @@ server that also runs the forms API. Films rendered in Blender.
   settles on a table of finished goods, then pulls back out of the loading door until the works stand in the
   Ethiopian highlands. The film is the clock for the copy: each chapter's words arrive with their moment in the
   film; the last chapter (the page title and buttons) stays on the final frame. A rail of chapters under it seeks.
+- **Words in the film itself**: the drums are stencilled 01 02 03; ቆዳ is painted across the hall floor so that it
+  reads true only from where the camera passes; the finished leather carries the ELIA mark in gold foil; the export
+  crate is stencilled; the flags fly by the door; and the ELIA mark is grown in yellow Meskel daisies on the far
+  hills, laid out so that it comes together exactly as the camera reaches its last position.
+- **Pins that ride on the film**: small labels pinned to the machines and the goods (Wringing, Splitting, Hang
+  drying, Finishing, Garments, Bags, Finished leather). Where each thing is, frame by frame, comes from the film's
+  own cameras (`web/public/film/pins.json`, made with the Blender scripts `track6.py` and `pins6.py`), so the pins
+  move with the shot; each keeps off the chapter's words and the other pins, and none show for less motion.
 - **Dark and cinematic**: a tanned near-black lit with amber, sections that slide in like sheets, cards like app
   panels, a condensed display face with a serif italic for the word that carries the light, Ge'ez beside the titles.
 
