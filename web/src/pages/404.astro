@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro'
+import { NAV } from '../copy/site'
+
+/* Three ways back, numbered and named as in the site menu (Home is 00 there). */
+const pad = (n: number) => String(n).padStart(2, '0')
+const fromNav = (to: string) => {
+  const i = NAV.findIndex((n) => n.to === to)
+  return { label: NAV[i].label, to, amharic: NAV[i].amharic, n: pad(i + 1) }
+}
+const LINKS = [{ label: 'Home', to: '/', amharic: 'መነሻ', n: '00' }, fromNav('/members'), fromNav('/contact')]
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+---
+
+<Base title="Page not found">
+  <meta slot="head" name="robots" content="noindex" />
+  <section class="nf grain" aria-labelledby="nf-h">
+    <div class="wrap nf__in">
+      <p class="label label--rule nf__label" aria-hidden="true" data-reveal="fade"><b>404</b> Not found</p>
+      <h1 class="nf__h" id="nf-h">
+        <span class="nf__code" aria-hidden="true"><span>4</span><em>0</em><span>4</span></span>
+        <span class="sr-only">Page not found</span>
+      </h1>
+      <div class="nf__side">
+        <p class="lede nf__line" data-reveal style="--d:.2s">The page you are looking for is not here.</p>
+        <div class="stitch nf__stitch" aria-hidden="true"></div>
+        <nav aria-label="Where to go from here">
+          <ol class="nf__links" role="list">
+            {LINKS.map((l, i) => (
+              <li data-reveal style={`--d:${0.25 + i * 0.07}s`}>
+                <a href={l.to}>
+                  <span class="nf__n">{l.n}</span>
+                  <span class="nf__t">{l.label}</span>
+                  {l.amharic && <span class="nf__am geez" lang="am">{l.amharic}</span>}
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 100svh; display: grid; align-items: center; background: var(--ink);
+    padding-block: calc(var(--header-h) + clamp(40px, 6vw, 96px)) clamp(64px, 8vw, 120px);
+  }
+  .nf__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px clamp(32px, 5vw, 96px); align-items: end; }
+  .nf__label { grid-column: 1 / -1; }
+  .nf__h { font-weight: 400; }
+  /* lining figures, so the three digits stand on one line at one height */
+  .nf__code {
+    display: flex; align-items: baseline; font-family: var(--f-display); font-weight: 400; font-variant-numeric: lining-nums;
+    font-feature-settings: 'lnum' 1, 'onum' 0; font-size: clamp(8.5rem, 27vw, 24rem); line-height: 0.82; letter-spacing: -0.05em;
+    color: var(--cream); padding-bottom: 0.04em;
+  }
+  .nf__code em { font-style: italic; color: var(--amber); margin-inline: 0.01em 0.05em; }
+  @media (prefers-reduced-motion: no-preference) {
+    .nf__code > * { display: inline-block; animation: nf-rise 1.3s var(--ease) both; }
+    .nf__code > :nth-child(2) { animation-delay: 0.08s; }
+    .nf__code > :nth-child(3) { animation-delay: 0.16s; }
+    @keyframes nf-rise { from { opacity: 0; transform: translateY(14%); } }
+  }
+  .nf__side { padding-bottom: 0.5rem; }
+  .nf__line { max-width: 26ch; }
+  .nf__stitch { margin-block: clamp(28px, 3.4vw, 44px) 4px; }
+  .nf__links { list-style: none; margin: 0; padding: 0; }
+  .nf__links li + li { border-top: 1px solid var(--line); }
+  .nf__links a {
+    display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; align-items: baseline; column-gap: 12px;
+    padding: 14px 0; transition: color 0.3s, padding 0.5s var(--ease);
+  }
+  .nf__n { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--gold); }
+  .nf__t { font-family: var(--f-display); font-size: clamp(1.7rem, 1.2rem + 1.4vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .nf__am { grid-column: 2; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .nf__links svg { grid-column: 3; grid-row: 1; width: 1.3rem; height: 1.3rem; align-self: center; transition: transform 0.45s var(--ease); }
+  .nf__links a:hover { color: var(--amber); padding-left: 8px; }
+  .nf__links a:hover .nf__t { font-style: italic; }
+  .nf__links a:hover svg { transform: translateX(4px); }
+
+  @media (max-width: 860px) {
+    .nf__in { grid-template-columns: 1fr; align-items: start; }
+    .nf__code { font-size: min(48vw, 24rem); }
+    .nf__side { padding-bottom: 0; }
+  }
+</style>

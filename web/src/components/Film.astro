@@ -1,0 +1,59 @@
+---
+/* A film rendered in Blender: wide and tall renditions, the script picks size and codec (see scripts/film.ts). */
+interface Props {
+  wide: { base: string; sizes: number[] }
+  tall?: { base: string; sizes: number[] }
+  poster?: string
+  posterTall?: string
+  label: string
+  formats?: string
+  loop?: boolean
+  class?: string
+  toggle?: boolean
+  manual?: boolean
+}
+const { wide, tall, poster, posterTall, label, formats = 'av1,hevc,vp9,h264', loop = true, class: cls, toggle = true, manual = false } = Astro.props
+const fallbackPoster = poster ?? `${wide.base}-${Math.max(...wide.sizes)}.webp`
+---
+
+<figure
+  class:list={['film', cls]}
+  data-film
+  data-film-manual={manual ? '' : undefined}
+  data-wide={JSON.stringify(wide)}
+  data-tall={tall ? JSON.stringify(tall) : undefined}
+  data-poster={poster}
+  data-poster-tall={posterTall}
+  data-formats={formats}
+  data-loop={loop ? 'true' : 'false'}
+>
+  <video muted playsinline preload="metadata" poster={fallbackPoster} aria-label={label}></video>
+  <noscript><img src={fallbackPoster} alt={label} /></noscript>
+  {toggle && (
+    <button class="film__toggle" type="button" data-film-toggle aria-pressed="false" aria-label="Pause the film">
+      <svg class="film__pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      <svg class="film__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" /></svg>
+    </button>
+  )}
+</figure>
+
+<style>
+  .film { position: relative; margin: 0; overflow: hidden; background: var(--ink); }
+  .film video, .film img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .film video { opacity: 1; transition: opacity 0.8s var(--ease); }
+  .film__toggle {
+    position: absolute; z-index: 3; right: var(--gutter); bottom: clamp(18px, 3vw, 36px); width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center; color: var(--cream); background: rgb(18 13 10 / 0.45);
+    box-shadow: inset 0 0 0 1px rgb(255 240 220 / 0.22); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: background 0.25s, transform 0.3s var(--ease);
+  }
+  .film__toggle:hover { background: rgb(18 13 10 / 0.7); transform: scale(1.05); }
+  .film__toggle svg { width: 16px; height: 16px; }
+  .film__play { display: none; }
+  .film[data-state='paused'] .film__play { display: block; }
+  .film[data-state='paused'] .film__pause { display: none; }
+</style>
+
+<script>
+  import '../scripts/film'
+</script>

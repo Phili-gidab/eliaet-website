@@ -1,0 +1,158 @@
+{
+  "_note": "Member directory carried over from eliaet.com/members.html and ehl.html (October 2026). The old site listed Davimpex under both tanneries and leather products; here it is one entry with both sectors. Add the remaining members of the 194 here (or move this file to a CMS) — the client renders whatever this returns.",
+  "members": [
+    {
+      "slug": "davimpex-bahir-dar-tannery",
+      "name": "Davimpex Enterprise Bahir Dar Tannery PLC",
+      "sectors": ["tannery", "leather-goods"],
+      "city": "Bahir Dar",
+      "ehlCertified": true,
+      "logo": "/media/partners/Bahirdar-Tannery.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-115-535-978" },
+        { "label": "Mobile", "value": "+251-912-073-375" },
+        { "label": "Fax", "value": "+251-115-159-050" }
+      ],
+      "emails": ["davimpexoperationalmg@gmail.com"],
+      "website": "www.bahirdartannery.com"
+    },
+    {
+      "slug": "elico-awash-tannery",
+      "name": "ELICO PLC. Awash Tannery",
+      "sectors": ["tannery"],
+      "ehlCertified": true,
+      "logo": "/media/partners/ELICO.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-114-707-413" },
+        { "label": "Mobile", "value": "+251-911-465-806" }
+      ],
+      "emails": ["corporatemarketingelico@gmail.com"],
+      "website": "www.elicoplc.com.et"
+    },
+    {
+      "slug": "new-wing-addis-shoe-factory",
+      "name": "New Wing Addis Shoe Factory PLC. Tannery Expansion",
+      "sectors": ["tannery"],
+      "city": "Addis Ababa",
+      "ehlCertified": true,
+      "logo": "/media/partners/newwing.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-922-463-287" },
+        { "label": "Mobile", "value": "+251-911-474-563" }
+      ],
+      "emails": ["newwingaddis@gmail.com", "bertinirenzo@gmail.com"],
+      "website": "www.newwing.com.hk"
+    },
+    {
+      "slug": "msgana-shoe",
+      "name": "Msgana Shoe",
+      "sectors": ["footwear"],
+      "logo": "/media/partners/msgana.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-911-630-767" },
+        { "label": "Mobile", "value": "+251-911-026-830" }
+      ],
+      "emails": ["mesganashoe@yahoo.com", "tsegayege2005@yahoo.com"],
+      "website": "www.msganashoe.com"
+    },
+    {
+      "slug": "natural-footwear-studio",
+      "name": "Natural Footwear Studio",
+      "sectors": ["footwear"],
+      "phones": [{ "label": "Tel", "value": "+251-911-571-695" }],
+      "emails": ["cheruassefa@gmail.com"],
+      "website": "www.econaturalleather.com"
+    },
+    {
+      "slug": "elico-tikur-abbay-shoe-factory",
+      "name": "ELICO PLC. Tikur Abbay Shoe Factory",
+      "sectors": ["footwear"],
+      "logo": "/media/partners/ELICO.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-114-707-413" },
+        { "label": "Mobile", "value": "+251-930-533-474" }
+      ],
+      "emails": ["elicosalesdept@gmail.com"],
+      "website": "www.elicoplc.com.et"
+    },
+    {
+      "slug": "samra-leather",
+      "name": "SAMRA Leather",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/samra.webp",
+      "phones": [{ "label": "Tel", "value": "+251-911-657-715" }],
+      "emails": ["samraLeather@gmail.com", "info@samraleathers.com"],
+      "website": "www.samraleathers.com"
+    },
+    {
+      "slug": "kinaff-leather",
+      "name": "Kinaff Leather",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/kinaff.webp",
+      "phones": [{ "label": "Tel", "value": "+251-945-421-022" }],
+      "emails": ["fishkinaff@me.com"],
+      "website": "www.kinaff.com"
+    },
+    {
+      "slug": "kootkeet",
+      "name": "Kootkeet",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/Kootkeet.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-911-383-490" },
+        { "label": "Mobile", "value": "+251-911-474-563" }
+      ],
+      "emails": ["dtaddani@gmail.com"],
+      "website": ""
+    },
+    {
+      "slug": "ker-ezhi-ethiopia",
+      "name": "Ker Ezhi Ethiopia Leather Manufacturing",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/kerezhi.webp",
+      "phones": [{ "label": "Tel", "value": "+251-911-209-106" }],
+      "emails": ["info@kerezhiethiopia.com"],
+      "website": "www.kerezhiethiopia.com"
+    },
+    {
+      "slug": "amour-leather",
+      "name": "Amour Leather",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/amour.webp",
+      "phones": [
+        { "label": "Tel", "value": "+251-911-855-152" },
+        { "label": "Mobile", "value": "+251-930-533-474" }
+      ],
+      "emails": ["amour@amourleather.com", "zemenzege4@gmail.com"],
+      "website": "www.amourleather.com"
+    },
+    {
+      "slug": "meron-addis-ababa",
+      "name": "Meron Addis Ababa",
+      "sectors": ["leather-goods"],
+      "city": "Addis Ababa",
+      "logo": "/media/partners/meron.webp",
+      "phones": [{ "label": "Tel", "value": "+251-911-122-108" }],
+      "emails": ["Info@meronaddisababa.com", "exoticamer@gmail.com"],
+      "website": "www.meronaddisababa.com"
+    },
+    {
+      "slug": "root-in-style",
+      "name": "Root In Style",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/root.webp",
+      "phones": [{ "label": "Tel", "value": "+251-911-692-063" }],
+      "emails": ["info@rootinstyle.com", "tigist.seife@gmail.com"],
+      "website": "www.rootinstyle.com"
+    },
+    {
+      "slug": "shirshir-ethiopia",
+      "name": "Shirshir Ethiopia",
+      "sectors": ["leather-goods"],
+      "logo": "/media/partners/Shir-Shir-Ethiopia.webp",
+      "phones": [{ "label": "Tel", "value": "+251-911-615-876" }],
+      "emails": ["shirshirethiopia@gmail.com"],
+      "website": "shirshirethiopia.com"
+    }
+  ]
+}

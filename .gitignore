@@ -1,0 +1,11 @@
+node_modules/
+web/dist/
+web/.astro/
+client/dist/
+server/dist/
+server/inbox/
+server/.env
+.env
+*.log
+.DS_Store
+shot*.png

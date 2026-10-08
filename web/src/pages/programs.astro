@@ -1,0 +1,143 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import { PROGRAMS_INTRO, PROGRAMS } from '../copy/programs'
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/* What each photo shows, for screen readers. */
+const ALT: Record<string, string> = {
+  ehl: 'Three women in white shawls seated on hides, one holding a round leather shield',
+  aalf: 'A model in a cognac leather jacket',
+  eldsc: 'Leather hides dyed blue, brown, red, pink and yellow, laid side by side',
+  afcfta: 'A young woman at a sewing machine on a factory floor',
+  shop: 'A brown leather messenger bag with buckled straps',
+  members: 'An emblem of a hide in the colours of the Ethiopian flag, with a jacket, bags and shoes',
+}
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const out = 'M7 17 17 7M9 7h8v8'
+---
+
+<Base title="Programs" description={`${PROGRAMS_INTRO.title} ${PROGRAMS.map((p) => p.name).join(', ')}.`}>
+  <PageHead
+    index="01"
+    eyebrow={PROGRAMS_INTRO.eyebrow}
+    amharic="ፕሮግራሞች"
+    title={['Our latest projects', 'and innovative', 'works<em>.</em>']}
+    image="/media/carousel-0.webp"
+    imageAlt="A woman in orange lying on a tan leather sofa, holding a green leather card holder"
+  >
+    <ol class="toc" role="list" aria-label="The programs on this page" data-reveal style="--d:.3s">
+      {PROGRAMS.map((p, i) => (
+        <li>
+          <a href={`#${p.slug}`}>
+            <span class="toc__n">{pad(i + 2)}</span>
+            <span class="toc__code">{p.short}</span>
+            <span class="toc__name">{p.name}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </PageHead>
+
+  {PROGRAMS.map((p, i) => {
+    const dark = i % 2 === 1
+    const href = p.to ?? p.href
+    const external = !p.to && !!p.href
+    return (
+      <section
+        class:list={['pg', dark ? 'pg--dark grain' : 'sec--paper', { 'pg--flip': dark }]}
+        id={p.slug}
+        aria-labelledby={`${p.slug}-h`}
+      >
+        <div class="wrap pg__in">
+          <div class="pg__media">
+            <div class="frame pg__frame" data-reveal="fade">
+              <img src={p.image} alt={ALT[p.slug] ?? ''} loading="lazy" decoding="async" width="500" height="700" />
+            </div>
+          </div>
+          <div class="pg__text">
+            <p class="label label--rule" data-reveal="fade"><b>{pad(i + 2)}</b> {p.name}</p>
+            {p.short === '194' ? (
+              <p class="pg__code figure-num" aria-hidden="true"><span data-count="194">0</span></p>
+            ) : (
+              <p class="pg__code figure-num" aria-hidden="true" data-reveal="fade">{p.short}</p>
+            )}
+            <h2 class="h2 pg__title" id={`${p.slug}-h`} data-reveal>{p.title}</h2>
+            <p class="body pg__body" data-reveal style="--d:.08s">{p.text}</p>
+            <ul class="pg__points" role="list" data-reveal style="--d:.14s">
+              {p.points.map((pt) => <li>{pt}</li>)}
+            </ul>
+            {href && (
+              <p class="pg__cta" data-reveal style="--d:.2s">
+                <a
+                  class:list={['btn', { 'btn--dark': !dark }]}
+                  href={href}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener' : undefined}
+                >
+                  {p.cta}
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={external ? out : arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                  {external && <span class="sr-only">(opens {new URL(p.href!).host} in a new tab)</span>}
+                </a>
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  })}
+</Base>
+
+<style>
+  /* the hero contents: one line per program, the short code stamped in mono */
+  .toc { list-style: none; margin: clamp(32px, 4vw, 52px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; max-width: 640px; }
+  .toc a {
+    display: grid; grid-template-columns: 2.2em 4.6em minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 11px 0;
+    border-bottom: 1px solid var(--line); font-size: 14.5px; line-height: 1.35; color: var(--bone); transition: color 0.25s, padding 0.45s var(--ease);
+  }
+  .toc a:hover { color: var(--cream); padding-left: 6px; }
+  .toc__n { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--taupe); }
+  .toc__code { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--gold); }
+
+  /* one section per program; paper and dark alternate and the picture swaps sides */
+  .pg { position: relative; padding-block: clamp(72px, 9vw, 150px); }
+  .pg--dark { background: var(--ink); }
+  .pg__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: center; }
+  .pg__media { grid-column: 1 / span 5; }
+  .pg__text { grid-column: 7 / span 6; }
+  .pg--flip .pg__media { grid-column: 8 / span 5; grid-row: 1; }
+  .pg--flip .pg__text { grid-column: 1 / span 6; grid-row: 1; }
+  .pg__frame { aspect-ratio: 5 / 7; max-height: min(78vh, 760px); width: 100%; }
+  /* this photo has a flat brown band along its foot; push it out of the frame */
+  #eldsc .pg__frame img { transform: scale(1.16); transform-origin: 50% 0; }
+
+  .pg__code {
+    margin-top: clamp(18px, 2.4vw, 30px); font-size: clamp(3.4rem, 1.6rem + 6.4vw, 8.4rem); font-weight: 250; line-height: 0.82;
+    color: var(--cognac); letter-spacing: -0.06em;
+  }
+  .pg--dark .pg__code { color: var(--gold); }
+  .pg__title { margin-top: clamp(22px, 2.6vw, 34px); max-width: 17ch; }
+  .pg__body { margin-top: 22px; max-width: 56ch; }
+  .pg__points { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 10px; }
+  .pg__points li { position: relative; padding-left: 34px; font-weight: 500; color: var(--ink); }
+  .pg--dark .pg__points li { color: var(--cream); }
+  .pg__points li::before {
+    content: ''; position: absolute; left: 0; top: 0.8em; width: 20px; height: 1.6px;
+    background: linear-gradient(90deg, var(--cognac) 0 7px, transparent 7px 13px, var(--cognac) 13px 20px);
+  }
+  .pg--dark .pg__points li::before { background: linear-gradient(90deg, var(--gold) 0 7px, transparent 7px 13px, var(--gold) 13px 20px); }
+  .pg__cta { margin-top: clamp(30px, 3.4vw, 44px); }
+
+  @media (max-width: 960px) {
+    .pg__media, .pg--flip .pg__media { grid-column: 1 / span 5; grid-row: auto; }
+    .pg__text, .pg--flip .pg__text { grid-column: 6 / -1; grid-row: auto; }
+    .pg__in { align-items: start; }
+  }
+  @media (max-width: 760px) {
+    .toc { grid-template-columns: 1fr; }
+    .pg__media, .pg--flip .pg__media, .pg__text, .pg--flip .pg__text { grid-column: 1 / -1; }
+    .pg__frame { aspect-ratio: 4 / 3; max-height: none; }
+    .pg__code { font-size: clamp(3.2rem, 2rem + 8vw, 5rem); }
+  }
+</style>

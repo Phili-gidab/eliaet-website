@@ -1,0 +1,196 @@
+---
+import Logo from './Logo.astro'
+import { NAV, ORG, CONTACT, SOCIAL } from '../copy/site'
+
+interface Props { path: string; overHero?: boolean }
+const { path, overHero = false } = Astro.props
+const PRIMARY = [
+  { label: 'About', to: '/about' },
+  { label: 'Members', to: '/members', note: String(ORG.members) },
+  { label: 'Programs', to: '/programs' },
+  { label: 'AALF 2026', to: '/aalf' },
+  { label: 'News', to: '/news' },
+  { label: 'Contact', to: '/contact' },
+]
+const isActive = (to: string) => (to === '/' ? path === '/' : path === to || path.startsWith(to + '/'))
+const social = SOCIAL.filter((s) => s.href)
+const pad = (n: number) => String(n).padStart(2, '0')
+---
+
+<header class:list={['hdr', { 'hdr--hero': overHero }]} data-header>
+  <div class="hdr__in">
+    <a href="/" class="hdr__logo" aria-label="ELIA home">
+      <Logo class="hdr__lockup" />
+    </a>
+    <nav class="hdr__nav" aria-label="Main">
+      <ul role="list">
+        {PRIMARY.map((n) => (
+          <li>
+            <a href={n.to} aria-current={isActive(n.to) ? 'page' : undefined}>
+              {n.label}{n.note && <sup>{n.note}</sup>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="hdr__end">
+      <a href="/membership" class="hdr__cta">Become a member</a>
+      <button class="hdr__menu" type="button" aria-haspopup="dialog" aria-controls="menu" data-menu-open>
+        <span class="hdr__menu-txt">Menu</span>
+        <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog class="menu grain" id="menu" aria-label="Site menu" data-menu>
+  <div class="menu__in wrap">
+    <div class="menu__top">
+      <a href="/" class="menu__logo" aria-label="ELIA home"><Logo /></a>
+      <button class="menu__close" type="button" data-menu-close>
+        <span>Close</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" /></svg>
+      </button>
+    </div>
+    <nav class="menu__nav" aria-label="All pages">
+      <ol role="list">
+        <li style="--i:0"><a href="/" aria-current={path === '/' ? 'page' : undefined}><span class="menu__n">00</span><span class="menu__t">Home</span><span class="menu__am geez" lang="am">መነሻ</span></a></li>
+        {NAV.map((n, i) => (
+          <li style={`--i:${i + 1}`}>
+            <a href={n.to} aria-current={isActive(n.to) ? 'page' : undefined}>
+              <span class="menu__n">{pad(i + 1)}</span>
+              <span class="menu__t">{n.label}</span>
+              {n.amharic ? <span class="menu__am geez" lang="am">{n.amharic}</span> : n.note && <span class="menu__am">{n.note}</span>}
+            </a>
+          </li>
+        ))}
+        <li style={`--i:${NAV.length + 1}`}><a href="/membership" aria-current={path === '/membership' ? 'page' : undefined}><span class="menu__n">{pad(NAV.length + 1)}</span><span class="menu__t">Membership</span><span class="menu__am geez" lang="am">አባልነት</span></a></li>
+      </ol>
+    </nav>
+    <div class="menu__foot">
+      <div>
+        <p class="label"><b>Visit</b></p>
+        <p>{CONTACT.address.lines.slice(0, 2).join(', ')}<br />{CONTACT.address.lines[3]}</p>
+      </div>
+      <div>
+        <p class="label"><b>Call</b></p>
+        <p>{CONTACT.phones.slice(0, 2).map((p) => <a href={p.href}>{p.value}</a>)}</p>
+      </div>
+      <div>
+        <p class="label"><b>Write</b></p>
+        <p><a href={`mailto:${CONTACT.emails[0].value}`}>{CONTACT.emails[0].value}</a></p>
+      </div>
+      {social.length > 0 && (
+        <div>
+          <p class="label"><b>Follow</b></p>
+          <p>{social.map((s) => <a href={s.href} rel="noopener" target="_blank">{s.label}</a>)}</p>
+        </div>
+      )}
+    </div>
+  </div>
+</dialog>
+
+<style>
+  /* a floating bar: a glass pill over the page, the links in it lit on hover like tabs */
+  .hdr {
+    position: fixed; inset: 0 0 auto; z-index: 50; height: var(--header-h); padding-top: 14px; pointer-events: none;
+    transition: transform 0.6s var(--ease);
+  }
+  .hdr__in {
+    pointer-events: auto; position: relative; height: 58px; max-width: 1280px; padding: 0 8px 0 20px;
+    display: flex; align-items: center; gap: clamp(12px, 2vw, 28px); border-radius: 999px;
+    width: calc(100% - 2 * var(--gutter)); margin-inline: auto;
+  }
+  .hdr__in::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; transition: background 0.4s, box-shadow 0.4s;
+    background: rgb(20 15 12 / 0.38); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.1), inset 0 1px 0 rgb(255 236 210 / 0.08);
+    backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  }
+  :global(.scrolled) .hdr__in::before { background: rgb(16 12 10 / 0.72); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.12), 0 20px 50px -20px rgb(0 0 0 / 0.8); }
+  :global(.hide-hdr) .hdr { transform: translateY(-120%); }
+  .hdr__logo { display: block; color: var(--cream); flex: none; }
+  .hdr__logo :global(.hdr__lockup) { width: clamp(92px, 8vw, 116px); }
+  .hdr__nav { margin-inline: auto; }
+  .hdr__nav ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+  .hdr__nav a {
+    position: relative; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; letter-spacing: -0.005em; color: rgb(245 236 223 / 0.78);
+    transition: color 0.25s, background 0.25s;
+  }
+  .hdr__nav a:hover { color: var(--cream); background: rgb(255 240 220 / 0.07); }
+  .hdr__nav a[aria-current] { color: var(--cream); background: rgb(255 240 220 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.1); }
+  .hdr__nav sup {
+    font-family: var(--f-mono); font-size: 9.5px; color: var(--amber); letter-spacing: 0.02em; top: 0;
+    padding: 2px 6px; border-radius: 999px; background: rgb(246 183 75 / 0.12);
+  }
+  .hdr__end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .hdr__nav + .hdr__end { margin-left: 0; }
+  .hdr__cta {
+    display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 999px;
+    font-size: 14px; font-weight: 600; color: #1a1007; background: var(--amber);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 8px 24px -10px rgb(246 183 75 / 0.6); transition: background 0.3s, transform 0.4s var(--spring);
+  }
+  .hdr__cta:hover { background: #ffc766; }
+  .hdr__cta:active { transform: scale(0.97); }
+  .hdr__menu {
+    display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 6px 0 14px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; background: rgb(255 240 220 / 0.07); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.12);
+    transition: background 0.3s;
+  }
+  .hdr__menu:hover { background: rgb(255 240 220 / 0.12); }
+  .hdr__burger { width: 30px; height: 30px; border-radius: 50%; display: grid; place-content: center; gap: 4px; background: rgb(255 240 220 / 0.1); }
+  .hdr__burger i { display: block; width: 12px; height: 1.5px; border-radius: 2px; background: currentColor; transition: transform 0.4s var(--ease); }
+  .hdr__menu:hover .hdr__burger i:last-child { transform: translateX(3px); }
+  @media (max-width: 1100px) {
+    .hdr__nav { display: none; }
+    .hdr__end, .hdr__nav + .hdr__end { margin-left: auto; }
+  }
+  @media (max-width: 560px) {
+    .hdr { padding-top: 10px; }
+    .hdr__in { height: 54px; padding-left: 16px; }
+    .hdr__cta { display: none; }
+    .hdr__menu-txt { display: none; }
+    .hdr__menu { padding: 0 6px; }
+  }
+
+  /* ── the menu ── */
+  .menu {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
+    background: var(--ink); color: var(--cream); overflow-y: auto; overscroll-behavior: contain;
+  }
+  .menu::backdrop { background: rgb(0 0 0 / 0.5); }
+  .menu[open] { animation: menu-in 0.7s var(--ease) both; }
+  .menu.closing { animation: menu-out 0.45s var(--ease-in-out) both; }
+  @keyframes menu-in { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes menu-out { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 100% 0); } }
+  .menu__in { min-height: 100%; display: flex; flex-direction: column; padding-block: 18px 40px; }
+  .menu__top { display: flex; align-items: center; justify-content: space-between; height: calc(var(--header-h) - 18px); }
+  .menu__logo { width: 120px; color: var(--cream); }
+  .menu__close {
+    display: inline-flex; align-items: center; gap: 12px; height: 42px; padding: 0 8px 0 16px; border-radius: 999px;
+    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    box-shadow: inset 0 0 0 1px rgb(255 240 220 / 0.25);
+  }
+  .menu__close svg { width: 28px; height: 28px; padding: 6px; border-radius: 50%; background: rgb(255 240 220 / 0.1); }
+  .menu__nav { margin-block: clamp(28px, 6vh, 72px) auto; }
+  .menu__nav ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .menu__nav li { border-bottom: 1px solid var(--line); }
+  .menu[open] .menu__nav li { animation: item-in 0.9s var(--ease) both; animation-delay: calc(0.12s + var(--i) * 0.035s); }
+  @keyframes item-in { from { opacity: 0; transform: translateY(18px); } }
+  .menu__nav a {
+    display: grid; grid-template-columns: 4.2em 1fr auto; align-items: baseline; gap: 12px; padding: clamp(6px, 1.1vh, 12px) 0;
+    transition: color 0.3s, padding 0.5s var(--ease);
+  }
+  .menu__n { font-family: var(--f-mono); font-size: 11px; color: var(--amber); letter-spacing: 0.06em; }
+  .menu__t { font-family: var(--f-display); font-weight: 640; font-stretch: 78%; font-size: clamp(2rem, 5vh + 1rem, 4.4rem); line-height: 1; letter-spacing: -0.035em; }
+  .menu__am { font-size: 14px; color: var(--muted); }
+  .menu__nav a:hover { color: var(--amber); padding-left: 10px; }
+  .menu__nav a[aria-current] .menu__t { font-family: var(--f-serif); font-style: italic; font-weight: 400; font-stretch: normal; letter-spacing: -0.01em; color: var(--amber); }
+  .menu__foot {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; margin-top: 40px;
+    font-size: 14px; color: var(--bone);
+  }
+  .menu__foot p + p { margin-top: 8px; }
+  .menu__foot a { display: block; }
+  .menu__foot a:hover { color: var(--amber); }
+</style>

@@ -1,0 +1,24 @@
+{
+  "name": "elia-website",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Ethiopian Leather Industries Association — website (Astro static pages + Node/Express server)",
+  "workspaces": [
+    "web",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"npm:dev -w server\" \"npm:dev -w web\"",
+    "build": "npm run build -w web && npm run build -w server",
+    "start": "npm run start -w server",
+    "typecheck": "npm run check -w web && npm run typecheck -w server",
+    "shots": "node tools/shots.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "puppeteer-core": "^24.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

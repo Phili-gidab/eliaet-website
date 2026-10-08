@@ -1,0 +1,42 @@
+---
+interface Props {
+  post: { slug: string; kind?: string; category?: string; title: string; excerpt?: string; date?: string | null; image?: string; to?: string; href?: string }
+  index?: number
+}
+const { post, index = 0 } = Astro.props
+const link = post.to ?? post.href ?? '/news'
+const external = !!post.href && !post.to
+const date = post.date ? new Date(post.date + 'T00:00:00Z') : null
+const fmt = date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : null
+---
+
+<article class="nc card" data-reveal style={`--d:${(index % 3) * 0.08}s`}>
+  <a href={link} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined} class="nc__a">
+    <div class="nc__img frame">
+      {post.image && <img src={post.image} alt="" loading="lazy" decoding="async" />}
+      {post.kind === 'event' && <span class="stamp nc__stamp"><i></i>Event</span>}
+    </div>
+    <div class="nc__meta">
+      <span class="label">{post.category}</span>
+      {fmt && <time class="label" datetime={post.date!}>{fmt}</time>}
+    </div>
+    <h3 class="nc__title">{post.title}</h3>
+    {post.excerpt && <p class="nc__ex">{post.excerpt}</p>}
+    <span class="link nc__more">{external ? 'Read on the source' : 'Read more'} <svg viewBox="0 0 24 24" aria-hidden="true"><path d={external ? 'M7 17 17 7M9 7h8v8' : 'M4 12h15m-6-6 6 6-6 6'} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></span>
+  </a>
+</article>
+
+<style>
+  .nc { display: grid; }
+  .nc__a { display: grid; gap: 14px; padding: 8px 8px 22px; align-content: start; height: 100%; }
+  .nc__img { aspect-ratio: 16 / 11; border-radius: calc(var(--radius) - 6px); }
+  .nc__img img { transition: transform 1.2s var(--ease); }
+  .nc__a:hover .nc__img img { transform: scale(1.04); }
+  .nc__stamp { position: absolute; left: 12px; top: 12px; }
+  .nc__meta { display: flex; justify-content: space-between; gap: 12px; padding-inline: 14px; margin-top: 4px; }
+  .nc__title { padding-inline: 14px; font-family: var(--f-display); font-weight: 600; font-stretch: 85%; font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.75rem); line-height: 1.06; letter-spacing: -0.025em; text-wrap: balance; }
+  .nc__ex { padding-inline: 14px; color: var(--muted); font-size: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .sec--paper .nc__ex { color: #5a4638; }
+  .nc__more { justify-self: start; margin-inline: 14px; color: var(--amber); }
+  .sec--paper .nc__more { color: var(--cognac); }
+</style>

@@ -1,0 +1,173 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import SectionHead from '../components/SectionHead.astro'
+import NewsCard from '../components/NewsCard.astro'
+import { loadNews } from '../data/load'
+import { NEWS_INTRO } from '../copy/news'
+
+const posts = loadNews()
+
+/* The next event leads the page; if none is still to come (as of the build), every item stays in the grid. */
+const today = new Date().toISOString().slice(0, 10)
+const upcoming = posts
+  .filter((p) => p.kind === 'event' && p.date && p.date >= today)
+  .sort((a, b) => a.date!.localeCompare(b.date!))[0]
+const rest = posts.filter((p) => p !== upcoming)
+
+const when = upcoming?.date ? new Date(upcoming.date + 'T00:00:00Z') : null
+const fmt = (o: Intl.DateTimeFormatOptions) => (when ? when.toLocaleDateString('en-GB', { ...o, timeZone: 'UTC' }) : '')
+const eventLink = upcoming ? upcoming.to ?? upcoming.href : undefined
+const eventExternal = !!upcoming && !upcoming.to && !!upcoming.href
+
+const pad = (n: number) => String(n).padStart(2, '0')
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const out = 'M7 17 17 7M9 7h8v8'
+---
+
+<Base title="News" description={`${NEWS_INTRO.title} ${NEWS_INTRO.features.map((f) => f.title).join(', ')}.`}>
+  <PageHead
+    index="01"
+    eyebrow={NEWS_INTRO.eyebrow}
+    amharic="ዜና"
+    title={['Blogs and news', 'about the leather', 'association<em>.</em>']}
+    lede="News, events and announcements from the association and the leather industry."
+    image="/media/home/acfta.webp"
+    imageAlt="A young woman at a sewing machine on a factory floor"
+  />
+
+  <!-- 02 · the next event -->
+  {upcoming && (
+    <section class="sec sec--paper ev" aria-labelledby="ev-h">
+      <div class="wrap ev__in">
+        <div class="ev__media">
+          <div class="frame ev__frame" data-reveal="mask">
+            {upcoming.image && <img src={upcoming.image} alt="" width="1080" height="1080" loading="lazy" decoding="async" />}
+          </div>
+          {when && (
+            <p class="ev__date" data-reveal="fade" style="--d:.3s">
+              <time datetime={upcoming.date!}>
+                <span class="ev__day figure-num">{fmt({ day: 'numeric' })}</span>
+                <span class="ev__month">{fmt({ month: 'short' })} {fmt({ year: 'numeric' })}</span>
+                <span class="ev__wd">{fmt({ weekday: 'long' })}</span>
+              </time>
+            </p>
+          )}
+        </div>
+        <div class="ev__text">
+          <p class="label label--rule" data-reveal="fade"><b>02</b> Upcoming event</p>
+          <p class="ev__meta" data-reveal="fade" style="--d:.08s">
+            <span class="stamp"><i></i>{upcoming.category ?? 'Event'}</span>
+          </p>
+          <h2 class="h2 ev__title" id="ev-h" data-reveal>{upcoming.title}</h2>
+          {upcoming.excerpt && <p class="lede ev__ex" data-reveal style="--d:.1s">{upcoming.excerpt}</p>}
+          {eventLink && (
+            <p class="ev__cta" data-reveal style="--d:.16s">
+              <a class="btn btn--dark" href={eventLink} target={eventExternal ? '_blank' : undefined} rel={eventExternal ? 'noopener' : undefined}>
+                Event details
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d={eventExternal ? out : arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                {eventExternal && <span class="sr-only">(opens in a new tab)</span>}
+              </a>
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- the posts -->
+  <section class="sec grain posts" id="posts">
+    <div class="wrap">
+      <SectionHead index={upcoming ? '03' : '02'} eyebrow="Latest" title="From the <em>blog</em>." />
+      <div class="posts__grid">
+        {rest.map((p, i) => <NewsCard post={p} index={i} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- what the blog covers -->
+  <section class="sec sec--paper feat" id="about-the-blog">
+    <div class="wrap">
+      <SectionHead index={upcoming ? '04' : '03'} eyebrow="About the blog" title="What you will find <em>here</em>." intro={NEWS_INTRO.text} />
+      <ol class="feat__list" role="list">
+        {NEWS_INTRO.features.map((f, i) => (
+          <li class="feat__item" data-reveal style={`--d:${(i % 2) * 0.08}s`}>
+            <span class="feat__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
+            <div>
+              <h3 class="feat__title">{f.title}</h3>
+              <p class="feat__text">{f.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* on the wide crop of small screens keep her face in the frame */
+  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 26%; } }
+
+  /* 02 · the next event: the picture with its date stamped beside it */
+  .ev__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: center; }
+  .ev__media { grid-column: 1 / span 6; position: relative; }
+  .ev__frame { aspect-ratio: 1; }
+  .ev__frame img { object-position: 50% 30%; }
+  .ev__date {
+    position: absolute; right: clamp(-28px, -2vw, -12px); bottom: clamp(24px, 4vw, 56px);
+    display: grid; padding: 18px 22px 16px; border-radius: 8px; background: var(--ink); color: var(--cream);
+    box-shadow: 0 30px 60px -30px rgb(30 20 14 / 0.75);
+  }
+  .ev__date::before {
+    content: ''; position: absolute; inset: 6px; border: 1.2px dashed rgb(226 160 37 / 0.5); border-radius: 5px; pointer-events: none;
+  }
+  .ev__date time { display: grid; justify-items: center; gap: 4px; min-width: 6.4rem; }
+  .ev__day { font-size: clamp(3rem, 2rem + 2.6vw, 4.6rem); line-height: 0.9; color: var(--amber); }
+  .ev__month { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .ev__wd { font-size: 12.5px; color: var(--muted); }
+  .ev__text { grid-column: 8 / span 5; }
+  .ev__meta { margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .ev__title { margin-top: 22px; max-width: 15ch; }
+  .ev__ex { margin-top: 24px; max-width: 42ch; }
+  .ev__cta { margin-top: clamp(28px, 3.2vw, 40px); }
+
+  /* the posts */
+  .posts { background: var(--ink); }
+  .posts__grid {
+    margin-top: clamp(44px, 5.4vw, 84px);
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 48px clamp(18px, 2.2vw, 36px);
+  }
+
+  /* what the blog covers: a numbered list in two columns, each entry under a saddle stitch */
+  .feat__list {
+    list-style: none; margin: clamp(48px, 6vw, 90px) 0 0; padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 3vw, 44px) clamp(32px, 5vw, 96px);
+  }
+  .feat__item {
+    display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: 18px; padding-top: 22px;
+    border-top: 1.6px solid transparent; border-image: repeating-linear-gradient(90deg, var(--cognac) 0 7px, transparent 7px 13px) 1;
+  }
+  .feat__n { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem); color: var(--cognac); line-height: 1; }
+  .feat__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; }
+  .feat__text { margin-top: 12px; color: #3d2e24; max-width: 52ch; text-wrap: pretty; }
+
+  @media (max-width: 960px) {
+    .ev__media { grid-column: 1 / span 6; }
+    .ev__text { grid-column: 7 / -1; }
+    .ev__date { right: 12px; }
+  }
+  @media (max-width: 760px) {
+    /* the section's label leads, then the picture, then the rest */
+    .ev__in { row-gap: 0; }
+    .ev__text { display: contents; }
+    .ev__text > *, .ev__media { grid-column: 1 / -1; }
+    .ev__text > .label { order: -1; margin-bottom: 26px; }
+    .ev__media { max-width: 520px; margin-bottom: 30px; }
+    .ev__date { bottom: -22px; right: 16px; padding: 14px 16px 12px; }
+    .ev__meta { margin-top: 8px; }
+    .feat__list { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .feat__item { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 12px; }
+  }
+</style>

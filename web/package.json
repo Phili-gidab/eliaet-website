@@ -1,0 +1,30 @@
+{
+  "name": "@elia/web",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "ELIA website: static pages (Astro), the films from Blender, three.js where it earns its weight",
+  "scripts": {
+    "dev": "astro dev --port 5173",
+    "build": "astro build && node scripts/postbuild.mjs",
+    "preview": "astro preview --port 5173",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@fontsource-variable/baskervville": "^5.3.0",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/martian-mono": "^5.3.0",
+    "@fontsource-variable/noto-sans-ethiopic": "^5.3.0",
+    "@fontsource-variable/noto-serif-ethiopic": "^5.3.0",
+    "@fontsource-variable/schibsted-grotesk": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.0"
+  }
+}

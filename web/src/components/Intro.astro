@@ -1,0 +1,84 @@
+---
+/* The brand film (Blender) as the first thing a visit sees: once per session, skippable, gone with reduced motion. */
+import Film from './Film.astro'
+---
+
+<div class="intro" data-intro role="presentation">
+  <Film
+    class="intro__film"
+    manual
+    loop={false}
+    toggle={false}
+    wide={{ base: '/film/logo', sizes: [1280, 1920] }}
+    tall={{ base: '/film/logo-t', sizes: [720, 1080] }}
+    formats="vp9,h264"
+    poster="/film/logo-end-1280.jpg"
+    posterTall="/film/logo-t-end-720.jpg"
+    label="ELIA, Ethiopian Leather Industries Association"
+  />
+  <button class="intro__skip" type="button" data-intro-skip>Skip intro <span aria-hidden="true">→</span></button>
+</div>
+
+<style>
+  .intro {
+    position: fixed; inset: 0; z-index: 120; background: #fcf0e0; display: grid;
+    transition: opacity 0.9s var(--ease), visibility 0s linear 0.9s;
+  }
+  :global(.no-intro) .intro, :global(.intro-done) .intro { opacity: 0; visibility: hidden; pointer-events: none; }
+  :global(.no-intro) .intro { transition: none; }
+  .intro :global(.intro__film) { position: absolute; inset: 0; background: #fcf0e0; }
+  /* screens narrower than the 9:16 film would crop the lockup's ends: show the whole frame instead, its top and bottom
+     melting into the same cream so no band shows */
+  @media (max-aspect-ratio: 9 / 16) {
+    .intro :global(.intro__film video) {
+      object-fit: contain;
+      -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 88%, transparent);
+      mask-image: linear-gradient(transparent, #000 9%, #000 88%, transparent);
+    }
+  }
+  .intro__skip {
+    position: absolute; right: var(--gutter); bottom: clamp(20px, 4vw, 40px); z-index: 2;
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #6d5a50;
+    padding: 12px 18px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgb(109 90 80 / 0.35); background: rgb(252 240 224 / 0.6);
+    transition: background 0.25s, color 0.25s;
+  }
+  .intro__skip:hover { background: #6d5a50; color: #fcf0e0; }
+</style>
+
+<script>
+  import { mountFilm } from '../scripts/film'
+  const root = document.documentElement
+  const el = document.querySelector<HTMLElement>('[data-intro]')
+  if (el && !root.classList.contains('no-intro')) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      try { sessionStorage.setItem('elia-intro', '1') } catch {}
+      root.classList.add('intro-done')
+      root.classList.remove('intro-on')
+      setTimeout(() => el.remove(), 1100)
+    }
+    root.classList.add('intro-on')
+    el.querySelector('[data-intro-skip]')?.addEventListener('click', finish)
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') finish() }, { once: true })
+    const filmEl = el.querySelector<HTMLElement>('[data-film]')
+    if (reduce || !filmEl) {
+      setTimeout(finish, 1400)
+    } else {
+      // the film runs 12 s: a blank second, Ethiopia drawn and turned into the e (to 6 s), the wordmark (to 8 s), then a hold.
+      // Start past the blank, play a little quick, and hand over to the hero once the lockup has settled.
+      const START = 0.8, END = 8.7, RATE = 1.4
+      const video = mountFilm(filmEl, { onEnded: finish })
+      const rate = () => { video.defaultPlaybackRate = RATE; video.playbackRate = RATE }
+      rate()
+      video.addEventListener('loadedmetadata', () => { rate(); if (video.currentTime < START) video.currentTime = START })
+      video.addEventListener('playing', rate)
+      video.addEventListener('timeupdate', () => { if (video.currentTime > Math.min(END, (video.duration || 99) - 0.4)) finish() })
+      // never trap anyone behind a film that will not load
+      const guard = setTimeout(() => { if (video.readyState < 2) finish() }, 3500)
+      video.addEventListener('playing', () => clearTimeout(guard), { once: true })
+    }
+  }
+</script>

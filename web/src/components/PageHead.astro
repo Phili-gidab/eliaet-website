@@ -1,0 +1,49 @@
+---
+/* The top of every inner page: stamped label, a display title that rises in line by line, a lede, and
+   optionally a picture or a film beside it. */
+interface Props {
+  index?: string
+  eyebrow: string
+  amharic?: string
+  title: string[]
+  lede?: string
+  image?: string
+  imageAlt?: string
+  tone?: 'dark' | 'paper'
+}
+const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', tone = 'dark' } = Astro.props
+---
+
+<section class:list={['ph', tone === 'paper' ? 'sec--paper' : 'lit', { 'ph--img': image }]}>
+  <div class="ph__in wrap">
+    <div class="ph__text">
+      <p class="label label--rule" data-reveal="fade"><b>{index}</b> {eyebrow}{amharic && <span class="geez" lang="am">{amharic}</span>}</p>
+      <h1 class="h1 lines ph__title">
+        {title.map((t, i) => <span class="ln" style={`--i:${i}`}><span set:html={t} /></span>)}
+      </h1>
+      {lede && <p class="lede ph__lede" data-reveal style="--d:.25s">{lede}</p>}
+      <slot />
+    </div>
+    {image && (
+      <div class="ph__media frame" data-reveal="mask" style="--d:.15s">
+        <img src={image} alt={imageAlt} loading="eager" fetchpriority="high" decoding="async" />
+      </div>
+    )}
+  </div>
+  <div class="ph__stitch wrap" aria-hidden="true"><div class="stitch"></div></div>
+</section>
+
+<style>
+  .ph { position: relative; padding-top: calc(var(--header-h) + clamp(56px, 9vw, 140px)); padding-bottom: clamp(40px, 5vw, 72px); background: var(--ink); }
+  .ph.sec--paper { background: var(--paper); }
+  .ph__in { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(32px, 5vw, 88px); align-items: end; }
+  .ph--img .ph__in { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+  .ph__title { margin-top: 26px; max-width: 16ch; }
+  .ph__lede { margin-top: 28px; max-width: 46ch; }
+  .ph__media { aspect-ratio: 4 / 5; max-height: 72vh; box-shadow: inset 0 0 0 1px var(--line), 0 40px 80px -40px rgb(0 0 0 / 0.9); }
+  .ph__stitch { margin-top: clamp(48px, 7vw, 96px); }
+  @media (max-width: 900px) {
+    .ph--img .ph__in { grid-template-columns: 1fr; }
+    .ph__media { aspect-ratio: 16 / 11; }
+  }
+</style>

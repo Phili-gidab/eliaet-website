@@ -1,0 +1,366 @@
+---
+import Base from '../layouts/Base.astro'
+import Intro from '../components/Intro.astro'
+import Story from '../components/Story.astro'
+import SectionHead from '../components/SectionHead.astro'
+import NewsCard from '../components/NewsCard.astro'
+import Appointment from '../components/Appointment.astro'
+import { HERO, HIGHLIGHTS, PILLARS, ABOUT, PROCESS, WHY } from '../copy/home'
+import { AALF_2026 } from '../copy/aalf'
+import { PARTNERS, BRANDS } from '../copy/impact'
+import { SECTORS, SECTOR_TOTALS, type SectorKey } from '../copy/members'
+import { ORG } from '../copy/site'
+import { loadNews } from '../data/load'
+
+const news = loadNews()
+  .slice()
+  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+  .slice(0, 3)
+const sectorKeys = Object.keys(SECTORS) as SectorKey[]
+const logos = [...BRANDS, ...PARTNERS].filter((p) => p.logo)
+const swatch: Record<string, string> = { raw: 'raw', wetblue: 'wetblue', crust: 'crust', finished: 'finished' }
+const pad = (n: number) => String(n).padStart(2, '0')
+const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 November 2026'
+---
+
+<Base overHero bodyClass="home" description={HERO.lede}>
+  <Intro />
+
+  <!-- 01 · the film, its copy in step -->
+  <Story />
+
+  <!-- 02 · who we are -->
+  <section class="sec sheet lit about">
+    <div class="wrap">
+      <div class="about__grid">
+        <div class="about__head">
+          <p class="label" data-reveal="fade"><b>02</b> {ABOUT.eyebrow}</p>
+          <h2 class="h1 about__title mt-m words" data-reveal="fade">
+            <span class="w" style="--i:0">Ethiopian</span>
+            <span class="w inlay" style="--i:1;background-image:url(/media/home/leather1.webp)" aria-hidden="true"></span>
+            <span class="w" style="--i:2"><em>Leather</em></span>
+            <span class="w" style="--i:3">Industries</span>
+            <span class="w inlay" style="--i:4;background-image:url(/media/carousel-0.webp)" aria-hidden="true"></span>
+            <span class="w" style="--i:5">Association</span>
+          </h2>
+        </div>
+        <div class="about__side">
+          <div class="about__count card" data-reveal>
+            <span class="figure-num about__num"><span data-count={ABOUT.count.value}>0</span></span>
+            <span class="about__countlbl">{ABOUT.count.label.map((l) => <span>{l}</span>)}</span>
+            <span class="pill about__since"><i></i>Since {ORG.founded}</span>
+          </div>
+          <div class="body about__body" data-reveal style="--d:.1s">{ABOUT.body.map((p) => <p>{p}</p>)}</div>
+        </div>
+      </div>
+      <ol class="pillars" role="list">
+        {PILLARS.map((p, i) => (
+          <li class="pillar card" data-reveal style={`--d:${i * 0.08}s`}>
+            <span class="label"><b>{pad(i + 1)}</b> {p.label}</span>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ol>
+      <ul class="sectors" role="list">
+        {sectorKeys.map((k, i) => (
+          <li data-reveal style={`--d:${i * 0.08}s`}>
+            <a class="sector card" href={`/members?sector=${k}`}>
+              <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true">→</span></span>
+              <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>0</span>
+              <span class="sector__name">{SECTORS[k].plural} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 · how leather is made: stills from the film, a strip to scroll through -->
+  <section class="sec sec--hide process">
+    <div class="wrap">
+      <SectionHead index="03" eyebrow="From hide to leather" amharic="ከጥሬ ቆዳ እስከ ያለቀ ቆዳ" title="Four stages, <em>one</em> material." intro="How a by-product of Ethiopia’s food culture becomes a material that the world’s shoe, bag and garment makers buy." />
+    </div>
+    <div class="strip" data-strip>
+      <ol class="strip__track" role="list">
+        {PROCESS.map((s, i) => (
+          <li class="stage card" data-reveal style={`--d:${i * 0.08}s`}>
+            <div class:list={['stage__pic', `sw--${swatch[s.key]}`]}>
+              <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+              <span class="stage__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
+              <span class="geez stage__am" lang="am">{s.amharic}</span>
+            </div>
+            <div class="stage__text">
+              <span class="label">{s.name}</span>
+              <h3 class="h3">{s.title}</h3>
+              <p>{s.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="strip__nav wrap" aria-hidden="true">
+        <span class="strip__bar"><i></i></span>
+        <button type="button" class="strip__btn" data-strip-prev tabindex="-1">←</button>
+        <button type="button" class="strip__btn" data-strip-next tabindex="-1">→</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · what we do: a bento of the programmes -->
+  <section class="sec sheet lit highlights" style="--lit-x:20%">
+    <div class="wrap">
+      <SectionHead index="04" eyebrow="What we do" amharic="የምንሰራው" title="Programmes that open <em>markets</em>." />
+      <div class="bento">
+        {HIGHLIGHTS.map((h, i) => (
+          <a class:list={['bento__item', 'card', `bento__item--${i}`]} href={h.to} data-reveal style={`--d:${(i % 2) * 0.1}s`}>
+            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" /></div>
+            <div class="bento__text">
+              <span class="label"><b>{pad(i + 1)}</b></span>
+              <h3 class="h3">{h.title}</h3>
+              <p>{h.text}</p>
+            </div>
+            <span class="bento__go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · why Ethiopian leather -->
+  <section class="sec sec--paper sheet why">
+    <div class="wrap why__in">
+      <div class="why__text">
+        <p class="label label--rule" data-reveal="fade"><b>05</b> {WHY.eyebrow}</p>
+        <h2 class="h2 mt-m" data-reveal set:html={WHY.title.replace('Ethiopian leather', '<em>Ethiopian leather</em>')} />
+        <p class="body mt-m" data-reveal style="--d:.1s">{WHY.intro}</p>
+        <ol class="why__points" role="list">
+          {WHY.points.map((p, i) => (
+            <li data-reveal style={`--d:${i * 0.08}s`}>
+              <span class="figure-num why__fig">{p.figure.value}</span>
+              <span class="label why__figlbl">{p.figure.label}</span>
+              <h3 class="why__h">{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div class="why__imgs">
+        {WHY.images.map((src, i) => (
+          <div class:list={['frame', 'why__img', `why__img--${i}`]} data-reveal="mask" style={`--d:${i * 0.15}s`}>
+            <img src={src} alt="" loading="lazy" decoding="async" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · the fair -->
+  <section class="sec sec--saddle sheet aalf-band">
+    <div class="wrap aalf-band__in">
+      <div>
+        <p class="label label--rule" data-reveal="fade"><b>06</b> {AALF_2026.edition} · All African Leather Fair {fairYear}</p>
+        <h2 class="h1 mt-m aalf-band__title" data-reveal>{fairDays} <em>{fairMonth}</em></h2>
+        <p class="lede mt-m" data-reveal style="--d:.1s">{AALF_2026.venue}, {AALF_2026.city}. {AALF_2026.cobrand}.</p>
+        <div class="row mt-l" data-reveal style="--d:.18s">
+          <a class="btn" href={AALF_2026.register} target="_blank" rel="noopener">Register <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+          <a class="btn btn--ghost" href="/aalf">About the fair</a>
+        </div>
+      </div>
+      <div class="aalf-band__count card" data-countdown={AALF_2026.start} data-reveal style="--d:.12s" hidden>
+        <span class="label">Opens in</span>
+        <div class="aalf-band__units">
+          <span><b class="figure-num" data-unit="d">–</b><i>days</i></span>
+          <span><b class="figure-num" data-unit="h">–</b><i>hours</i></span>
+          <span><b class="figure-num" data-unit="m">–</b><i>min</i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · news -->
+  <section class="sec sheet lit news">
+    <div class="wrap">
+      <SectionHead index="07" eyebrow="News · Events" amharic="ዜና" title="From the <em>sector</em>." />
+      <div class="news__grid">
+        {news.map((p, i) => <NewsCard post={p} index={i} />)}
+      </div>
+      <a class="link mt-l news__all" href="/news">All news <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+    </div>
+  </section>
+
+  <!-- 08 · appointment -->
+  <Appointment index="08" />
+
+  <!-- 09 · partners: a row that keeps moving -->
+  <section class="sec sec--tight partners">
+    <div class="wrap partners__head">
+      <p class="label" data-reveal="fade"><b>09</b> Partners and brands</p>
+    </div>
+    <div class="marquee partners__row" style="--dur:60s;--gap:12px">
+      {[0, 1].map((k) => (
+        <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
+          {logos.map((p) => (
+            <li class="logo-tile" title={p.name}><img src={p.logo} alt={k === 0 ? p.name : ''} loading="lazy" decoding="async" /></li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* who we are */
+  .about__grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
+  .about__title { max-width: 12ch; }
+  .about__title :global(.inlay) { width: 1.5em; height: 0.78em; }
+  .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 10px 18px; padding: clamp(22px, 2.6vw, 32px); }
+  .about__num { grid-row: span 2; font-size: clamp(5rem, 2rem + 9vw, 10.5rem); color: var(--amber); text-shadow: 0 0 60px rgb(246 183 75 / 0.25); }
+  .about__countlbl { display: grid; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); align-self: end; }
+  .about__since { justify-self: start; align-self: start; }
+  .about__body { margin-top: clamp(28px, 3vw, 40px); }
+  .pillars { list-style: none; margin: clamp(56px, 7vw, 104px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .pillar { padding: clamp(22px, 2.4vw, 30px); display: grid; gap: 18px; align-content: start; }
+  .pillar p { color: var(--bone); font-size: 15.5px; }
+  .sectors { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .sector { display: grid; gap: 10px; padding: 22px 24px 24px; min-height: 100%; }
+  .sector__top { display: flex; justify-content: space-between; align-items: center; }
+  .sector__num { font-size: clamp(3.2rem, 2rem + 3.4vw, 5.2rem); color: var(--cream); margin-top: 18px; }
+  .sector__name { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; font-size: 1.5rem; line-height: 1.05; letter-spacing: -0.02em; }
+  .sector__name .geez { font-size: 0.8rem; color: var(--muted); margin-left: 6px; white-space: nowrap; font-weight: 400; }
+  .sector__go { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--amber); background: rgb(246 183 75 / 0.1); transition: transform 0.4s var(--spring), background 0.3s; }
+  .sector:hover .sector__go { transform: rotate(-45deg); background: rgb(246 183 75 / 0.2); }
+  @media (max-width: 900px) {
+    .about__grid, .pillars, .sectors { grid-template-columns: 1fr; }
+  }
+
+  /* how leather is made: a strip of stills from the film */
+  .process { overflow: hidden; }
+  .strip { margin-top: clamp(40px, 5vw, 72px); }
+  .strip__track {
+    list-style: none; margin: 0; padding: 4px max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter))) 24px;
+    display: grid; grid-auto-flow: column; grid-auto-columns: clamp(270px, 30vw, 420px); gap: 14px;
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)));
+    scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  .strip__track::-webkit-scrollbar { display: none; }
+  .stage { scroll-snap-align: start; display: grid; grid-template-rows: auto 1fr; }
+  .stage__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; margin: 8px 8px 0; border-radius: calc(var(--radius) - 6px); }
+  .stage__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.6s var(--ease); }
+  .stage:hover .stage__pic img { transform: scale(1.05); }
+  .stage__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(12 9 7 / 0.7), transparent 45%); }
+  .stage__n { position: absolute; z-index: 1; left: 18px; bottom: 12px; font-size: 4.2rem; color: rgb(245 236 223 / 0.92); }
+  .stage__am { position: absolute; z-index: 1; right: 18px; bottom: 20px; font-size: 1.1rem; color: rgb(245 236 223 / 0.8); }
+  .stage__text { padding: 20px 22px 26px; display: grid; gap: 12px; align-content: start; }
+  .stage .h3 { font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.9rem); }
+  .stage p { color: var(--bone); font-size: 15px; }
+  .sw--raw { background: linear-gradient(150deg, #d9b8a0, #b08772 55%, #8d6754); }
+  .sw--wetblue { background: linear-gradient(150deg, #a9c1c6, #7f9ea6 55%, #5f7f88); }
+  .sw--crust { background: linear-gradient(150deg, #d2a06a, #b07a44 55%, #8b5a2f); }
+  .sw--finished { background: linear-gradient(150deg, #8a4a24, #5e2f17 55%, #3a1c0e); }
+  .strip__nav { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .strip__bar { flex: 1; height: 2px; border-radius: 2px; background: var(--line-2); position: relative; overflow: hidden; }
+  .strip__bar i { position: absolute; inset: 0; background: var(--amber); transform-origin: left; transform: scaleX(var(--sp, 0.25)); transition: transform 0.3s; }
+  .strip__btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 240 220 / 0.06); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s; }
+  .strip__btn:hover { background: rgb(255 240 220 / 0.12); }
+
+  /* what we do: a bento */
+  .bento { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+  .bento__item { display: grid; grid-template-rows: 1fr auto; min-height: 340px; }
+  .bento__item--0 { grid-column: span 7; grid-row: span 2; min-height: 620px; }
+  .bento__item--1 { grid-column: span 5; }
+  .bento__item--2 { grid-column: span 5; }
+  .bento__item--3 { grid-column: span 12; grid-template-columns: 1.2fr 1fr; grid-template-rows: auto; min-height: 300px; }
+  .bento__img { position: relative; overflow: hidden; margin: 8px 8px 0; border-radius: calc(var(--radius) - 6px); min-height: 160px; }
+  .bento__item--3 .bento__img { margin: 8px; }
+  .bento__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
+  .bento__item:hover .bento__img img { transform: scale(1.04); }
+  .bento__text { padding: 20px 24px 26px; display: grid; gap: 12px; align-content: end; }
+  .bento__text p { color: var(--bone); max-width: 52ch; font-size: 15.5px; }
+  .bento__go { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
+    background: rgb(20 15 12 / 0.5); box-shadow: inset 0 0 0 1px var(--line-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.45s var(--spring), background 0.3s, color 0.3s; }
+  .bento__go svg { width: 18px; height: 18px; }
+  .bento__item:hover .bento__go { transform: scale(1.08); background: var(--amber); color: var(--ink); }
+  @media (max-width: 960px) {
+    .bento__item--0, .bento__item--1, .bento__item--2 { grid-column: span 12; min-height: 420px; grid-row: auto; }
+    .bento__item--3 { grid-template-columns: 1fr; grid-template-rows: 1fr auto; min-height: 420px; }
+  }
+
+  /* why */
+  .why__in { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(36px, 6vw, 110px); align-items: start; }
+  .why__text .h2 { max-width: 15ch; }
+  .why__points { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; display: grid; gap: 12px; }
+  .why__points li { display: grid; grid-template-columns: minmax(96px, 0.3fr) 1fr; gap: 4px 24px; padding: 22px 24px; border-radius: var(--radius); background: rgb(255 255 255 / 0.45); box-shadow: inset 0 0 0 1px var(--line-dark); }
+  .why__fig { grid-row: span 3; font-size: clamp(2.6rem, 1.8rem + 2.4vw, 4rem); color: var(--cognac); }
+  .why__figlbl { margin-top: -2px; }
+  .why__h { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.5rem; line-height: 1.1; }
+  .why__points p { color: #4a382c; font-size: 15.5px; }
+  .why__imgs { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .why__img { aspect-ratio: 3 / 4; }
+  .why__img--0 { grid-column: 1 / 6; }
+  .why__img--1 { grid-column: 2 / 7; margin-top: -30%; box-shadow: 0 0 0 10px var(--paper); }
+  @media (max-width: 960px) { .why__in { grid-template-columns: 1fr; } .why__imgs { max-width: 560px; } }
+  @media (max-width: 480px) { .why__points li { grid-template-columns: 1fr; } .why__fig { grid-row: auto; } }
+
+  /* the fair */
+  .aalf-band__in { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
+  .aalf-band__title { font-size: clamp(3.4rem, 1.6rem + 7vw, 8.4rem); }
+  .aalf-band__title em { display: block; }
+  .aalf-band__count { padding: clamp(24px, 3vw, 36px); background: rgb(12 9 7 / 0.45); }
+  .aalf-band__units { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .aalf-band__units span { display: grid; gap: 6px; }
+  .aalf-band__units b { font-size: clamp(2.8rem, 1.8rem + 3vw, 4.4rem); color: var(--amber); }
+  .aalf-band__units i { font-style: normal; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  @media (max-width: 860px) { .aalf-band__in { grid-template-columns: 1fr; } }
+
+  /* news */
+  .news__grid { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .news__all { color: var(--amber); }
+  @media (max-width: 960px) { .news__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .news__grid { grid-template-columns: 1fr; } }
+
+  /* partners */
+  .partners { background: var(--ink); border-top: 1px solid var(--line); }
+  .partners__row { margin-top: 28px; }
+  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: #f3eadc; padding: 16px 22px; }
+  .logo-tile img { max-height: 60px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.05); opacity: 0.8; transition: filter 0.3s, opacity 0.3s; }
+  .logo-tile:hover img { filter: none; opacity: 1; }
+  @media (max-width: 560px) { .logo-tile { width: 140px; padding: 12px 14px; } .logo-tile img { max-height: 44px; } }
+</style>
+
+<script>
+  // the film strip: the bar shows where in it you are; the arrows step one card
+  document.querySelectorAll<HTMLElement>('[data-strip]').forEach((strip) => {
+    const track = strip.querySelector<HTMLElement>('.strip__track')!
+    const bar = strip.querySelector<HTMLElement>('.strip__bar')
+    const step = (d: number) => {
+      const card = track.querySelector<HTMLElement>('li')
+      track.scrollBy({ left: d * ((card?.offsetWidth ?? 300) + 14), behavior: 'smooth' })
+    }
+    strip.querySelector('[data-strip-prev]')?.addEventListener('click', () => step(-1))
+    strip.querySelector('[data-strip-next]')?.addEventListener('click', () => step(1))
+    const upd = () => {
+      const max = track.scrollWidth - track.clientWidth
+      const vis = track.clientWidth / track.scrollWidth
+      const p = max > 0 ? track.scrollLeft / max : 1
+      bar?.style.setProperty('--sp', String(Math.min(1, vis + (1 - vis) * p)))
+    }
+    track.addEventListener('scroll', upd, { passive: true })
+    addEventListener('resize', upd)
+    upd()
+  })
+
+  // the fair's countdown: days, hours, minutes; hidden without JavaScript and once the fair has opened
+  const box = document.querySelector<HTMLElement>('[data-countdown]')
+  if (box) {
+    const start = Date.parse(box.dataset.countdown!)
+    const tick = () => {
+      const ms = start - Date.now()
+      if (!(ms > 0)) { box.hidden = true; return false }
+      box.hidden = false
+      const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4)
+      const set = (k: string, v: number) => { const el = box.querySelector(`[data-unit="${k}"]`); if (el) el.textContent = String(v).padStart(2, '0') }
+      set('d', d); set('h', h); set('m', m)
+      return true
+    }
+    if (tick()) setInterval(tick, 30000)
+  }
+</script>

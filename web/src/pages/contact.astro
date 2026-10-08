@@ -1,0 +1,202 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import { ORG, CONTACT } from '../copy/site'
+
+const [general] = CONTACT.emails
+const coord = `${CONTACT.map.lat.toFixed(4)}° N · ${CONTACT.map.lng.toFixed(4)}° E`
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const out = 'M7 17 17 7M9 7h8v8'
+---
+
+<Base
+  title="Contact"
+  description={`Contact the ${ORG.name}: ${CONTACT.address.full}. Tel ${CONTACT.phones[0].value}, e-mail ${general.value}.`}
+>
+  <PageHead
+    index="01"
+    eyebrow="Contact"
+    amharic="አድራሻ"
+    title={['Visit, call', 'or <em>write</em>.']}
+    lede="Call or write to the association, or visit the office at Meskel Square in Addis Ababa."
+  >
+    <address class="ledger" data-reveal style="--d:.35s">
+      <div class="ledger__col">
+        <p class="label"><b>Visit</b></p>
+        <p class="ledger__addr">{CONTACT.address.lines.map((l) => <span>{l}</span>)}</p>
+        <p class="ledger__po">P.O. Box {CONTACT.poBox}</p>
+        <a class="link ledger__map" href={CONTACT.map.link} target="_blank" rel="noopener">
+          Open in Maps <svg viewBox="0 0 24 24" aria-hidden="true"><path d={out} fill="none" stroke="currentColor" stroke-width="1.6" /></svg><span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+      <div class="ledger__col">
+        <p class="label"><b>Call</b></p>
+        <dl class="ledger__dl">
+          {CONTACT.phones.map((p) => (
+            <div><dt>{p.label}</dt><dd><a href={p.href}>{p.value}</a></dd></div>
+          ))}
+          <div><dt>Fax</dt><dd>{CONTACT.fax}</dd></div>
+        </dl>
+      </div>
+      <div class="ledger__col">
+        <p class="label"><b>Write</b></p>
+        <dl class="ledger__dl ledger__dl--mail">
+          {CONTACT.emails.map((e) => (
+            <div><dt>{e.label}</dt><dd><a href={`mailto:${e.value}`}>{e.value}</a></dd></div>
+          ))}
+        </dl>
+      </div>
+    </address>
+  </PageHead>
+
+  <!-- 02 · the map -->
+  <section class="sec sec--hide map" aria-labelledby="map-h">
+    <div class="wrap map__in">
+      <div class="map__text">
+        <p class="label label--rule" data-reveal="fade"><b>02</b> Find us</p>
+        <h2 class="h2 map__title" id="map-h" data-reveal>At Meskel <em>Square</em>.</h2>
+        <p class="body map__addr" data-reveal style="--d:.08s">{CONTACT.address.full}</p>
+        <p class="map__cta" data-reveal style="--d:.14s">
+          <a class="btn btn--ghost" href={CONTACT.map.link} target="_blank" rel="noopener">
+            Open in Maps <svg viewBox="0 0 24 24" aria-hidden="true"><path d={out} fill="none" stroke="currentColor" stroke-width="1.6" /></svg><span class="sr-only"> (opens in a new tab)</span>
+          </a>
+        </p>
+      </div>
+      <div class="map__frame frame" data-reveal="fade" style="--d:.1s">
+        <!-- shown until the map has loaded, or if it cannot -->
+        <div class="map__under" aria-hidden="true">
+          <span class="map__pin"><i></i></span>
+          <span class="map__coord">{coord}</span>
+        </div>
+        <iframe
+          src={CONTACT.map.embed}
+          title={`Map: the ${ORG.short} office, ${CONTACT.address.lines[0]}, ${CONTACT.address.lines[1]}, Addis Ababa`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · the form -->
+  <section class="sec sec--paper write" id="message" aria-labelledby="write-h">
+    <div class="wrap write__in">
+      <div class="write__text">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> Message</p>
+        <h2 class="h2 write__title" id="write-h" data-reveal>Send a <em>message</em>.</h2>
+        <p class="body write__body" data-reveal style="--d:.08s">
+          Write to the association here, or <span class="nowrap">e-mail</span> <a class="write__a" href={`mailto:${general.value}`}>{general.value}</a>.
+        </p>
+        <ul class="write__more" role="list" data-reveal style="--d:.12s">
+          <li>
+            <span>Applying to join?</span>
+            <a class="link" href="/membership">Membership application <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+          </li>
+          <li>
+            <span>Discussing a project?</span>
+            <a class="link" href="/services#appointment">Request an appointment <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+          </li>
+        </ul>
+      </div>
+      <form class="form write__form seam" action="/api/contact" method="post" data-form="contact"
+        data-ok="Thank you. Your message has been sent to the association." novalidate>
+        <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+        <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="200" spellcheck="false" /></label>
+        <label class="field full"><span>Subject</span><input name="subject" required maxlength="200" /></label>
+        <label class="field full"><span>Message</span><textarea name="message" required maxlength="5000" rows="7"></textarea></label>
+        <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="form__end full">
+          <button class="btn btn--dark" type="submit">Send the message <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+          <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* 01 · the ledger under the title: visit, call, write */
+  .ledger {
+    margin-top: clamp(40px, 5vw, 72px); font-style: normal;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1120px;
+    border-top: 1px solid var(--line);
+  }
+  .ledger__col { display: grid; align-content: start; gap: 14px; padding: 26px clamp(18px, 2.4vw, 40px) 4px; }
+  .ledger__col:first-child { padding-left: 0; }
+  .ledger__col + .ledger__col { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
+  .ledger__addr { display: grid; font-size: var(--step-0); line-height: 1.5; color: var(--cream); }
+  .ledger__po { font-size: 15px; color: var(--muted); }
+  .ledger__map { justify-self: start; margin-top: 4px; }
+  .ledger__dl { margin: 0; display: grid; gap: 10px; }
+  .ledger__dl div { display: grid; gap: 2px; }
+  .ledger__dl dt { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .ledger__dl dd { margin: 0; font-size: var(--step-0); color: var(--cream); overflow-wrap: anywhere; }
+  .ledger__dl a {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s;
+  }
+  .ledger__dl a:hover { background-size: 100% 1px; color: var(--amber); }
+
+  /* 02 · the map */
+  .map__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: end; }
+  .map__text { grid-column: 1 / span 4; }
+  .map__title { margin-top: 22px; max-width: 12ch; }
+  .map__addr { margin-top: 24px; max-width: 34ch; }
+  .map__cta { margin-top: 30px; }
+  .map__frame { grid-column: 6 / -1; aspect-ratio: 16 / 11; box-shadow: 0 0 0 1px var(--line), 0 40px 80px -50px rgb(0 0 0 / 0.9); }
+  .map__frame iframe { position: relative; z-index: 1; display: block; width: 100%; height: 100%; border: 0; filter: sepia(0.18) saturate(0.88); }
+  /* under the map: a graticule, the pin and the coordinates */
+  .map__under {
+    position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 18px;
+    background:
+      radial-gradient(circle at 50% 46%, rgb(226 160 37 / 0.1), transparent 55%),
+      repeating-linear-gradient(0deg, rgb(255 236 210 / 0.05) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(90deg, rgb(255 236 210 / 0.05) 0 1px, transparent 1px 56px),
+      var(--hide);
+  }
+  .map__pin { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; border: 1.4px dashed rgb(226 160 37 / 0.6); }
+  .map__pin i { width: 12px; height: 12px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); }
+  .map__coord { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  /* 03 · the form */
+  .write__in { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 110px); align-items: start; }
+  .write__title { margin-top: 22px; max-width: 12ch; }
+  .write__body { margin-top: 26px; max-width: 40ch; }
+  .write__a { font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: rgb(168 100 44 / 0.5); text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .write__a:hover { color: var(--cognac); text-decoration-color: currentColor; }
+  .write__more { list-style: none; margin: clamp(30px, 3.4vw, 44px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); max-width: 440px; }
+  .write__more li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; padding: 16px 0; border-bottom: 1px solid var(--line-dark); }
+  .write__more span { color: #5a4638; font-size: 15px; }
+  .write__more .link { color: var(--ink); }
+  .write__form {
+    padding: clamp(26px, 3.4vw, 48px); background: rgb(255 255 255 / 0.42); border-radius: 10px;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 60px -40px rgb(60 40 25 / 0.45);
+  }
+  /* readable on paper: the status line, server errors and the invalid state */
+  .write__form .form__msg { color: #5a4638; }
+  .write__form:not(.sending) .form__msg[data-ok='0'] { color: #a33d27; }
+  .write__form .form__msg[data-ok='1'] { color: #8a5326; }
+  .write__form :global(.err) { color: #a33d27; }
+  .write__form :global([aria-invalid='true']),
+  .write__form :global([aria-invalid='true']:focus) { box-shadow: inset 0 0 0 1.5px #b4432c, 0 0 0 4px rgb(180 67 44 / 0.12); }
+
+  @media (max-width: 1000px) {
+    .map__text { grid-column: 1 / span 5; }
+    .map__frame { grid-column: 6 / -1; }
+  }
+  @media (max-width: 960px) {
+    .write__in { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px) {
+    .ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ledger__col:nth-child(3) { grid-column: 1 / -1; padding-left: 0; border-left: 0; border-top: 1.4px dashed rgb(226 160 37 / 0.4); margin-top: 22px; }
+    .map__text, .map__frame { grid-column: 1 / -1; }
+    .map__frame { aspect-ratio: 4 / 3; }
+  }
+  @media (max-width: 560px) {
+    .ledger { grid-template-columns: 1fr; }
+    .ledger__col, .ledger__col:first-child { padding: 22px 0 4px; }
+    .ledger__col + .ledger__col { border-left: 0; border-top: 1.4px dashed rgb(226 160 37 / 0.4); margin-top: 22px; }
+    .ledger__col:nth-child(3) { grid-column: auto; }
+    .map__frame { aspect-ratio: 1; }
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import SectionHead from '../components/SectionHead.astro'
+import { ELDSC, ELDSC_SUSTAINABILITY, ELDSC_IMAGES } from '../copy/eldsc'
+import { ELDSC_STAFF } from '../copy/about'
+
+/* Phone lines read like "Mob. +251 09 12 50 30 85". The text stays as written; it becomes a tel: link only when it
+   resolves to a clean Ethiopian number (+251, the trunk 0 dropped, then nine digits). */
+const phone = (line: string) => {
+  const m = line.match(/^(Tel\.|Mob\.|WhatsApp)\s+(.+)$/)
+  const key = m ? m[1] : ''
+  const value = m ? m[2] : line
+  const digits = value.replace(/\D/g, '')
+  const local = value.trim().startsWith('+251') ? digits.slice(3).replace(/^0/, '') : ''
+  return { key, value, href: local.length === 9 ? `tel:+251${local}` : undefined }
+}
+
+/* Points written "Term: explanation" set the term in bold; the two programs with their own pages link there. */
+const LINKS: Record<string, string> = {
+  'Ethiopian Highland Leather Project': '/ehl',
+  'African Continental Free Trade Area (AfCFTA)': '/programs#afcfta',
+}
+const split = (s: string) => {
+  const i = s.indexOf(': ')
+  return i > 0 ? { term: s.slice(0, i), rest: s.slice(i + 2) } : { term: '', rest: s }
+}
+const domain = ELDSC.link.replace(/^https?:\/\//, '').replace(/\/$/, '')
+---
+
+<Base title="Ethiopian Leather Development S.C." description={ELDSC.lead}>
+  <PageHead
+    index="01"
+    eyebrow="ELDSC"
+    title={['Ethiopian Leather', 'Development', 'Share Company<em>.</em>']}
+    lede={ELDSC.lead}
+    image={ELDSC_IMAGES.hero}
+    imageAlt="A craftsman marking out a tan hide with an awl, dividers and a hammer beside it"
+  />
+
+  <!-- 02 · the company: purpose, projects, partners, goals -->
+  <section class="sec sec--paper co" aria-labelledby="co-h">
+    <div class="wrap co__in">
+      <div class="co__side">
+        <h2 class="label label--rule" id="co-h" data-reveal="fade"><b>02</b> {ELDSC.eyebrow}</h2>
+        <div class="frame duo co__frame" data-reveal="fade">
+          <img src={ELDSC_IMAGES.craft} alt="Leather, suede and sheepskin swatches with a thickness gauge and a leather shoe" width="900" height="1200" loading="lazy" decoding="async" />
+        </div>
+      </div>
+      <div class="co__main">
+        {ELDSC.sections.map((s, i) => (
+          <article class="co__block" data-reveal style={`--d:${(i % 2) * 0.08}s`}>
+            <h3 class="co__title">{s.title}</h3>
+            <ul class="co__points" role="list">
+              {s.points.map((pt) => {
+                const { term, rest } = split(pt)
+                return (
+                  <li>
+                    {term ? (
+                      <>
+                        {LINKS[term] ? <a class="co__term" href={LINKS[term]}>{term}</a> : <strong class="co__term">{term}</strong>}: {rest}
+                      </>
+                    ) : pt}
+                  </li>
+                )
+              })}
+            </ul>
+          </article>
+        ))}
+        <p class="co__cta" data-reveal>
+          <a class="btn btn--dark" href={ELDSC.link} target="_blank" rel="noopener">
+            {domain}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · sustainability -->
+  <section class="sec grain sus" id="sustainability">
+    <div class="wrap">
+      <SectionHead
+        index="03"
+        eyebrow={ELDSC_SUSTAINABILITY.eyebrow}
+        title={`${ELDSC_SUSTAINABILITY.title.replace(/\.$/, '')}<em>.</em>`}
+        intro={ELDSC_SUSTAINABILITY.intro}
+      />
+      <div class="stitch sus__stitch" aria-hidden="true"></div>
+      <ul class="sus__list" role="list">
+        {ELDSC_SUSTAINABILITY.points.map((p) => (
+          <li class="sus__row" data-reveal>
+            <h3 class="sus__title">{p.title}</h3>
+            {p.items.map((it, j) => <p class="sus__item" style={`--d:${j * 0.06}s`}>{it}</p>)}
+          </li>
+        ))}
+      </ul>
+      <div class="sus__close">
+        <p class="sus__summary" data-reveal>{ELDSC_SUSTAINABILITY.summary}</p>
+        <div class="frame sus__frame" data-reveal="fade" style="--d:.1s">
+          <img src={ELDSC_IMAGES.leather} alt="Close-up of black and brown grained leather" width="1009" height="1394" loading="lazy" decoding="async" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · staff -->
+  <section class="sec sec--paper staff" id="staff">
+    <div class="wrap">
+      <SectionHead index="04" eyebrow="Staff" title="ELDSC staff<em>.</em>" />
+      <div class="staff__grid">
+        {ELDSC_STAFF.map((p, i) => {
+          const emails = p.email ?? []
+          const phones = (p.phone ?? []).map(phone)
+          return (
+            <article class:list={['sc seam', { 'sc--lead': i === 0 }]} data-reveal style={`--d:${i * 0.06}s`}>
+              <p class="label sc__role">{p.role}</p>
+              <h3 class="sc__name">{p.name}</h3>
+              <ul class="sc__lines" role="list">
+                {emails.map((e, j) => (
+                  <li><span class="sc__k">{j === 0 ? 'E-mail' : ''}</span><a class="sc__a" href={`mailto:${e}`}>{e}</a></li>
+                ))}
+                {phones.map((ph, j) => (
+                  <li class:list={[{ sc__sep: j === 0 && emails.length > 0 }]}>
+                    <span class="sc__k">{ph.key}</span>
+                    {ph.href ? <a class="sc__a" href={ph.href}>{ph.value}</a> : <span>{ph.value}</span>}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 42%; } }
+
+  /* 02 · the company */
+  .co__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 48px clamp(32px, 5vw, 96px); align-items: start; }
+  .co__side { position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: clamp(28px, 3.4vw, 44px); }
+  .co__frame { aspect-ratio: 3 / 4; }
+  .co__main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(40px, 5vw, 72px) clamp(28px, 3.4vw, 56px); }
+  .co__block { padding-top: 22px; border-top: 1.6px solid transparent; border-image: repeating-linear-gradient(90deg, var(--cognac) 0 7px, transparent 7px 13px) 1; }
+  .co__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); }
+  .co__points { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 14px; color: #3d2e24; }
+  .co__points li { text-wrap: pretty; }
+  .co__term { font-weight: 600; color: var(--ink); }
+  a.co__term { text-decoration: underline; text-decoration-color: rgb(168 100 44 / 0.5); text-underline-offset: 3px; transition: text-decoration-color 0.25s, color 0.25s; }
+  a.co__term:hover { color: var(--cognac); text-decoration-color: currentColor; }
+  .co__cta { grid-column: 1 / -1; }
+
+  /* 03 · sustainability */
+  .sus { background: var(--ink); }
+  .sus__stitch { margin-top: clamp(40px, 5vw, 72px); }
+  .sus__list { list-style: none; margin: 0; padding: 0; }
+  .sus__row {
+    display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr); gap: 14px clamp(20px, 2.4vw, 40px);
+    padding-block: clamp(26px, 3.2vw, 44px); border-bottom: 1px solid var(--line);
+  }
+  .sus__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--cream); }
+  .sus__item { color: var(--bone); text-wrap: pretty; max-width: 46ch; }
+  .sus__close { margin-top: clamp(56px, 7vw, 110px); display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 40px clamp(32px, 5vw, 96px); align-items: end; }
+  .sus__summary {
+    font-family: var(--f-display); font-size: clamp(1.6rem, 1.05rem + 1.75vw, 2.75rem); line-height: 1.18; letter-spacing: -0.012em;
+    color: var(--cream); max-width: 30ch; text-wrap: pretty;
+  }
+  .sus__frame { aspect-ratio: 4 / 5; }
+
+  /* 04 · staff: the general manager leads */
+  .staff__grid { margin-top: clamp(44px, 5.4vw, 84px); display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(12px, 1.4vw, 20px); }
+  .sc {
+    display: flex; flex-direction: column; gap: 10px; padding: clamp(24px, 2.4vw, 34px); border-radius: 8px;
+    background: rgb(255 255 255 / 0.42);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 26px 50px -40px rgb(60 40 25 / 0.5);
+  }
+  .sc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--ink); }
+  .sc__lines { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.45; color: #3d2e24; }
+  .sc__lines li { display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: baseline; gap: 8px; }
+  .sc__lines .sc__sep { margin-top: 10px; }
+  .sc__k { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7f6a5a; }
+  .sc__a { justify-self: start; overflow-wrap: anywhere; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s; }
+  .sc__a:hover { background-size: 100% 1px; color: var(--cognac); }
+  .sc--lead { grid-row: span 2; background: var(--ink); color: var(--cream); justify-content: flex-end; gap: 14px; }
+  .sc--lead::before { border-color: rgb(226 160 37 / 0.45); }
+  .sc--lead .sc__role { color: var(--gold); }
+  .sc--lead .sc__name { color: var(--cream); font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(40px, 6vw, 110px); }
+  .sc--lead .sc__lines { color: var(--bone); font-size: 15px; }
+  .sc--lead .sc__k { color: var(--muted); }
+  .sc--lead .sc__a:hover { color: var(--amber); }
+
+  @media (max-width: 1100px) {
+    .co__main { grid-template-columns: 1fr; }
+    .sus__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .sus__title { grid-column: 1 / -1; }
+  }
+  @media (max-width: 860px) {
+    .co__in { grid-template-columns: 1fr; }
+    .co__side { position: static; }
+    .co__frame { aspect-ratio: 16 / 10; }
+    .sus__close { grid-template-columns: 1fr; }
+    .sus__frame { aspect-ratio: 16 / 10; }
+    .staff__grid { grid-template-columns: 1fr; }
+    .sc--lead { grid-row: auto; }
+    .sc--lead .sc__name { margin-top: 28px; }
+  }
+  @media (max-width: 600px) {
+    .sus__row { grid-template-columns: 1fr; }
+  }
+</style>

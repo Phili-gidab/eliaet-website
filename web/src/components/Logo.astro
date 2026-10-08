@@ -1,0 +1,24 @@
+---
+/* The ELIA logo as inline SVG (exact vectors from the official PDF).
+   variant: lockup (mark + wordmark) | mark. The wordmark takes currentColor; the mark is gold. */
+import { E, DOT, WORDMARK, VIEW } from '../brand/logo'
+
+interface Props {
+  variant?: 'lockup' | 'mark'
+  class?: string
+  title?: string
+  gold?: string
+}
+const { variant = 'lockup', class: cls = '', title = 'ELIA, Ethiopian Leather Industries Association', gold = 'var(--logo-gold, #F6B74B)' } = Astro.props
+const view = variant === 'mark' ? VIEW.mark : VIEW.lockup
+---
+
+<svg class:list={['logo', `logo--${variant}`, cls]} viewBox={view} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
+  <path d={E} fill={gold} />
+  <circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill={gold} />
+  {variant === 'lockup' && <g fill="currentColor">{WORDMARK.map((d) => <path d={d} />)}</g>}
+</svg>
+
+<style>
+  .logo { height: auto; overflow: visible; }
+</style>

@@ -1,0 +1,269 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import SectionHead from '../components/SectionHead.astro'
+import { ABOUT_INTRO, TIMELINE, BOARD, STAFF } from '../copy/about'
+import { PILLARS, ABOUT } from '../copy/home'
+
+/* Phone lines read like "Mob. +251 09 02224728". The text stays as written; it becomes a tel: link only when it
+   resolves to a clean Ethiopian number (+251, the trunk 0 dropped, then nine digits). */
+const phone = (line: string) => {
+  const m = line.match(/^(Tel\.|Mob\.|WhatsApp)\s+(.+)$/)
+  const key = m ? m[1] : ''
+  const value = m ? m[2] : line
+  const digits = value.replace(/\D/g, '')
+  const local = value.trim().startsWith('+251') ? digits.slice(3).replace(/^0/, '') : ''
+  return { key, value, href: local.length === 9 ? `tel:+251${local}` : undefined }
+}
+
+const [chair, ...board] = BOARD
+const first = TIMELINE[0].year
+const last = TIMELINE[TIMELINE.length - 1].year
+---
+
+<Base title="About" description={ABOUT_INTRO.nonprofit}>
+  <PageHead
+    index="01"
+    eyebrow="About ELIA"
+    amharic="ስለ እኛ"
+    title={['Ethiopian Leather', 'Industries', 'Association<em>.</em>']}
+    lede={ABOUT_INTRO.body[0]}
+    image="/media/about-1.webp"
+    imageAlt="A leather jacket with leather shoes and gloves"
+  />
+
+  <!-- 02 · who we are: the stamped label sits in the margin, the statement takes the measure -->
+  <section class="sec sec--paper who" aria-labelledby="who-h">
+    <div class="wrap grid who__in">
+      <h2 class="label label--rule who__label" id="who-h" data-reveal="fade"><b>02</b> {ABOUT.eyebrow}</h2>
+      <p class="who__statement" data-reveal>{ABOUT_INTRO.nonprofit}</p>
+      <div class="stitch who__stitch" aria-hidden="true"></div>
+      <div class="who__count" data-reveal>
+        <p class="who__n figure-num">
+          <span data-count={ABOUT.count.value} aria-hidden="true">0</span><span class="sr-only">{ABOUT.count.value}</span>
+        </p>
+        <p class="label who__l">{ABOUT.count.label.map((l) => <span>{l}</span>)}</p>
+      </div>
+      <div class="body who__body" data-reveal style="--d:.1s">
+        <p>{ABOUT.body[0]}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · vision, mission, what we do -->
+  <section class="sec sec--saddle grain pillars" aria-labelledby="pillars-h">
+    <div class="wrap">
+      <h2 class="label label--rule" id="pillars-h" data-reveal="fade"><b>03</b> Vision and mission</h2>
+      <div class="stitch pillars__stitch" aria-hidden="true"></div>
+      <div class="pillars__list">
+        {PILLARS.map((p, i) => (
+          <article class="pillar" data-reveal style={`--d:${i * 0.06}s`}>
+            <h3 class="pillar__k">{p.label}</h3>
+            <p class="pillar__t">{p.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · history -->
+  <section class="sec sec--paper history" id="history">
+    <div class="wrap">
+      <SectionHead index="04" eyebrow="History" title={`Since <em>${first}</em>.`} intro={ABOUT.body[1]} />
+      <ol class="tl" role="list" aria-label={`ELIA, ${first} to ${last}`}>
+        {TIMELINE.map((t, i) => (
+          <li class:list={['tl__item', { 'tl__item--last': i === TIMELINE.length - 1 }]} data-reveal>
+            <p class="tl__year figure-num">{t.year}</p>
+            <div class="tl__body">
+              <h3 class="tl__title">{t.title}</h3>
+              <p class="tl__text">{t.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 05 · board -->
+  <section class="sec grain board" id="board">
+    <div class="wrap">
+      <SectionHead index="05" eyebrow="Board" title="The board<em>.</em>" />
+      <div class="board__grid">
+        <article class="pc pc--chair seam" data-reveal>
+          <span class="stamp"><i></i>{chair.role}</span>
+          <h3 class="pc__name">{chair.name}</h3>
+          {chair.company && <p class="pc__co">{chair.company}</p>}
+        </article>
+        {board.map((p, i) => (
+          <article class="pc seam" data-reveal style={`--d:${((i % 3) + 1) * 0.06}s`}>
+            <p class="label pc__role">{p.role}</p>
+            <h3 class="pc__name">{p.name}</h3>
+            {p.company && <p class="pc__co">{p.company}</p>}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · secretariat -->
+  <section class="sec sec--paper staff" id="secretariat">
+    <div class="wrap">
+      <SectionHead index="06" eyebrow="Secretariat" title="The secretariat<em>.</em>" />
+      <div class="staff__grid">
+        {STAFF.map((p, i) => {
+          const emails = p.email ?? []
+          const phones = (p.phone ?? []).map(phone)
+          return (
+            <article class:list={['sc seam', { 'sc--lead': i === 0 }]} data-reveal style={`--d:${(i % 3) * 0.06}s`}>
+              <p class="label sc__role">{p.role}</p>
+              <h3 class="sc__name">{p.name}</h3>
+              <ul class="sc__lines" role="list">
+                {emails.map((e, j) => (
+                  <li><span class="sc__k">{j === 0 ? 'E-mail' : ''}</span><a class="sc__a" href={`mailto:${e}`}>{e}</a></li>
+                ))}
+                {phones.map((ph, j) => (
+                  <li class:list={[{ sc__sep: j === 0 && emails.length > 0 }]}>
+                    <span class="sc__k">{ph.key}</span>
+                    {ph.href ? <a class="sc__a" href={ph.href}>{ph.value}</a> : <span>{ph.value}</span>}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* the hero photo is a portrait; on narrow screens PageHead crops it wide, so favour the shoes and gloves */
+  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 82%; } }
+
+  /* 02 · who we are */
+  .who__in { row-gap: 28px; align-items: end; }
+  .who__label { grid-column: 1 / span 3; align-self: start; margin-top: 1.1em; }
+  .who__statement {
+    grid-column: 4 / -1; max-width: 36ch; font-family: var(--f-display); font-size: clamp(1.6rem, 1.05rem + 1.75vw, 2.75rem);
+    line-height: 1.18; letter-spacing: -0.012em; color: var(--ink); text-wrap: pretty;
+  }
+  .who__stitch { grid-column: 1 / -1; margin-block: clamp(36px, 5vw, 76px) clamp(20px, 2.6vw, 40px); }
+  .who__count { grid-column: 1 / span 6; display: flex; align-items: flex-end; gap: clamp(14px, 1.6vw, 24px); }
+  .who__n { font-size: clamp(5.2rem, 2.4rem + 10vw, 12.5rem); color: var(--ink); margin-bottom: -0.06em; }
+  .who__l { flex-direction: column; align-items: flex-start; gap: 3px; padding-bottom: 0.6em; }
+  .who__body { grid-column: 7 / -1; max-width: 46ch; padding-bottom: 0.4em; }
+
+  /* 03 · pillars, on saddle leather */
+  .pillars__stitch { margin-top: clamp(36px, 4.4vw, 64px); }
+  .pillar {
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 14px clamp(24px, 3vw, 48px);
+    padding-block: clamp(30px, 4vw, 60px); border-bottom: 1px solid var(--line);
+  }
+  .pillar:last-child { border-bottom: 0; padding-bottom: 0; }
+  .pillar__k {
+    font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: var(--step-2); line-height: 1.1;
+    color: var(--amber); padding-top: 0.1em;
+  }
+  .pillar__t {
+    font-family: var(--f-display); font-size: clamp(1.4rem, 1.05rem + 1.25vw, 2.35rem); line-height: 1.24; letter-spacing: -0.01em;
+    color: var(--cream); max-width: 38ch; text-wrap: pretty;
+  }
+
+  /* 04 · history: a saddle-stitched spine with the years set beside it */
+  .tl { --spine: clamp(150px, 27%, 400px); list-style: none; margin: clamp(56px, 7vw, 110px) 0 0; padding: 0; position: relative; }
+  .tl::before {
+    content: ''; position: absolute; top: 18px; bottom: 30px; left: var(--spine); width: 1.6px;
+    background: repeating-linear-gradient(180deg, var(--cognac) 0 7px, transparent 7px 13px); opacity: 0.75;
+  }
+  .tl__item { position: relative; display: grid; grid-template-columns: var(--spine) minmax(0, 1fr); align-items: start; }
+  .tl__item + .tl__item .tl__body { border-top: 1px solid var(--line-dark); }
+  .tl__item::before {
+    content: ''; position: absolute; left: calc(var(--spine) - 4.7px); top: calc(clamp(24px, 3vw, 44px) + 12px); width: 11px; height: 11px;
+    border-radius: 50%; background: var(--cognac); box-shadow: 0 0 0 5px var(--paper); z-index: 1;
+  }
+  .tl__year {
+    padding: clamp(18px, 2.4vw, 34px) clamp(28px, 3.4vw, 56px) 0 0; text-align: right;
+    font-size: clamp(2.4rem, 1.2rem + 3.6vw, 5.2rem); color: #2b1d14;
+  }
+  .tl__body { padding: clamp(24px, 3vw, 44px) 0 clamp(24px, 3vw, 44px) clamp(28px, 3.4vw, 56px); }
+  .tl__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; max-width: 26ch; }
+  .tl__text { margin-top: 10px; color: #3d2e24; max-width: 54ch; text-wrap: pretty; }
+  .tl__item--last .tl__year { color: var(--cognac); }
+  .tl__item--last::before { background: var(--gold); box-shadow: 0 0 0 5px var(--paper), 0 0 18px 4px rgb(226 160 37 / 0.55); }
+
+  /* 05 · board: a lead tag for the chairman, the others as stitched tags beside it */
+  .board { background: var(--ink); }
+  .board__grid {
+    display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px);
+    margin-top: clamp(44px, 5.4vw, 84px);
+  }
+  .pc {
+    display: flex; flex-direction: column; gap: 12px; min-height: 220px; padding: clamp(24px, 2.4vw, 34px);
+    border-radius: 8px; background: linear-gradient(165deg, #2a1c14 0%, #1d1510 60%, #181009 100%);
+    box-shadow: inset 0 1px 0 rgb(255 236 210 / 0.06), 0 24px 50px -36px rgb(0 0 0 / 0.9);
+  }
+  .pc__role { color: var(--gold); }
+  .pc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--cream); margin-top: auto; }
+  .pc__co { font-size: 14.5px; line-height: 1.5; color: var(--muted); max-width: 30ch; }
+  .pc--chair {
+    grid-row: span 2; justify-content: flex-end; gap: 18px; min-height: 0;
+    background: linear-gradient(160deg, #4a2f1c 0%, #3b2618 45%, #24170f 100%);
+  }
+  .pc--chair .stamp { align-self: flex-start; margin-bottom: auto; }
+  .pc--chair .pc__name { font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(48px, 8vw, 140px); }
+  .pc--chair .pc__co { color: var(--bone); font-size: var(--step-0); }
+
+  /* 06 · secretariat: the Secretary General leads, the office beside */
+  .staff__grid {
+    display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px);
+    margin-top: clamp(44px, 5.4vw, 84px);
+  }
+  .sc {
+    display: flex; flex-direction: column; gap: 10px; padding: clamp(24px, 2.4vw, 34px); border-radius: 8px;
+    background: rgb(255 255 255 / 0.42);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 26px 50px -40px rgb(60 40 25 / 0.5);
+  }
+  .sc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--ink); }
+  .sc__lines { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.45; color: #3d2e24; }
+  .sc__lines li { display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: baseline; gap: 8px; }
+  .sc__lines .sc__sep { margin-top: 10px; }
+  .sc__k { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7f6a5a; }
+  .sc__a { justify-self: start; overflow-wrap: anywhere; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s; }
+  .sc__a:hover { background-size: 100% 1px; color: var(--cognac); }
+  .sc--lead { grid-row: span 2; background: var(--ink); color: var(--cream); justify-content: flex-end; gap: 14px; }
+  .sc--lead::before { border-color: rgb(226 160 37 / 0.45); }
+  .sc--lead .sc__role { color: var(--gold); }
+  .sc--lead .sc__name { color: var(--cream); font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(40px, 6vw, 110px); }
+  .sc--lead .sc__lines { color: var(--bone); font-size: 15px; }
+  .sc--lead .sc__k { color: var(--muted); }
+  .sc--lead .sc__a:hover { color: var(--amber); }
+
+  @media (max-width: 1100px) {
+    .board__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pc--chair { grid-column: 1 / -1; grid-row: auto; }
+    .pc--chair .pc__name { margin-top: 40px; }
+    .staff__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sc--lead { grid-column: 1 / -1; grid-row: auto; }
+    .sc--lead .sc__name { margin-top: 28px; }
+  }
+  @media (max-width: 860px) {
+    .who__label, .who__statement, .who__count, .who__body { grid-column: 1 / -1; }
+    .who__label { margin-top: 0; }
+    .pillar { grid-template-columns: 1fr; }
+    .tl { --spine: 6px; }
+    .tl::before { top: 30px; }
+    .tl__item { grid-template-columns: 1fr; padding-left: 34px; }
+    .tl__item + .tl__item { border-top: 1px solid var(--line-dark); }
+    .tl__item + .tl__item .tl__body { border-top: 0; }
+    .tl__year { text-align: left; padding: 24px 0 0; font-size: clamp(2.2rem, 1.4rem + 4vw, 3.4rem); }
+    .tl__body { padding: 10px 0 26px; }
+    .tl__item::before { top: 36px; }
+  }
+  @media (max-width: 600px) {
+    .board__grid, .staff__grid { grid-template-columns: 1fr; }
+    .pc { min-height: 0; }
+    .pc__name { margin-top: 6px; }
+    .who__count { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .who__l { flex-direction: row; flex-wrap: wrap; gap: 0 0.6em; padding-bottom: 0; }
+  }
+</style>

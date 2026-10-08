@@ -1,0 +1,74 @@
+---
+import '@fontsource-variable/bricolage-grotesque/standard.css'
+import '@fontsource/instrument-serif/400-italic.css'
+import '@fontsource/instrument-serif/400.css'
+import '@fontsource-variable/geist/wght.css'
+import '@fontsource-variable/geist-mono/wght.css'
+import '@fontsource-variable/noto-sans-ethiopic/wght.css'
+import '../styles/global.css'
+import '../styles/forms.css'
+import displayUrl from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2?url'
+import serifItUrl from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url'
+import textUrl from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { ORG } from '../copy/site'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: string
+  overHero?: boolean
+  bodyClass?: string
+}
+const {
+  title,
+  description = ORG.tagline,
+  image = '/media/og/elia-og.jpg',
+  overHero = false,
+  bodyClass = '',
+} = Astro.props
+const path = Astro.url.pathname.replace(/\/$/, '') || '/'
+const fullTitle = title ? `${title} · ELIA` : `${ORG.name} · ELIA`
+const canonical = new URL(path, Astro.site).toString()
+const ogImage = new URL(image, Astro.site).toString()
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0c0907" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href={displayUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serifItUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={textUrl} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ELIA" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>
+      document.documentElement.classList.add('js')
+      try { if (sessionStorage.getItem('elia-intro')) document.documentElement.classList.add('no-intro') } catch (e) {}
+    </script>
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header path={path} overHero={overHero} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/site'
+    </script>
+  </body>
+</html>

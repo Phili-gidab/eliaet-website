@@ -1,0 +1,29 @@
+---
+/* A section's stamped label, title and optional intro, on the 12-column grid. */
+interface Props {
+  index?: string
+  eyebrow: string
+  amharic?: string
+  title: string
+  intro?: string
+  align?: 'split' | 'stack'
+  class?: string
+}
+const { index, eyebrow, amharic, title, intro, align = 'split', class: cls } = Astro.props
+---
+
+<header class:list={['sh', `sh--${align}`, cls]}>
+  <p class="label label--rule" data-reveal="fade">{index && <b>{index}</b>} {eyebrow}{amharic && <span class="geez" lang="am">{amharic}</span>}</p>
+  <h2 class="h2 sh__title" data-reveal set:html={title} />
+  {intro && <p class="body sh__intro" data-reveal style="--d:.12s">{intro}</p>}
+  <slot />
+</header>
+
+<style>
+  .sh { display: grid; gap: 22px 40px; }
+  .sh__title { max-width: 18ch; }
+  .sh--split { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: end; }
+  .sh--split .label { grid-column: 1 / -1; }
+  .sh--split .sh__intro { justify-self: end; }
+  @media (max-width: 860px) { .sh--split { grid-template-columns: 1fr; } .sh--split .sh__intro { justify-self: start; } }
+</style>

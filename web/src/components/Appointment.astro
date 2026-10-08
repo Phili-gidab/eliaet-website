@@ -1,0 +1,42 @@
+---
+import { APPOINTMENT } from '../copy/home'
+interface Props { index?: string }
+const { index = '06' } = Astro.props
+const today = new Date().toISOString().slice(0, 10)
+---
+
+<section class="appt sec sec--paper sheet" id="appointment">
+  <div class="wrap appt__in">
+    <div class="appt__text">
+      <p class="label label--rule" data-reveal="fade"><b>{index}</b> {APPOINTMENT.eyebrow}</p>
+      <h2 class="h2 mt-m" data-reveal>{APPOINTMENT.title.replace(/\.$/, '')}<em>.</em></h2>
+      <p class="body mt-m" data-reveal style="--d:.1s">{APPOINTMENT.text}</p>
+    </div>
+    <form class="form appt__form card" action="/api/appointments" method="post" data-form="appointment"
+      data-ok="Thank you. The secretariat will call you to confirm the appointment." novalidate>
+      <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+      <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
+      <label class="field"><span>Mobile</span><input name="mobile" type="tel" autocomplete="tel" required maxlength="40" placeholder="+251" /></label>
+      <label class="field"><span>Date</span><input name="date" type="date" min={today} required /></label>
+      <fieldset class="chips field full">
+        <legend>Sector</legend>
+        {APPOINTMENT.sectors.map((s, i) => (
+          <label class="chip"><input type="radio" name="sector" value={s} required checked={i === 0} /><span>{s}</span></label>
+        ))}
+      </fieldset>
+      <label class="field full"><span>About the project <b>(optional)</b></span><textarea name="message" maxlength="5000"></textarea></label>
+      <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <div class="form__end full">
+        <button class="btn btn--dark" type="submit">Request an appointment <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+        <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .appt__in { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 110px); align-items: start; }
+  .appt__text .h2 { max-width: 14ch; }
+  .appt__form { padding: clamp(24px, 3.2vw, 44px); box-shadow: inset 0 0 0 1px var(--line-dark), 0 40px 80px -50px rgb(60 40 25 / 0.55) !important; }
+  @media (max-width: 960px) { .appt__in { grid-template-columns: 1fr; } }
+</style>

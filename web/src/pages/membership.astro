@@ -1,0 +1,330 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import { SECTORS, SECTOR_TOTALS, type SectorKey } from '../copy/members'
+import { ORG } from '../copy/site'
+
+const sectorKeys = Object.keys(SECTORS) as SectorKey[]
+
+/* The values the API accepts for "sector" (server/src/api.ts), one per sector of SECTORS. */
+const SECTOR_VALUE: Record<SectorKey, string> = {
+  tannery: 'Tannery',
+  footwear: 'Shoe Manufacturer',
+  'leather-goods': 'Leather Product Manufacturer',
+}
+const MEMBERSHIP_TYPES = ['Member', 'Associate Member']
+const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase()
+
+const plurals = sectorKeys.map((k) => SECTORS[k].plural.toLowerCase())
+const sectorList = new Intl.ListFormat('en-GB', { style: 'long', type: 'conjunction' }).format(plurals)
+
+const PARTS = [
+  { id: 'part-company', title: 'Company' },
+  { id: 'part-address', title: 'Address' },
+  { id: 'part-contact', title: 'Contact' },
+  { id: 'part-sector', title: 'Sector & people' },
+  { id: 'part-stamp', title: 'Stamp & consent' },
+]
+const roman = ['I', 'II', 'III', 'IV', 'V']
+const year = new Date().getFullYear()
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const down = 'M12 4v15m-6-6 6 6 6-6'
+---
+
+<Base
+  title="Membership"
+  description={`Apply for membership of the ${ORG.name}. For Ethiopian ${sectorList}.`}
+>
+  <PageHead
+    index="01"
+    eyebrow="Membership"
+    amharic="አባልነት"
+    title={['Become a', 'member<em>.</em>']}
+    lede={`Join the ${ORG.members} member companies of the ${ORG.name}: Ethiopia’s ${sectorList}.`}
+    image="/media/about-2.webp"
+    imageAlt="Grey, black and patent leather handbags stacked against an orange background"
+  >
+    <div class="ph-cta" data-reveal style="--d:.35s">
+      <a class="btn" href="#application">Start the application <svg viewBox="0 0 24 24" aria-hidden="true"><path d={down} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+      <a class="link" href="/members">See the members <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+    </div>
+  </PageHead>
+
+  <!-- 02 · who can apply -->
+  <section class="sec sec--saddle grain who" aria-labelledby="who-h">
+    <div class="wrap">
+      <header class="who__head">
+        <p class="label label--rule" data-reveal="fade"><b>02</b> Who can apply</p>
+        <h2 class="h2 who__title" id="who-h" data-reveal>Three sectors, one <em>association</em>.</h2>
+        <p class="body who__intro" data-reveal style="--d:.1s">Membership is for companies in the association’s three sectors: {sectorList}.</p>
+      </header>
+      <ul class="who__list" role="list">
+        {sectorKeys.map((k, i) => (
+          <li class="who__item" data-reveal style={`--d:${i * 0.08}s`}>
+            <p class="who__am geez" lang="am">{SECTORS[k].amharic}</p>
+            <h3 class="who__name">{SECTORS[k].plural}</h3>
+            <p class="who__text">{SECTORS[k].intro}</p>
+            <p class="who__count">
+              <span class="who__n figure-num">{SECTOR_TOTALS[k]}</span>
+              <span class="label">members</span>
+              <a class="link who__see" href={`/members?sector=${k}`}>See them <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg><span class="sr-only"> ({SECTORS[k].plural.toLowerCase()} in the member directory)</span></a>
+            </p>
+          </li>
+        ))}
+      </ul>
+      <div class="who__does" data-reveal>
+        <p class="label">What the association does</p>
+        <p class="who__tag">{ORG.tagline}</p>
+        <a class="link" href="/services">Services for members <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · the application -->
+  <section class="sec sec--paper apply" id="application" aria-labelledby="apply-h">
+    <div class="wrap apply__in">
+      <aside class="apply__side">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> Application</p>
+        <h2 class="h2 apply__title" id="apply-h" data-reveal>The application <em>form</em>.</h2>
+        <p class="body apply__note" data-reveal style="--d:.08s">
+          Five parts. Fields marked optional can be left empty; the company stamp can be a PNG, JPG, WebP or PDF file of up to 5&nbsp;MB.
+        </p>
+        <ol class="apply__toc" role="list" aria-label="Parts of the form" data-reveal style="--d:.12s">
+          {PARTS.map((p, i) => (
+            <li><a href={`#${p.id}`}><span>{roman[i]}</span>{p.title}</a></li>
+          ))}
+        </ol>
+      </aside>
+
+      <form class="form apply__form" action="/api/membership" method="post" enctype="multipart/form-data" data-form="membership"
+        data-ok="Thank you. Your application has been sent to the association." novalidate>
+
+        <fieldset class="part seam full" id={PARTS[0].id}>
+          <legend class="part__legend"><span class="part__n">{roman[0]}</span>{PARTS[0].title}</legend>
+          <label class="field full"><span>Company name</span><input name="companyName" autocomplete="organization" required maxlength="200" /></label>
+          <label class="field"><span>General manager</span><input name="generalManager" required maxlength="120" autocapitalize="words" /></label>
+          <label class="field"><span>Year established</span><input name="yearEstablished" type="number" inputmode="numeric" min="1900" max={year} step="1" required placeholder="YYYY" /></label>
+          <fieldset class="chips field">
+            <legend>Membership type</legend>
+            {MEMBERSHIP_TYPES.map((t, i) => (
+              <label class="chip"><input type="radio" name="membershipType" value={t} required checked={i === 0} /><span>{sentence(t)}</span></label>
+            ))}
+          </fieldset>
+          <label class="field"><span>Bank account <b>(optional)</b></span><input name="bankAccount" maxlength="80" autocomplete="off" /></label>
+        </fieldset>
+
+        <fieldset class="part seam full" id={PARTS[1].id}>
+          <legend class="part__legend"><span class="part__n">{roman[1]}</span>{PARTS[1].title}</legend>
+          <label class="field"><span>Region</span><input name="region" autocomplete="address-level1" required maxlength="80" /></label>
+          <label class="field"><span>Sub-city <b>(optional)</b></span><input name="subCity" autocomplete="address-level2" maxlength="80" /></label>
+          <label class="field"><span>Wereda <b>(optional)</b></span><input name="wereda" autocomplete="address-level3" maxlength="40" /></label>
+          <label class="field"><span>House no. <b>(optional)</b></span><input name="houseNo" maxlength="40" /></label>
+        </fieldset>
+
+        <fieldset class="part seam full" id={PARTS[2].id}>
+          <legend class="part__legend"><span class="part__n">{roman[2]}</span>{PARTS[2].title}</legend>
+          <label class="field"><span>Mobile</span><input name="mobile" type="tel" autocomplete="mobile tel" required maxlength="40" placeholder="+251" /></label>
+          <label class="field"><span>Telephone <b>(optional)</b></span><input name="tel" type="tel" autocomplete="work tel" maxlength="40" placeholder="+251" /></label>
+          <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="200" spellcheck="false" /></label>
+          <label class="field"><span>Website <b>(optional)</b></span><input name="website" inputmode="url" autocomplete="url" maxlength="200" spellcheck="false" autocapitalize="off" /></label>
+        </fieldset>
+
+        <fieldset class="part seam full" id={PARTS[3].id}>
+          <legend class="part__legend"><span class="part__n">{roman[3]}</span>{PARTS[3].title}</legend>
+          <fieldset class="chips field full">
+            <legend>Sector</legend>
+            {sectorKeys.map((k) => (
+              <label class="chip"><input type="radio" name="sector" value={SECTOR_VALUE[k]} required /><span>{sentence(SECTOR_VALUE[k])}</span></label>
+            ))}
+          </fieldset>
+          <fieldset class="staff full">
+            <legend>Employees <b>(optional)</b></legend>
+            <label class="field"><span>Male</span><input name="employeesMale" type="number" inputmode="numeric" min="0" max="1000000" step="1" /></label>
+            <label class="field"><span>Female</span><input name="employeesFemale" type="number" inputmode="numeric" min="0" max="1000000" step="1" /></label>
+            <label class="field"><span>Permanent</span><input name="employeesPermanent" type="number" inputmode="numeric" min="0" max="1000000" step="1" /></label>
+            <label class="field"><span>Temporary</span><input name="employeesTemporary" type="number" inputmode="numeric" min="0" max="1000000" step="1" /></label>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="part seam full" id={PARTS[4].id}>
+          <legend class="part__legend"><span class="part__n">{roman[4]}</span>{PARTS[4].title}</legend>
+          <label class="field full stamp-file">
+            <span>Company stamp <b>(optional)</b></span>
+            <input name="stamp" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.png,.jpg,.jpeg,.webp,.pdf" aria-describedby="stamp-hint" />
+          </label>
+          <p class="hint stamp-hint full" id="stamp-hint" aria-live="polite" data-stamp-hint>PNG, JPG, WebP or PDF, up to 5 MB.</p>
+          <label class="check full">
+            <input type="checkbox" name="consent" value="true" required />
+            <span>I confirm that the information given is correct and agree to the association’s membership terms.</span>
+          </label>
+        </fieldset>
+
+        <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="form__end full">
+          <button class="btn btn--dark" type="submit">Send the application <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+          <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  /* The site's form script marks the first element matching :invalid, and a <fieldset> holding an invalid field
+     matches too, so on this form (parts and chip groups are fieldsets) it would mark a whole panel and focus nothing.
+     While the form is incomplete, this marks and focuses the first invalid field itself; a complete form goes on to
+     the site script, which sends it. */
+  const form = document.querySelector<HTMLFormElement>('form[data-form="membership"]')
+  form?.addEventListener('submit', (ev) => {
+    if (form.checkValidity()) return
+    ev.preventDefault()
+    ev.stopImmediatePropagation()
+    form.querySelectorAll('[aria-invalid]').forEach((f) => f.removeAttribute('aria-invalid'))
+    form.querySelectorAll('.err').forEach((e) => e.remove())
+    const bad = form.querySelector<HTMLElement>('input:invalid, select:invalid, textarea:invalid')
+    bad?.setAttribute('aria-invalid', 'true')
+    bad?.focus()
+    const msg = form.querySelector<HTMLElement>('[data-form-msg]')
+    if (msg) { msg.textContent = 'Please fill in the highlighted field.'; msg.dataset.ok = '0' }
+  }, { capture: true })
+  // a field marked invalid is cleared as soon as it is corrected
+  form?.addEventListener('input', (ev) => {
+    const el = ev.target as HTMLInputElement
+    const group = el.type === 'radio' ? form.querySelectorAll(`[name="${el.name}"]`) : [el]
+    if (el.checkValidity()) group.forEach((g) => g.removeAttribute('aria-invalid'))
+  })
+
+  /* The stamp: the API takes PNG, JPG, WebP or PDF up to 5 MB. Say so as soon as a file is picked, and keep a wrong
+     one from being sent (the check above then marks the field). */
+  const input = document.querySelector<HTMLInputElement>('input[name="stamp"]')
+  const hint = document.querySelector<HTMLElement>('[data-stamp-hint]')
+  if (input && hint) {
+    const note = hint.textContent ?? ''
+    const ok = /^(image\/(png|jpe?g|webp)|application\/pdf)$/
+    const check = () => {
+      const f = input.files?.[0]
+      let msg = ''
+      if (f && !ok.test(f.type)) msg = 'This file type is not accepted: choose a PNG, JPG, WebP or PDF.'
+      else if (f && f.size > 5 * 1024 * 1024) msg = `This file is ${(f.size / 1048576).toFixed(1)} MB; the limit is 5 MB.`
+      input.setCustomValidity(msg)
+      const size = f && (f.size < 1048576 ? `${Math.max(1, Math.round(f.size / 1024))} KB` : `${(f.size / 1048576).toFixed(1)} MB`)
+      hint.textContent = msg || (f ? `${f.name}, ${size}.` : note)
+      hint.classList.toggle('hint--bad', !!msg)
+    }
+    input.addEventListener('input', check)
+    input.form?.addEventListener('reset', () => setTimeout(check))
+  }
+</script>
+
+<style>
+  .ph-cta { margin-top: clamp(28px, 3.4vw, 44px); display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 58%; } }
+
+  /* 02 · who can apply, on saddle leather */
+  .who__head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 22px 40px; align-items: end; }
+  .who__head .label { grid-column: 1 / -1; }
+  .who__title { max-width: 14ch; }
+  .who__intro { justify-self: end; max-width: 40ch; }
+  .who__list {
+    list-style: none; margin: clamp(48px, 6vw, 90px) 0 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .who__item { display: flex; flex-direction: column; gap: 14px; padding: 6px clamp(20px, 2.6vw, 44px) 0; }
+  .who__item:first-child { padding-left: 0; }
+  .who__item + .who__item { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
+  .who__am { font-size: 15px; color: var(--muted); }
+  .who__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--cream); text-wrap: balance; }
+  .who__text { color: var(--bone); max-width: 40ch; text-wrap: pretty; }
+  .who__count { margin-top: auto; padding-top: 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  .who__n { font-size: clamp(2.2rem, 1.4rem + 2vw, 3.4rem); color: var(--amber); line-height: 1; }
+  .who__see { margin-left: auto; color: var(--cream); }
+  .who__does {
+    margin-top: clamp(56px, 7vw, 104px); padding-top: clamp(28px, 3vw, 40px); border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 7fr) auto; gap: 18px clamp(24px, 3vw, 48px); align-items: baseline;
+  }
+  .who__tag { font-family: var(--f-display); font-size: clamp(1.35rem, 1.05rem + 1vw, 2rem); line-height: 1.25; color: var(--cream); max-width: 40ch; text-wrap: pretty; }
+  .who__does .link { color: var(--amber); white-space: nowrap; }
+
+  /* 03 · the application: the parts listed beside the form, each part a stitched panel */
+  .apply__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 48px clamp(32px, 5vw, 96px); align-items: start; }
+  .apply__side { position: sticky; top: calc(var(--header-h) + 28px); }
+  .apply__title { margin-top: 22px; }
+  .apply__note { margin-top: 24px; max-width: 36ch; }
+  .apply__toc { list-style: none; margin: clamp(28px, 3.4vw, 44px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); }
+  .apply__toc a {
+    display: grid; grid-template-columns: 2.6em minmax(0, 1fr); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line-dark);
+    font-size: 15px; color: #3d2e24; transition: color 0.25s, padding 0.45s var(--ease);
+  }
+  .apply__toc a span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; color: #8a5326; }
+  .apply__toc a:hover { color: var(--ink); padding-left: 6px; }
+
+  .apply__form { row-gap: clamp(14px, 1.6vw, 22px); }
+  .part {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; min-width: 0; margin: 0;
+    padding: clamp(26px, 3vw, 44px); border: 0; border-radius: 10px; background: rgb(255 255 255 / 0.42);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 60px -40px rgb(60 40 25 / 0.45);
+    scroll-margin-top: calc(var(--header-h) + 20px);
+  }
+  /* a floated legend sits inside the panel as the first row of its grid */
+  .part__legend {
+    float: left; grid-column: 1 / -1; width: 100%; padding: 0 0 6px; margin: 0;
+    display: flex; align-items: baseline; gap: 14px;
+    font-family: var(--f-display); font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink);
+  }
+  .part__n { min-width: 2.1em; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; color: #8a5326; }
+  .part .chips { margin-top: 4px; }
+  .staff { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 16px; min-width: 0; margin: 4px 0 0; padding: 0; border: 0; }
+  .staff legend {
+    float: left; grid-column: 1 / -1; width: 100%; padding: 0; margin: 0 0 -4px;
+    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #6f5a4b;
+  }
+
+  /* optional marks, hints and errors, readable on paper */
+  .apply__form .field > span:first-child b, .staff legend b { color: #8a5326; font-weight: 500; }
+  .apply__form .hint { font-size: 13.5px; color: #5a4638; }
+  .stamp-hint { margin-top: -10px; }
+  .apply__form .hint--bad { color: #a33d27; font-weight: 500; }
+  .apply__form .form__msg { color: #5a4638; }
+  .apply__form:not(.sending) .form__msg[data-ok='0'] { color: #a33d27; }
+  .apply__form .form__msg[data-ok='1'] { color: #8a5326; }
+  .apply__form :global(.err) { color: #a33d27; }
+  .apply__form :global([aria-invalid='true']),
+  .apply__form :global([aria-invalid='true']:focus) { box-shadow: inset 0 0 0 1.5px #b4432c, 0 0 0 4px rgb(180 67 44 / 0.12); }
+  /* a radio group or the consent box marked invalid shows on what can be seen */
+  .apply__form .chips:has([aria-invalid='true']) .chip span { box-shadow: inset 0 0 0 1.5px #b4432c; }
+  .apply__form .check:has([aria-invalid='true']) { color: #a33d27; }
+  .apply__form .check input:focus-visible { outline: 2px solid var(--cognac); outline-offset: 3px; }
+
+  /* the stamp upload */
+  .stamp-file input[type='file'] { min-height: 64px; padding: 12px; cursor: pointer; color: #3d2e24; font-size: 14.5px; }
+  .stamp-file input[type='file']::file-selector-button {
+    margin-right: 16px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; cursor: pointer;
+    font: 600 14px/1 var(--f-text); color: var(--cream); background: var(--ink); transition: background 0.3s;
+  }
+  .stamp-file input[type='file']:hover::file-selector-button { background: var(--saddle); }
+
+  @media (max-width: 1100px) {
+    .who__does { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 960px) {
+    .apply__in { grid-template-columns: 1fr; }
+    .apply__side { position: static; }
+    .apply__toc { display: none; }
+  }
+  @media (max-width: 860px) {
+    .who__head { grid-template-columns: 1fr; }
+    .who__intro { justify-self: start; }
+    .who__list { grid-template-columns: 1fr; }
+    .who__item, .who__item:first-child { padding: 28px 0; }
+    .who__item + .who__item { border-left: 0; border-top: 1.4px dashed rgb(226 160 37 / 0.4); }
+    .who__item:first-child { padding-top: 0; }
+    .who__item:last-child { padding-bottom: 0; }
+  }
+  @media (max-width: 720px) {
+    .part { grid-template-columns: 1fr; }
+    .staff { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 420px) {
+    .part { padding: 24px 20px; }
+  }
+</style>

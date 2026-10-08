@@ -1,0 +1,291 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import SectionHead from '../components/SectionHead.astro'
+import {
+  EHL_BRAND,
+  EHL_FIGURES,
+  EHL_SUSTAINABILITY,
+  EHL_STORY,
+  EHL_QUALITIES,
+  EHL_JICA,
+  EHL_TANNERIES_INTRO,
+  EHL_IMAGES,
+} from '../copy/ehl'
+
+/* The certified manufacturers' logos, as held in /media/partners (the name is printed beside each). */
+const LOGOS: Record<string, string> = {
+  'Davimpex Bahir Dar Tannery': '/media/partners/Bahirdar-Tannery.webp',
+  'Ethio-Leather Industry PLC (ELICO)': '/media/partners/ELICO.webp',
+  'New Wing Shoe Manufacturer': '/media/partners/newwing.webp',
+  'Pittards Ethiopia Tannery': '/media/partners/Pittards.webp',
+}
+
+/* The first quality repeats the section title, so its text opens the section; the other three get a photo each. */
+const [leadQuality, ...qualities] = EHL_QUALITIES.points
+const QUALITY_IMAGES = [
+  { src: EHL_IMAGES.craft, alt: 'Hands lining up strips of tan leather on a cutting mat' },
+  { src: EHL_IMAGES.qualities, alt: 'A herder in a green shirt looking out over clouded highland valleys' },
+  { src: EHL_IMAGES.product, alt: 'A brown leather sling bag with zipped pockets' },
+]
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
+---
+
+<Base title="Ethiopian Highland Leather" description={EHL_BRAND.lead}>
+  <PageHead
+    index="01"
+    eyebrow="EHL"
+    title={['Ethiopian', '<em>Highland</em>', 'Leather.']}
+    lede={EHL_BRAND.lead}
+    image={EHL_IMAGES.hero}
+    imageAlt="A young herder wrapped in a sheepskin stands on a cliff above the clouds in the Ethiopian highlands"
+  />
+
+  <!-- 02 · the figures, stamped large -->
+  <section class="sec sec--tight sec--hide figs" aria-labelledby="figs-h">
+    <div class="wrap">
+      <h2 class="label label--rule" id="figs-h" data-reveal="fade"><b>02</b> In figures</h2>
+      <dl class="figs__list">
+        {EHL_FIGURES.map((f, i) => (
+          <div class="fig" data-reveal style={`--d:${i * 0.08}s`}>
+            <dt class="fig__label">{f.label}</dt>
+            <dd class="fig__num figure-num">{f.value}{f.unit && <span class="fig__unit">{f.unit}</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- 03 · the brand: where it is registered, who is certified -->
+  <section class="sec sec--paper brand" id="brand">
+    <div class="wrap">
+      <div class="brand__top">
+        <SectionHead index="03" eyebrow="The brand" title={dot(EHL_BRAND.title)} align="stack" />
+        <img class="brand__logo" src={EHL_IMAGES.logo} alt="Ethiopian Highland Leather" width="265" height="147" loading="lazy" decoding="async" data-reveal="fade" />
+      </div>
+      <div class="body brand__body" data-reveal>
+        {EHL_BRAND.body.map((p) => <p>{p}</p>)}
+      </div>
+
+      <div class="stitch brand__stitch" aria-hidden="true"></div>
+
+      <div class="brand__lists">
+        <div class="reg">
+          <h3 class="label">Registered in</h3>
+          <ul class="reg__list" role="list">
+            {EHL_BRAND.registered.map((m, i) => <li data-reveal style={`--d:${i * 0.05}s`}>{m}</li>)}
+          </ul>
+        </div>
+        <div class="cert">
+          <h3 class="label">Certified finished leather manufacturers</h3>
+          <p class="cert__intro">{EHL_TANNERIES_INTRO}</p>
+          <ul class="cert__list" role="list">
+            {EHL_BRAND.certified.map((c, i) => (
+              <li class="cert__item" data-reveal style={`--d:${i * 0.06}s`}>
+                {LOGOS[c] && <span class="cert__logo"><img src={LOGOS[c]} alt="" width="310" height="310" loading="lazy" decoding="async" /></span>}
+                <span class="cert__name">{c}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="cert__note"><span class="stamp"><i></i>Certification</span> {EHL_QUALITIES.certification}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · the story, in four chapters -->
+  <section class="sec grain story" id="story">
+    <div class="wrap">
+      <SectionHead index="04" eyebrow={EHL_STORY.eyebrow} title={dot(EHL_STORY.title)} />
+      <div class="story__grid">
+        <div class="story__media">
+          <div class="frame duo story__frame" data-reveal="fade">
+            <img src={EHL_IMAGES.story} alt="A green highland cliff edge disappearing into cloud" width="604" height="683" loading="lazy" decoding="async" />
+          </div>
+        </div>
+        <ol class="chapters" role="list">
+          {EHL_STORY.chapters.map((c, i) => (
+            <li class="chapter" data-reveal>
+              <span class="chapter__n" aria-hidden="true">{roman[i]}</span>
+              <div>
+                <h3 class="chapter__title">{c.title}</h3>
+                <p class="chapter__text">{c.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · qualities -->
+  <section class="sec sec--paper qual" id="qualities">
+    <div class="wrap">
+      <SectionHead index="05" eyebrow="Qualities" title={dot(EHL_QUALITIES.title)} intro={leadQuality.text} />
+      <div class="qual__grid">
+        {qualities.map((q, i) => (
+          <article class="qual__item" data-reveal style={`--d:${i * 0.08}s`}>
+            {QUALITY_IMAGES[i] && (
+              <div class="frame duo qual__frame">
+                <img src={QUALITY_IMAGES[i].src} alt={QUALITY_IMAGES[i].alt} width="604" height="683" loading="lazy" decoding="async" />
+              </div>
+            )}
+            <h3 class="qual__title">{q.title}</h3>
+            <p class="qual__text">{q.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · sustainability -->
+  <section class="sec sec--saddle grain sus" id="sustainability">
+    <div class="wrap">
+      <SectionHead
+        index="06"
+        eyebrow={EHL_SUSTAINABILITY.eyebrow}
+        title={dot(EHL_SUSTAINABILITY.title)}
+        intro={`${EHL_SUSTAINABILITY.text} ${EHL_STORY.inspection}`}
+      />
+      <ul class="sus__list" role="list">
+        {EHL_SUSTAINABILITY.points.map((p, i) => (
+          <li class="sus__item" data-reveal style={`--d:${i * 0.06}s`}>
+            <h3 class="sus__title">{p.title}</h3>
+            <p class="sus__text">{p.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 · promotion with JICA -->
+  <section class="sec sec--paper jica" id="jica">
+    <div class="wrap">
+      <SectionHead index="07" eyebrow={EHL_JICA.eyebrow} title={dot(EHL_JICA.title)} />
+      <div class="jica__grid">
+        <aside class="jica__side">
+          <div class="frame duo jica__frame" data-reveal="fade">
+            <img src={EHL_IMAGES.jica} alt="A herder in a sheepskin cape walking among his sheep" width="604" height="683" loading="lazy" decoding="async" />
+          </div>
+          <div class="jica__meta" data-reveal>
+            <img class="jica__logo" src="/media/partners/jica.webp" alt="JICA, Japan International Cooperation Agency" width="300" height="243" loading="lazy" decoding="async" />
+            <div>
+              <p class="label">Trade shows</p>
+              <ul class="jica__shows" role="list">
+                {EHL_JICA.shows.map((s) => <li class="stamp"><i></i>{s}</li>)}
+              </ul>
+            </div>
+          </div>
+        </aside>
+        <div class="body jica__body" data-reveal>
+          {EHL_JICA.body.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* 02 · figures */
+  .figs__list { margin: clamp(32px, 4vw, 56px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .fig { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 18px; padding: 8px clamp(16px, 2vw, 32px) 6px; }
+  .fig:first-child { padding-left: 0; }
+  .fig + .fig { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
+  .fig__num { margin: 0; font-size: clamp(2.3rem, 1rem + 3.6vw, 5.4rem); color: var(--cream); white-space: nowrap; }
+  .fig__unit { font-size: 0.34em; letter-spacing: 0; margin-left: 0.18em; color: var(--gold); vertical-align: 0.15em; }
+  .fig__label { font-size: 14.5px; line-height: 1.45; color: var(--muted); max-width: 24ch; text-wrap: pretty; }
+
+  /* 03 · brand */
+  .brand__top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
+  .brand__logo { width: clamp(150px, 16vw, 230px); height: auto; margin-bottom: 6px; }
+  .brand__body { margin-top: clamp(36px, 4.4vw, 60px); max-width: none; columns: 2 26em; column-gap: clamp(32px, 4vw, 72px); }
+  .brand__body p { break-inside: avoid; }
+  .brand__body p:first-child { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.4; color: var(--ink); }
+  .brand__stitch { margin-block: clamp(48px, 6vw, 88px); }
+  .brand__lists { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(32px, 5vw, 96px); align-items: start; }
+  .reg__list { list-style: none; margin: 18px 0 0; padding: 0; border-top: 1px solid var(--line-dark); }
+  .reg__list li {
+    padding: 14px 0 12px; border-bottom: 1px solid var(--line-dark);
+    font-family: var(--f-display); font-size: var(--step-2); line-height: 1.1; letter-spacing: -0.01em; color: var(--ink);
+  }
+  .cert__intro { margin-top: 18px; max-width: 52ch; color: #3d2e24; }
+  .cert__list { list-style: none; margin: 26px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 14px; }
+  .cert__item { display: grid; gap: 12px; align-content: start; }
+  .cert__logo { display: block; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px var(--line-dark), 0 20px 40px -34px rgb(60 40 25 / 0.6); }
+  .cert__logo img { width: 100%; height: 100%; object-fit: cover; }
+  .cert__name { font-size: 14px; line-height: 1.4; font-weight: 500; color: var(--ink); }
+  .cert__note { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; max-width: 62ch; color: #3d2e24; font-size: 15px; }
+  /* the shared stamp is made for dark leather; on paper it is pressed in solid ink */
+  .cert__note .stamp, .jica__shows .stamp { background: var(--ink); color: #ecc57e; box-shadow: inset 0 1px 0 rgb(255 222 175 / 0.08); backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+  /* 04 · story */
+  .story { background: var(--ink); }
+  .story__grid { margin-top: clamp(44px, 5.4vw, 84px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px clamp(32px, 5vw, 96px); align-items: start; }
+  .story__media { position: sticky; top: calc(var(--header-h) + 24px); }
+  .story__frame { aspect-ratio: 604 / 683; }
+  .chapters { list-style: none; margin: 0; padding: 0; }
+  .chapter { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 18px; padding-block: clamp(26px, 3.4vw, 46px); border-top: 1px solid var(--line); }
+  .chapter:first-child { border-top: 0; padding-top: 0; }
+  .chapter__n { font-family: var(--f-display); font-style: italic; font-size: var(--step-2); line-height: 1; color: var(--amber); }
+  .chapter__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--cream); }
+  .chapter__text { margin-top: 14px; color: var(--bone); max-width: 54ch; text-wrap: pretty; }
+
+  /* 05 · qualities: three photographs, the middle one set lower */
+  .qual__grid { margin-top: clamp(48px, 6vw, 96px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px clamp(18px, 2.4vw, 40px); align-items: start; }
+  .qual__item:nth-child(2) { margin-top: clamp(0px, 7vw, 120px); }
+  .qual__frame { aspect-ratio: 604 / 683; }
+  .qual__title { margin-top: 22px; font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); }
+  .qual__text { margin-top: 12px; color: #3d2e24; max-width: 46ch; text-wrap: pretty; }
+
+  /* 06 · sustainability: five small steps, side by side */
+  .sus__list { list-style: none; margin: clamp(48px, 6vw, 90px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sus__item { padding: 4px clamp(14px, 1.6vw, 26px) 0; }
+  .sus__item:first-child { padding-left: 0; }
+  .sus__item + .sus__item { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
+  .sus__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--amber); }
+  .sus__text { margin-top: 12px; font-size: 15px; line-height: 1.55; color: var(--bone); text-wrap: pretty; }
+
+  /* 07 · JICA */
+  .jica__grid { margin-top: clamp(44px, 5.4vw, 84px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(32px, 5vw, 96px); align-items: start; }
+  .jica__frame { aspect-ratio: 604 / 683; }
+  .jica__meta { margin-top: 22px; display: flex; gap: 22px; align-items: center; }
+  .jica__logo { width: 92px; height: auto; border-radius: 6px; background: #fff; padding: 8px; flex: none; box-shadow: 0 0 0 1px var(--line-dark); }
+  .jica__shows { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .jica__body p:first-child { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.4; color: var(--ink); }
+  .jica__body p:last-child { font-weight: 500; color: var(--ink); }
+
+  @media (max-width: 1180px) {
+    .sus__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 36px; }
+    .sus__item + .sus__item:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+    .cert__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 960px) {
+    .brand__lists, .story__grid, .jica__grid { grid-template-columns: 1fr; }
+    .story__media { position: static; }
+    .story__frame, .jica__frame { aspect-ratio: 16 / 10; }
+    .qual__grid { grid-template-columns: 1fr 1fr; }
+    .qual__item:nth-child(2) { margin-top: 0; }
+    .qual__item:nth-child(3) { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(18px, 2.4vw, 40px); }
+    .qual__item:nth-child(3) .qual__frame { grid-row: span 3; }
+    .qual__item:nth-child(3) .qual__title { margin-top: 0; }
+  }
+  @media (max-width: 760px) {
+    .figs__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 34px; }
+    .fig + .fig:nth-child(3) { padding-left: 0; border-left: 0; }
+    .brand__top { grid-template-columns: 1fr; }
+    .brand__logo { order: -1; width: 150px; }
+    .brand__body { columns: 1; }
+    .sus__list { grid-template-columns: 1fr; row-gap: 0; }
+    .sus__item, .sus__item + .sus__item, .sus__item + .sus__item:nth-child(3n + 1) { padding: 20px 0; border-left: 0; }
+    .sus__item + .sus__item { border-top: 1.4px dashed rgb(226 160 37 / 0.4); }
+    .chapter { grid-template-columns: 2.4rem minmax(0, 1fr); gap: 12px; }
+  }
+  @media (max-width: 600px) {
+    .qual__grid { grid-template-columns: 1fr; }
+    .qual__item:nth-child(3) { display: block; }
+    .qual__item:nth-child(3) .qual__title { margin-top: 22px; }
+    .cert__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .jica__meta { align-items: flex-start; }
+  }
+</style>
