@@ -28,7 +28,8 @@ const {
   overHero = false,
   bodyClass = '',
 } = Astro.props
-const path = Astro.url.pathname.replace(/\/$/, '') || '/'
+// pages are built as files (about.html) but served at clean addresses (/about), which is what search engines should see
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/$/, '') || '/'
 const fullTitle = title ? `${title} · ELIA` : `${ORG.name} · ELIA`
 const canonical = new URL(path, Astro.site).toString()
 const ogImage = new URL(image, Astro.site).toString()
@@ -41,7 +42,7 @@ const ogImage = new URL(image, Astro.site).toString()
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {path !== '/404' && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#0c0907" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={displayUrl} as="font" type="font/woff2" crossorigin />
