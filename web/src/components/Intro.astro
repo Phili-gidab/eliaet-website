@@ -68,8 +68,8 @@ import Film from './Film.astro'
       setTimeout(finish, 1400)
     } else {
       // the film runs 12 s: a blank second, Ethiopia drawn and turned into the e (to 6 s), the wordmark (to 8 s), then a hold.
-      // Start past the blank, play a little quick, and hand over to the hero once the lockup has settled.
-      const START = 0.8, END = 8.7, RATE = 1.4
+      // Start past the blank, play it quick (about 4 s in all), and hand over to the hero as soon as the lockup stands.
+      const START = 0.9, END = 8.3, RATE = 1.7
       const video = mountFilm(filmEl, { onEnded: finish })
       const rate = () => { video.defaultPlaybackRate = RATE; video.playbackRate = RATE }
       rate()
