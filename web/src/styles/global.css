@@ -263,6 +263,10 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inse
 .seam { position: relative; }
 .seam::before { content: none; }
 
+/* a display title set as lines: each line is its own line in every case (with less motion and without the script
+   too), so neighbouring lines never run together into one unbreakable word */
+.lines .ln { display: block; }
+
 /* ── reveal on scroll (site.ts adds .in) ────────────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
   .js [data-reveal] { opacity: 0; transform: translateY(24px); filter: blur(8px); transition: opacity 1s var(--ease), transform 1.2s var(--ease), filter 1s var(--ease); transition-delay: var(--d, 0s); }
