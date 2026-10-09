@@ -59,6 +59,7 @@ npm start          # one process on $PORT (default 4000) serves the pages, the f
 | `server/data/members.json` | The member directory. **The pages are built from it**: after editing, run `npm run build` again |
 | `server/data/news.json` | News posts and events (same: rebuild after editing) |
 | `server/src/` | Express: serves `web/dist`, forms API (zod-validated, rate-limited, honeypot), legacy redirects |
+| `hosting/` | For now: the package and the script that put the site on a subdomain of the AALF hosting (PHP forms in `hosting/api/`, Apache rules) |
 | `blender/` | *(not in this repository; kept on the workstation)* The Blender scenes, scripts and renders behind the films |
 | `client/` | *(not in this repository)* The previous React version, no longer built |
 
@@ -90,6 +91,34 @@ Accessibility, best practices and SEO score 100. What keeps it fast:
 Contact, appointment, newsletter and membership forms post to the API. Every submission is written to
 `server/inbox/<form>.jsonl` (membership stamps to `server/inbox/stamps/`), so nothing is lost even without e-mail.
 To also e-mail the secretariat, copy `server/.env.example` to `server/.env` and fill in the SMTP settings.
+
+## Online for now: elia.allafricanleatherfair.org
+
+Until ELIA has hosting of its own, the site lives on a subdomain of the AALF site's hosting (Yegara, cPanel account
+`allafrpp`), kept out of search engines. That account runs PHP rather than Node, so the forms are answered by small
+PHP files (`hosting/api/`) that check and answer exactly like the Node server.
+
+1. Here (in this repository), after the changes are committed and pushed:
+
+   ```bash
+   node hosting/bundle.mjs        # -> hosting/out/elia-site-<version>.tar.gz (under 1 MB) and deploy-elia.sh
+   ```
+
+2. Put both files in one folder on the computer that has the AALF SSH setup (the `allafrica` host in
+   `~/.ssh/config`), open Git Bash there and run `./deploy-elia.sh`.
+
+The first run creates the subdomain and asks for its certificate. The server downloads the films and photos itself,
+from this repository on GitHub at the same version, so only the small package travels over the computer's
+connection. Every run backs up the subdomain's folder first (`~/backups`, the last three) and deletes nothing.
+
+What people send through the forms is kept on the server outside the web root, in
+`~/elia-data/elia.allafricanleatherfair.org/` (`contact.csv`, `appointments.csv`, `subscribers.csv`,
+`membership.csv` and the stamps in `stamps/`; they open in Excel via cPanel > File Manager), and is e-mailed to
+the address in `hosting/api/_config.php` (`info@eliaet.com`).
+
+When the site moves to its own address, either set it up with Node as below, or use the same PHP package built for
+the new address (`node hosting/bundle.mjs https://www.eliaet.com`) with the search-engine block taken out: drop
+`NOINDEX: '1'` in `hosting/bundle.mjs` and the `X-Robots-Tag` line in `hosting/htaccess-elia.conf`.
 
 ## Deploying on cPanel
 

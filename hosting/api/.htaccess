@@ -1,0 +1,5 @@
+# The forms' helpers (_config.php, _lib.php) and any _data folder are not for the web.
+<FilesMatch "^_">
+    Require all denied
+</FilesMatch>
+RedirectMatch 404 /api/_data(/|$)

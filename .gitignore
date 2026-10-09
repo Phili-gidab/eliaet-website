@@ -9,3 +9,5 @@ server/.env
 *.log
 .DS_Store
 shot*.png
+hosting/out/
+hosting/.stage-*/
