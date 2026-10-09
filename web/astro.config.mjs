@@ -6,7 +6,8 @@ export default defineConfig({
   site: 'https://www.eliaet.com',
   output: 'static',
   trailingSlash: 'never',
-  build: { format: 'file', inlineStylesheets: 'auto', assets: '_assets' },
+  // the styles go inside each page: no stylesheet request stands between a slow phone and the first paint
+  build: { format: 'file', inlineStylesheets: 'always', assets: '_assets' },
   compressHTML: true,
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   vite: {

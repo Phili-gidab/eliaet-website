@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import SectionHead from '../components/SectionHead.astro'
@@ -101,7 +102,7 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
       <div class="story__grid">
         <div class="story__media">
           <div class="frame duo story__frame" data-reveal="fade">
-            <img src={EHL_IMAGES.story} alt="A green highland cliff edge disappearing into cloud" width="604" height="683" loading="lazy" decoding="async" />
+            <img src={EHL_IMAGES.story} alt="A green highland cliff edge disappearing into cloud" width="604" height="683" loading="lazy" decoding="async" {...responsive(EHL_IMAGES.story, '(max-width: 900px) 92vw, 520px')} />
           </div>
         </div>
         <ol class="chapters" role="list">
@@ -128,7 +129,7 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
           <article class="qual__item" data-reveal style={`--d:${i * 0.08}s`}>
             {QUALITY_IMAGES[i] && (
               <div class="frame duo qual__frame">
-                <img src={QUALITY_IMAGES[i].src} alt={QUALITY_IMAGES[i].alt} width="604" height="683" loading="lazy" decoding="async" />
+                <img src={QUALITY_IMAGES[i].src} alt={QUALITY_IMAGES[i].alt} width="604" height="683" loading="lazy" decoding="async" {...responsive(QUALITY_IMAGES[i].src, '(max-width: 900px) 92vw, 420px')} />
               </div>
             )}
             <h3 class="qual__title">{q.title}</h3>
@@ -166,7 +167,7 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
       <div class="jica__grid">
         <aside class="jica__side">
           <div class="frame duo jica__frame" data-reveal="fade">
-            <img src={EHL_IMAGES.jica} alt="A herder in a sheepskin cape walking among his sheep" width="604" height="683" loading="lazy" decoding="async" />
+            <img src={EHL_IMAGES.jica} alt="A herder in a sheepskin cape walking among his sheep" width="604" height="683" loading="lazy" decoding="async" {...responsive(EHL_IMAGES.jica, '(max-width: 900px) 92vw, 520px')} />
           </div>
           <div class="jica__meta" data-reveal>
             <img class="jica__logo" src="/media/partners/jica.webp" alt="JICA, Japan International Cooperation Agency" width="300" height="243" loading="lazy" decoding="async" />

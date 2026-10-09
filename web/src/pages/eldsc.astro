@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import SectionHead from '../components/SectionHead.astro'
@@ -44,7 +45,7 @@ const domain = ELDSC.link.replace(/^https?:\/\//, '').replace(/\/$/, '')
       <div class="co__side">
         <h2 class="label label--rule" id="co-h" data-reveal="fade"><b>02</b> {ELDSC.eyebrow}</h2>
         <div class="frame duo co__frame" data-reveal="fade">
-          <img src={ELDSC_IMAGES.craft} alt="Leather, suede and sheepskin swatches with a thickness gauge and a leather shoe" width="900" height="1200" loading="lazy" decoding="async" />
+          <img src={ELDSC_IMAGES.craft} alt="Leather, suede and sheepskin swatches with a thickness gauge and a leather shoe" width="900" height="1200" loading="lazy" decoding="async" {...responsive(ELDSC_IMAGES.craft, '(max-width: 900px) 92vw, 420px')} />
         </div>
       </div>
       <div class="co__main">
@@ -99,7 +100,7 @@ const domain = ELDSC.link.replace(/^https?:\/\//, '').replace(/\/$/, '')
       <div class="sus__close">
         <p class="sus__summary" data-reveal>{ELDSC_SUSTAINABILITY.summary}</p>
         <div class="frame sus__frame" data-reveal="fade" style="--d:.1s">
-          <img src={ELDSC_IMAGES.leather} alt="Close-up of black and brown grained leather" width="1009" height="1394" loading="lazy" decoding="async" />
+          <img src={ELDSC_IMAGES.leather} alt="Close-up of black and brown grained leather" width="1009" height="1394" loading="lazy" decoding="async" {...responsive(ELDSC_IMAGES.leather, '(max-width: 900px) 92vw, 420px')} />
         </div>
       </div>
     </div>

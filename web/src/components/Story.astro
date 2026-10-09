@@ -43,7 +43,7 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     />
     <picture class="story__end" aria-hidden="true">
       <source media="(orientation: portrait) and (max-width: 900px)" srcset="/film/tannery-m-end-720.webp" />
-      <img src="/film/tannery-end-1600.webp" alt="" decoding="async" />
+      <img src="/film/tannery-end-1600.webp" alt="" decoding="async" fetchpriority="low" />
     </picture>
     <div class="story__shade" aria-hidden="true"></div>
 
@@ -228,7 +228,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     .pin { --stem: 34px; }
     .pin__tag { font-size: 10px; padding: 5px 9px 5px 8px; letter-spacing: 0.1em; }
     .ch__dates { display: none; }
-    .rail__lbl { display: none; }
+    /* the chapter names leave the screen but stay with the buttons, for screen readers */
+    .rail__lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .rail__seg { position: relative; }
     .rail__list { gap: 6px; }
   }
   @media (max-width: 560px) {

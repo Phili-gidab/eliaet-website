@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import Intro from '../components/Intro.astro'
 import Story from '../components/Story.astro'
@@ -40,7 +41,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
             <span class="w inlay" style="--i:1;background-image:url(/media/home/leather1.webp)" aria-hidden="true"></span>
             <span class="w" style="--i:2"><em>Leather</em></span>
             <span class="w" style="--i:3">Industries</span>
-            <span class="w inlay" style="--i:4;background-image:url(/media/carousel-0.webp)" aria-hidden="true"></span>
+            <span class="w inlay" style="--i:4;background-image:url(/media/carousel-0-480.webp)" aria-hidden="true"></span>
             <span class="w" style="--i:5">Association</span>
           </h2>
         </div>
@@ -81,11 +82,11 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
       <SectionHead index="03" eyebrow="From hide to leather" amharic="ከጥሬ ቆዳ እስከ ያለቀ ቆዳ" title="Four stages, <em>one</em> material." intro="How a by-product of Ethiopia’s food culture becomes a material that the world’s shoe, bag and garment makers buy." />
     </div>
     <div class="strip" data-strip>
-      <ol class="strip__track" role="list">
+      <ol class="strip__track" role="list" tabindex="0" aria-label="The four stages, from hide to leather (scrolls sideways)">
         {PROCESS.map((s, i) => (
           <li class="stage card" data-reveal style={`--d:${i * 0.08}s`}>
             <div class:list={['stage__pic', `sw--${swatch[s.key]}`]}>
-              <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+              <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" {...responsive(`/media/film/stage-${s.key}.webp`, '(max-width: 900px) 260px, 404px')} />
               <span class="stage__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
               <span class="geez stage__am" lang="am">{s.amharic}</span>
             </div>
@@ -112,7 +113,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
       <div class="bento">
         {HIGHLIGHTS.map((h, i) => (
           <a class:list={['bento__item', 'card', `bento__item--${i}`]} href={h.to} data-reveal style={`--d:${(i % 2) * 0.1}s`}>
-            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" /></div>
+            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" {...responsive(h.image, '(max-width: 900px) 88vw, 760px')} /></div>
             <div class="bento__text">
               <span class="label"><b>{pad(i + 1)}</b></span>
               <h3 class="h3">{h.title}</h3>
@@ -195,7 +196,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
     <div class="wrap partners__head">
       <p class="label" data-reveal="fade"><b>09</b> Partners and brands</p>
     </div>
-    <div class="marquee partners__row" style="--dur:60s;--gap:12px">
+    <div class="marquee partners__row" style="--dur:60s;--gap:12px" data-label="Partners and brands">
       {[0, 1].map((k) => (
         <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
           {logos.map((p) => (

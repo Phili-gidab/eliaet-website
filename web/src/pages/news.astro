@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import SectionHead from '../components/SectionHead.astro'
@@ -42,7 +43,7 @@ const out = 'M7 17 17 7M9 7h8v8'
       <div class="wrap ev__in">
         <div class="ev__media">
           <div class="frame ev__frame" data-reveal="mask">
-            {upcoming.image && <img src={upcoming.image} alt="" width="1080" height="1080" loading="lazy" decoding="async" />}
+            {upcoming.image && <img src={upcoming.image} alt="" width="1080" height="1080" loading="lazy" decoding="async" {...responsive(upcoming.image, '(max-width: 900px) 92vw, 650px')} />}
           </div>
           {when && (
             <p class="ev__date" data-reveal="fade" style="--d:.3s">

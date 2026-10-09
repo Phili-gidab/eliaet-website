@@ -11,9 +11,13 @@ interface Props {
   class?: string
   toggle?: boolean
   manual?: boolean
+  /** 'lazy' for a poster that is only a fallback and stays hidden while the film plays (the intro's) */
+  posterLoading?: 'eager' | 'lazy'
 }
-const { wide, tall, poster, posterTall, label, formats = 'av1,hevc,vp9,h264', loop = true, class: cls, toggle = true, manual = false } = Astro.props
+const { wide, tall, poster, posterTall, label, formats = 'av1,hevc,vp9,h264', loop = true, class: cls, toggle = true, manual = false, posterLoading = 'eager' } = Astro.props
 const fallbackPoster = poster ?? `${wide.base}-${Math.max(...wide.sizes)}.webp`
+// the poster sits under the video as a picture, so each screen downloads only the shape it shows (a <video poster>
+// would fetch the wide one everywhere); the script uses the tall film on the same screens (taller than wide by 5%)
 ---
 
 <figure
@@ -22,13 +26,14 @@ const fallbackPoster = poster ?? `${wide.base}-${Math.max(...wide.sizes)}.webp`
   data-film-manual={manual ? '' : undefined}
   data-wide={JSON.stringify(wide)}
   data-tall={tall ? JSON.stringify(tall) : undefined}
-  data-poster={poster}
-  data-poster-tall={posterTall}
   data-formats={formats}
   data-loop={loop ? 'true' : 'false'}
 >
-  <video muted playsinline preload="metadata" poster={fallbackPoster} aria-label={label}></video>
-  <noscript><img src={fallbackPoster} alt={label} /></noscript>
+  <picture class="film__poster">
+    {tall && posterTall && <source media="(max-aspect-ratio: 20/21)" srcset={posterTall} />}
+    <img src={fallbackPoster} alt="" decoding="async" loading={posterLoading} />
+  </picture>
+  <video muted playsinline preload="metadata" aria-label={label}></video>
   {toggle && (
     <button class="film__toggle" type="button" data-film-toggle aria-pressed="false" aria-label="Pause the film">
       <svg class="film__pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>

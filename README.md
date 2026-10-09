@@ -53,7 +53,9 @@ npm start          # one process on $PORT (default 4000) serves the pages, the f
 | `web/src/scripts/` | `site.ts` (menu, reveals, counters, forms), `film.ts` (picks the right film), `story.ts` (the home film's copy in step), the member directory |
 | `web/src/styles/` | `global.css` (type, colour, sections), `forms.css` |
 | `web/public/film/` | The films and their posters (copied from `blender/film/`) |
-| `web/public/media/` | Photos and logos from the current site, as WebP |
+| `web/public/media/` | Photos and logos from the current site, as WebP; `fair/` holds four photos from the AALF website. Large photos have smaller copies next to them (`name-480.webp`, `-720`, `-960`, `-1280`) |
+| `tools/media_variants.py` | Makes those smaller copies. **Run it after adding or replacing a large photo** (`python tools/media_variants.py`, needs Pillow); the pages pick the copies up by name |
+| `web/scripts/fonts.mjs` | Runs before every build: cuts Noto Sans Ethiopic down to the Ge'ez letters the site uses (15 kB instead of 200 kB) |
 | `server/data/members.json` | The member directory. **The pages are built from it**: after editing, run `npm run build` again |
 | `server/data/news.json` | News posts and events (same: rebuild after editing) |
 | `server/src/` | Express: serves `web/dist`, forms API (zod-validated, rate-limited, honeypot), legacy redirects |
@@ -69,6 +71,19 @@ To replace a film, encode the new frames with `tools/encode_film.sh` into `blend
 The home film (`tannery-*`, 20 s, 25 fps) was rendered at 1600×900 and 720×1280; its frames were checked one by one for
 graphics-driver glitches before encoding, and its VP9 renditions were made with ffmpeg (libvpx-vp9, two passes)
 because Blender's own VP9 output showed colour smears.
+
+## Speed
+
+Measured with Lighthouse on every page: 100 on a desktop and about 93 to 97 on a phone (slow 4G, mid-range phone).
+Accessibility, best practices and SEO score 100. What keeps it fast:
+
+- The styles are written into each page, so no stylesheet request delays the first paint.
+- The Ge'ez font carries only the letters in use (`web/scripts/fonts.mjs`). New Amharic text is picked up at the
+  next build.
+- Photos come in several sizes and each screen downloads the one it needs (`srcset`; see `web/src/lib/media.ts`).
+- Each film poster is a picture under the video, so a phone downloads only the tall poster. The intro's poster is
+  downloaded only if the film cannot play.
+- The top of each inner page starts its entrance as soon as it is painted, without waiting for the script.
 
 ## Forms and e-mail
 
@@ -112,5 +127,6 @@ hashes, which the server reads from `web/dist` when it starts, so **restart the 
 - **Social media**: the old site shows icons with no links. Add the real addresses in `web/src/copy/site.ts`.
 - **Member directory**: 14 companies have a public listing (the old site's list). Add the rest in
   `server/data/members.json`, then rebuild.
-- **Photography**: the photos are the current site's. New, high-resolution photography of tanneries, workshops
-  and products would lift the whole site.
+- **Photography**: the photos are the current site's, except four from the AALF website (taken at ASFW Addis 2025,
+  AICC): the AALF card on Programs, two news cards and the Services band. New, high-resolution photography of
+  tanneries, workshops and products would lift the whole site.

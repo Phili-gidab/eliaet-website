@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import Appointment from '../components/Appointment.astro'
@@ -49,7 +50,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
   <div class="plate grain">
     <div class="wrap">
       <div class="plate__img frame duo" data-reveal="fade">
-        <img src="/media/fair/lounge-wide.webp" alt="" loading="lazy" decoding="async" width="1800" height="1125" />
+        <img src="/media/fair/lounge-wide.webp" alt="" loading="lazy" decoding="async" width="1800" height="1125" {...responsive('/media/fair/lounge-wide.webp', '(max-width: 900px) 92vw, 1330px')} />
       </div>
     </div>
   </div>
@@ -68,7 +69,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
     font-size: 15px; line-height: 1.4;
   }
   .svc__index a { display: flex; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--line-dark); color: #3d2e24; transition: color 0.25s, padding 0.4s var(--ease); }
-  .svc__index a span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--cognac); }
+  .svc__index a span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--cognac-ink); }
   .svc__index a:hover { color: var(--ink); padding-left: 6px; }
   .svc__stitch { margin-top: clamp(40px, 5vw, 72px); }
   .svc__stitch--end { margin-top: 0; }

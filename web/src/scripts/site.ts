@@ -47,6 +47,16 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
   }
 }
 
+/* ── with less motion a moving row (the partners) stands still and scrolls instead: then it takes keyboard focus,
+   so it can be scrolled with the arrow keys ── */
+if (reduce) {
+  document.querySelectorAll<HTMLElement>('.marquee').forEach((m) => {
+    m.tabIndex = 0
+    m.setAttribute('role', 'region')
+    m.setAttribute('aria-label', m.dataset.label || 'A row that scrolls sideways')
+  })
+}
+
 /* ── reveals: elements with data-reveal (and .lines headings) fade/rise in once ── */
 {
   const els = document.querySelectorAll<HTMLElement>('[data-reveal], .lines')

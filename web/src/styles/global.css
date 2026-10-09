@@ -16,6 +16,7 @@
   /* leather */
   --tan: #9a6537;
   --cognac: #b4692c;
+  --cognac-ink: #874f21; /* the same colour, dark enough for small text on paper and on its own tint */
   --wetblue: #86a9b2;
   /* light */
   --gold: #e2a025;
@@ -188,8 +189,9 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.6); 
   background: rgb(246 183 75 / 0.08); box-shadow: inset 0 0 0 1px rgb(246 183 75 / 0.22);
 }
 .label .geez { letter-spacing: 0.02em; text-transform: none; font-size: 12.5px; opacity: 0.85; }
+.sec--paper .label .geez { opacity: 1; } /* on paper the dimmed Ge'ez would not read */
 .sec--paper .label { color: #6f5a4b; }
-.sec--paper .label b { color: var(--cognac); background: rgb(180 105 44 / 0.08); box-shadow: inset 0 0 0 1px rgb(180 105 44 / 0.25); }
+.sec--paper .label b { color: var(--cognac-ink); background: rgb(180 105 44 / 0.08); box-shadow: inset 0 0 0 1px rgb(180 105 44 / 0.25); }
 .label--rule::before { content: none; }
 
 .figure-num { font-family: var(--f-display); font-weight: 600; font-stretch: 78%; letter-spacing: -0.04em; line-height: 0.85; font-variant-numeric: tabular-nums; }

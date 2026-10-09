@@ -30,8 +30,7 @@ function choose(el: HTMLElement) {
     const w = sizes.find((x) => x >= need * 0.85) ?? sizes[sizes.length - 1]
     for (const c of codecs) list.push({ src: fileFor(set.base, w, c), portrait: isTall })
   }
-  const poster = (isTall: boolean) => (isTall ? el.dataset.posterTall || el.dataset.poster : el.dataset.poster) || ''
-  return { list, poster }
+  return { list }
 }
 
 export function mountFilm(el: HTMLElement, opts: { onEnded?: () => void; hold?: () => boolean } = {}) {
@@ -47,12 +46,11 @@ export function mountFilm(el: HTMLElement, opts: { onEnded?: () => void; hold?: 
   }
   const failed = new Set<string>()
   const load = () => {
-    const { list, poster } = choose(el)
+    const { list } = choose(el)
     const c = list.find((x) => !failed.has(x.src))
     if (!c) {
-      // nothing plays here: the poster of the shape this screen wants stays, and whoever listens is told
-      const wantTall = !!el.dataset.tall && innerHeight > innerWidth * 1.05
-      video.poster = poster(wantTall)
+      // nothing plays here: the poster (a picture under the video, in the shape this screen wants) stays, and whoever
+      // listens is told
       el.classList.add('is-still')
       el.dispatchEvent(new CustomEvent('film-unavailable'))
       return
@@ -60,7 +58,6 @@ export function mountFilm(el: HTMLElement, opts: { onEnded?: () => void; hold?: 
     el.classList.toggle('is-portrait', c.portrait)
     if (c.src === current) return
     current = c.src
-    video.poster = poster(c.portrait)
     video.src = c.src
     video.load()
     sync()

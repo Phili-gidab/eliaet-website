@@ -1,6 +1,7 @@
 ---
 /* The top of every inner page: stamped label, a display title that rises in line by line, a lede, and
    optionally a picture or a film beside it. */
+import { responsive } from '../lib/media'
 interface Props {
   index?: string
   eyebrow: string
@@ -26,12 +27,16 @@ const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', tone 
     </div>
     {image && (
       <div class="ph__media frame" data-reveal="mask" style="--d:.15s">
-        <img src={image} alt={imageAlt} loading="eager" fetchpriority="high" decoding="async" />
+        <img src={image} alt={imageAlt} loading="eager" fetchpriority="high" decoding="async" {...responsive(image, '(max-width: 900px) 92vw, 520px')} />
       </div>
     )}
   </div>
   <div class="ph__stitch wrap" aria-hidden="true"><div class="stitch"></div></div>
 </section>
+<script is:inline>
+  /* the top of the page rises in as soon as it is first painted, without waiting for the page's script to arrive */
+  (function (s) { if (s) requestAnimationFrame(function () { requestAnimationFrame(function () { s.querySelectorAll('[data-reveal], .lines').forEach(function (e) { e.classList.add('in') }) }) }) })(document.currentScript && document.currentScript.previousElementSibling)
+</script>
 
 <style>
   .ph { position: relative; padding-top: calc(var(--header-h) + clamp(56px, 9vw, 140px)); padding-bottom: clamp(40px, 5vw, 72px); background: var(--ink); }

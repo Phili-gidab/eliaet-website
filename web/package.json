@@ -5,8 +5,8 @@
   "type": "module",
   "description": "ELIA website: static pages (Astro), the films from Blender, three.js where it earns its weight",
   "scripts": {
-    "dev": "astro dev --port 5173",
-    "build": "astro build && node scripts/postbuild.mjs",
+    "dev": "node scripts/fonts.mjs && astro dev --port 5173",
+    "build": "node scripts/fonts.mjs && astro build && node scripts/postbuild.mjs",
     "preview": "astro preview --port 5173",
     "check": "astro check"
   },
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^22.20.5",
+    "subset-font": "^2.9.0",
     "typescript": "^5.9.0"
   }
 }

@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 interface Props {
   post: { slug: string; kind?: string; category?: string; title: string; excerpt?: string; date?: string | null; image?: string; to?: string; href?: string }
   index?: number
@@ -13,7 +14,7 @@ const fmt = date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'sh
 <article class="nc card" data-reveal style={`--d:${(index % 3) * 0.08}s`}>
   <a href={link} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined} class="nc__a">
     <div class="nc__img frame">
-      {post.image && <img src={post.image} alt="" loading="lazy" decoding="async" />}
+      {post.image && <img src={post.image} alt="" loading="lazy" decoding="async" {...responsive(post.image, '(max-width: 900px) 88vw, 420px')} />}
       {post.kind === 'event' && <span class="stamp nc__stamp"><i></i>Event</span>}
     </div>
     <div class="nc__meta">
@@ -38,5 +39,5 @@ const fmt = date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'sh
   .nc__ex { padding-inline: 14px; color: var(--muted); font-size: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .sec--paper .nc__ex { color: #5a4638; }
   .nc__more { justify-self: start; margin-inline: 14px; color: var(--amber); }
-  .sec--paper .nc__more { color: var(--cognac); }
+  .sec--paper .nc__more { color: var(--cognac-ink); }
 </style>

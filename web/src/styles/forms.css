@@ -62,7 +62,7 @@
 .form__end { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
 .form__msg { min-height: 1.4em; font-size: 15px; color: var(--muted); }
 .form__msg[data-ok='1'] { color: var(--amber); }
-.sec--paper .form__msg[data-ok='1'] { color: var(--cognac); }
+.sec--paper .form__msg[data-ok='1'] { color: var(--cognac-ink); }
 .form.sending .btn { opacity: 0.7; pointer-events: none; }
 .hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 

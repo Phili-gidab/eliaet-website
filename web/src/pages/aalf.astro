@@ -1,4 +1,5 @@
 ---
+import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import SectionHead from '../components/SectionHead.astro'
@@ -73,9 +74,9 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
     <div class="wrap">
       <SectionHead index="02" eyebrow={AALF_ABOUT.eyebrow} title={dot(AALF_ABOUT.title)} intro={AALF_ABOUT.text} />
       <div class="about__pics">
-        <img class="about__cut" src={AALF_IMAGES.hammer} alt="A woman in a traditional leather dress and beads, set against a map of Africa" width="1080" height="1080" loading="lazy" decoding="async" data-reveal="fade" />
+        <img class="about__cut" src={AALF_IMAGES.hammer} alt="A woman in a traditional leather dress and beads, set against a map of Africa" width="1080" height="1080" loading="lazy" decoding="async" data-reveal="fade" {...responsive(AALF_IMAGES.hammer, '(max-width: 900px) 92vw, 650px')} />
         <div class="frame about__frame" data-reveal="fade" style="--d:.12s">
-          <img src={AALF_IMAGES.model2} alt="A model seated on a hide beside a round leather vessel" width="990" height="990" loading="lazy" decoding="async" />
+          <img src={AALF_IMAGES.model2} alt="A model seated on a hide beside a round leather vessel" width="990" height="990" loading="lazy" decoding="async" {...responsive(AALF_IMAGES.model2, '(max-width: 900px) 70vw, 540px')} />
         </div>
       </div>
     </div>
@@ -147,7 +148,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   <section class="sec grain past" id="past" aria-labelledby="past-h">
     <div class="wrap past__in">
       <div class="frame past__poster" data-reveal="fade">
-        <img src={AALF_PAST.poster} alt="Poster of the 14th All African Leather Fair at Millennium Hall, Addis Ababa" width="763" height="1080" loading="lazy" decoding="async" />
+        <img src={AALF_PAST.poster} alt="Poster of the 14th All African Leather Fair at Millennium Hall, Addis Ababa" width="763" height="1080" loading="lazy" decoding="async" {...responsive(AALF_PAST.poster, '(max-width: 900px) 92vw, 540px')} />
       </div>
       <div class="past__text">
         <p class="label label--rule" data-reveal="fade"><b>07</b> Past editions</p>
@@ -271,7 +272,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
     font-family: var(--f-display); font-size: var(--step-3); line-height: 1.04; letter-spacing: -0.016em; color: var(--ink); text-wrap: balance;
   }
   .outcomes__list li:first-child { font-size: var(--step-2); line-height: 1.16; padding-top: 0; padding-right: 12%; }
-  .outcomes__list a { display: inline-flex; align-items: center; gap: 0.3em; color: var(--cognac); transition: gap 0.4s var(--ease); }
+  .outcomes__list a { display: inline-flex; align-items: center; gap: 0.3em; color: var(--cognac-ink); transition: gap 0.4s var(--ease); }
   .outcomes__list a svg { width: 0.62em; height: 0.62em; }
   .outcomes__list a:hover { gap: 0.5em; }
 

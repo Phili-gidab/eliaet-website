@@ -1,0 +1,11 @@
+/* Noto Sans Ethiopic for the Ge'ez labels, cut down to the letters the site uses (web/scripts/fonts.mjs makes the
+   file before each build). Only Ethiopic letters come from it: the spaces and figures between them are set in the
+   text face, so the font's Latin files are never downloaded. */
+@font-face {
+  font-family: 'Noto Sans Ethiopic Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(../fonts/noto-sans-ethiopic-subset.woff2) format('woff2-variations');
+  unicode-range: U+1200-139F, U+2D80-2DDF, U+AB00-AB2F;
+}

@@ -14,6 +14,7 @@ import Film from './Film.astro'
     formats="vp9,h264"
     poster="/film/logo-end-1280.jpg"
     posterTall="/film/logo-t-end-720.jpg"
+    posterLoading="lazy"
     label="ELIA, Ethiopian Leather Industries Association"
   />
   <button class="intro__skip" type="button" data-intro-skip>Skip intro <span aria-hidden="true">→</span></button>
@@ -30,10 +31,12 @@ import Film from './Film.astro'
   /* the poster (the finished lockup) is only for a film that cannot play: shown before the film starts it would give
      the ending away for a moment, so until then the screen stays the film's own blank cream */
   .intro :global(.intro__film:not(.is-live):not(.is-still) video) { opacity: 0; }
+  /* and the poster is not even downloaded unless the film cannot play */
+  .intro :global(.intro__film:not(.is-still) .film__poster) { display: none; }
   /* screens narrower than the 9:16 film would crop the lockup's ends: show the whole frame instead, its top and bottom
      melting into the same cream so no band shows */
   @media (max-aspect-ratio: 9 / 16) {
-    .intro :global(.intro__film video) {
+    .intro :global(.intro__film video), .intro :global(.intro__film .film__poster img) {
       object-fit: contain;
       -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 88%, transparent);
       mask-image: linear-gradient(transparent, #000 9%, #000 88%, transparent);
