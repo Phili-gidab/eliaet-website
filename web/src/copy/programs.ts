@@ -38,7 +38,7 @@ export const PROGRAMS: Program[] = [
     title: 'Africa’s biggest and most important international leather exhibition.',
     text: 'The trade show organised by the Ethiopian Leather Industries Association (ELIA) since its first edition in 2008. AALF brings together tanners, footwear and other leather goods manufacturers, in addition to equipment and technology suppliers, chemical and inputs suppliers, manpower training institutions, trade promotion organizations, etc. from all over the world.',
     points: ['Your gateway to introduce your products', 'Meet international industry players', 'Build long-term partnerships'],
-    image: '/media/home/aalf.webp',
+    image: '/media/fair/hall.webp',
     to: '/aalf',
     cta: 'About the fair',
   },
