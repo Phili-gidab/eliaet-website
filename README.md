@@ -66,6 +66,9 @@ Each film comes in several codecs (AV1, VP9 and H.264; the logo film also HEVC) 
 the screen needs, plays it only while it is on screen, and falls back to the next rendition if one fails to load.
 To replace a film, encode the new frames with `tools/encode_film.sh` into `blender/film/`, copy the files to
 `web/public/film/`, and rebuild.
+The home film (`tannery-*`, 20 s, 25 fps) was rendered at 1600×900 and 720×1280; its frames were checked one by one for
+graphics-driver glitches before encoding, and its VP9 renditions were made with ffmpeg (libvpx-vp9, two passes)
+because Blender's own VP9 output showed colour smears.
 
 ## Forms and e-mail
 
