@@ -1,5 +1,4 @@
 ---
-import Logo from './Logo.astro'
 import { ORG, CONTACT, SOCIAL, FOOTER_LINKS, EXTERNAL } from '../copy/site'
 import { SUBSCRIBE } from '../copy/home'
 const social = SOCIAL.filter((s) => s.href)
@@ -25,12 +24,13 @@ const year = new Date().getFullYear()
 
     <div class="stitch ftr__stitch" aria-hidden="true"></div>
 
+    <!-- the full lockup from the brand guide: the logo with the association's name in Amharic and English -->
+    <a href="/" class="ftr__lockup">
+      <img class="ftr__lockup-wide" src="/media/brand/elia-lockup-reverse.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="1244" height="184" loading="lazy" decoding="async" />
+      <img class="ftr__lockup-tall" src="/media/brand/elia-lockup-reverse-stacked.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="640" height="286" loading="lazy" decoding="async" />
+    </a>
+
     <div class="ftr__main">
-      <div class="ftr__brand">
-        <a href="/" aria-label="ELIA home" class="ftr__logo"><Logo /></a>
-        <p class="ftr__name">{ORG.name}</p>
-        <p class="ftr__am geez" lang="am">{ORG.amharic}</p>
-      </div>
       <div class="ftr__col">
         <p class="label"><b>01</b> Office</p>
         <address>
@@ -71,44 +71,48 @@ const year = new Date().getFullYear()
 <style>
   .ftr { background: var(--ink-1); color: var(--bone); padding-block: clamp(72px, 9vw, 128px) 36px; overflow: hidden; }
   .ftr__giant {
-    margin-top: clamp(56px, 8vw, 120px); font-family: var(--f-display); font-weight: 650; font-stretch: 78%; letter-spacing: -0.032em;
-    word-spacing: 0.04em; line-height: 0.86; font-size: clamp(3rem, 8.6vw, 9.4rem); color: var(--cream); white-space: nowrap;
-    background: linear-gradient(180deg, var(--cream) 30%, rgb(245 236 223 / 0.15)); -webkit-background-clip: text; background-clip: text;
+    margin-top: clamp(56px, 8vw, 120px); font-family: var(--f-display); font-weight: 760; font-stretch: 75%; letter-spacing: -0.03em;
+    word-spacing: 0.04em; line-height: 0.9; font-size: clamp(2.8rem, 7.3vw, 6.5rem); color: var(--cream); white-space: nowrap;
+    background: linear-gradient(180deg, var(--cream) 30%, rgb(255 252 245 / 0.15)); -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .ftr__giant em { font-family: var(--f-serif); font-style: italic; font-weight: 400; font-stretch: normal; letter-spacing: -0.03em;
-    background: linear-gradient(180deg, var(--amber) 30%, rgb(246 183 75 / 0.12)); -webkit-background-clip: text; background-clip: text; }
+  .ftr__giant em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em;
+    background: linear-gradient(180deg, var(--amber) 30%, rgb(226 160 37 / 0.12)); -webkit-background-clip: text; background-clip: text; }
   @media (max-width: 760px) { .ftr__giant { white-space: normal; font-size: clamp(2.8rem, 15vw, 5rem); } }
   .ftr__news { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(28px, 6vw, 96px); align-items: end; }
   .ftr__news .h3 { color: var(--cream); max-width: 16ch; }
   .ftr__note { margin-top: 16px; max-width: 44ch; color: var(--muted); }
   .ftr__form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; position: relative; }
   .ftr__form input[type='email'] {
-    height: 56px; padding: 0 22px; border-radius: 999px; border: 0; background: rgb(255 240 220 / 0.05); color: var(--cream);
+    height: 56px; padding: 0 22px; border-radius: 999px; border: 0; background: rgb(255 252 245 / 0.05); color: var(--cream);
     box-shadow: inset 0 0 0 1px var(--line-2); font-size: 16px; transition: box-shadow 0.25s, background 0.25s;
   }
-  .ftr__form input[type='email']:focus { outline: none; background: rgb(255 240 220 / 0.08); box-shadow: inset 0 0 0 1px rgb(246 183 75 / 0.7), 0 0 0 4px rgb(246 183 75 / 0.12); }
-  .ftr__form input::placeholder { color: rgb(255 240 220 / 0.38); }
+  .ftr__form input[type='email']:focus { outline: none; background: rgb(255 252 245 / 0.08); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.7), 0 0 0 4px rgb(226 160 37 / 0.12); }
+  .ftr__form input::placeholder { color: rgb(255 252 245 / 0.38); }
   .ftr__form .btn { min-height: 56px; }
   .ftr__msg { grid-column: 1 / -1; min-height: 1.4em; font-size: 14px; color: var(--amber); padding-left: 22px; }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .ftr__stitch { margin-block: clamp(48px, 7vw, 88px) clamp(40px, 5vw, 64px); }
-  .ftr__main { display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 36px 28px; }
-  .ftr__logo { display: block; width: min(240px, 70%); color: var(--cream); }
-  .ftr__name { margin-top: 22px; font-family: var(--f-display); font-weight: 600; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.45rem; line-height: 1.1; color: var(--cream); max-width: 18ch; }
-  .ftr__am { margin-top: 10px; color: var(--muted); font-size: 15px; }
+  .ftr__lockup { display: block; width: min(100%, 880px); margin-bottom: clamp(44px, 5vw, 72px); }
+  .ftr__lockup img { width: 100%; height: auto; }
+  .ftr__lockup-tall { display: none; }
+  @media (max-width: 700px) {
+    .ftr__lockup { width: min(100%, 420px); }
+    .ftr__lockup-wide { display: none; }
+    .ftr__lockup-tall { display: block; }
+  }
+  .ftr__main { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 28px; }
   .ftr__col { font-size: 14.5px; line-height: 1.55; }
   .ftr__col .label { margin-bottom: 16px; }
   .ftr__col address { font-style: normal; display: grid; margin-bottom: 12px; }
   .ftr__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
   .ftr__col a:hover { color: var(--amber); }
-  .ftr__k { display: block; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe); }
+  .ftr__k { display: block; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .ftr__base { margin-top: clamp(56px, 7vw, 96px); padding-top: 22px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 10px 32px; font-size: 13px; color: var(--muted); }
   .ftr__links { display: flex; flex-wrap: wrap; gap: 18px; margin-left: auto; }
   .ftr__links a:hover { color: var(--amber); }
   @media (max-width: 1080px) {
     .ftr__main { grid-template-columns: 1fr 1fr; }
-    .ftr__brand { grid-column: 1 / -1; }
   }
   @media (max-width: 760px) {
     .ftr__news { grid-template-columns: 1fr; }

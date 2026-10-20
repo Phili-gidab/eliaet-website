@@ -1,5 +1,5 @@
 /* The ELIA logo, from the official PDF (page 1). Coordinates are the PDF's points.
-   Colours: gold #E2A025 (print) / #F8B74A (screen amber), taupe #7A6762, cream #FFF4E3. */
+   Colours (brand guide): amber #E2A025, taupe #7A6762 (the wordmark, at 80% on cream), brown #3C1E16. */
 
 export const VIEW = {
   lockup: '237.9 215.7 366 131.8',

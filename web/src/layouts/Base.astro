@@ -1,16 +1,14 @@
 ---
-import '@fontsource-variable/bricolage-grotesque/standard.css'
-import '@fontsource/instrument-serif/400-italic.css'
-import '@fontsource/instrument-serif/400.css'
-import '@fontsource-variable/geist/wght.css'
-import '@fontsource-variable/geist-mono/wght.css'
+// Roboto, the ELIA typeface (brand guide), with its weight and width axes; Noto Sans Ethiopic for Ge'ez (fonts.css)
+import '@fontsource-variable/roboto/wdth.css'
+import '@fontsource-variable/roboto/wdth-italic.css'
 import '../styles/fonts.css'
 import '../styles/global.css'
 import '../styles/forms.css'
-import displayUrl from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2?url'
-import serifItUrl from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url'
-import textUrl from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import textUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-normal.woff2?url'
+import italicUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-italic.woff2?url'
 import Header from '../components/Header.astro'
+import Loader from '../components/Loader.astro'
 import Footer from '../components/Footer.astro'
 import { ORG } from '../copy/site'
 
@@ -43,11 +41,10 @@ const ogImage = new URL(image, Astro.site).toString()
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {path !== '/404' && <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content="#0c0907" />
+    <meta name="theme-color" content="#3c1e16" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href={displayUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={serifItUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={textUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={italicUrl} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ELIA" />
     <meta property="og:title" content={fullTitle} />
@@ -62,6 +59,7 @@ const ogImage = new URL(image, Astro.site).toString()
     <slot name="head" />
   </head>
   <body class={bodyClass}>
+    <Loader />
     <a class="skip" href="#main">Skip to content</a>
     <Header path={path} overHero={overHero} />
     <main id="main">

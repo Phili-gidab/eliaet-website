@@ -98,8 +98,8 @@ const out = 'M7 17 17 7M9 7h8v8'
     border-bottom: 1px solid var(--line); font-size: 14.5px; line-height: 1.35; color: var(--bone); transition: color 0.25s, padding 0.45s var(--ease);
   }
   .toc a:hover { color: var(--cream); padding-left: 6px; }
-  .toc__n { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--taupe); }
-  .toc__code { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--gold); }
+  .toc__n { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; color: var(--amber); }
+  .toc__code { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; color: var(--gold); }
 
   /* one section per program; paper and dark alternate and the picture swaps sides */
   .pg { position: relative; padding-block: clamp(72px, 9vw, 150px); }
@@ -115,7 +115,7 @@ const out = 'M7 17 17 7M9 7h8v8'
 
   .pg__code {
     margin-top: clamp(18px, 2.4vw, 30px); font-size: clamp(3.4rem, 1.6rem + 6.4vw, 8.4rem); font-weight: 250; line-height: 0.82;
-    color: var(--cognac); letter-spacing: -0.06em;
+    color: var(--taupe); letter-spacing: -0.06em;
   }
   .pg--dark .pg__code { color: var(--gold); }
   .pg__title { margin-top: clamp(22px, 2.6vw, 34px); max-width: 17ch; }
@@ -125,7 +125,7 @@ const out = 'M7 17 17 7M9 7h8v8'
   .pg--dark .pg__points li { color: var(--cream); }
   .pg__points li::before {
     content: ''; position: absolute; left: 0; top: 0.8em; width: 20px; height: 1.6px;
-    background: linear-gradient(90deg, var(--cognac) 0 7px, transparent 7px 13px, var(--cognac) 13px 20px);
+    background: linear-gradient(90deg, var(--amber) 0 7px, transparent 7px 13px, var(--amber) 13px 20px);
   }
   .pg--dark .pg__points li::before { background: linear-gradient(90deg, var(--gold) 0 7px, transparent 7px 13px, var(--gold) 13px 20px); }
   .pg__cta { margin-top: clamp(30px, 3.4vw, 44px); }

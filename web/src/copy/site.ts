@@ -3,7 +3,7 @@
 export const ORG = {
   name: 'Ethiopian Leather Industries Association',
   short: 'ELIA',
-  amharic: 'የኢትዮጵያ ቆዳ ኢንዱስትሪዎች ማኅበር',
+  amharic: 'የኢትዮጵያ ቆዳ ኢንዱስትሪዎች ማህበር', // as spelled in the brand guide's lockup
   founded: 1994,
   members: 194,
   tagline: 'Promoting export of leather, shoes and leather goods and garment, protecting the rights of members, and assisting businesses to improve.',

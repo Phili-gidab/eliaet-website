@@ -149,8 +149,22 @@ if (root) {
     for (const c of cands) if (c.was !== keep.has(c.el)) c.el.classList.toggle('on', keep.has(c.el))
   }
 
+  // the pace: the film was rendered to run 20 s; it plays brisker. The walk through the works runs at FAST, the way
+  // out of the door to the hills (the last chapter, where the logo comes together on the hillside) nearer its own
+  // speed. About 14 s in all. The words, the pins and the rail all follow the film's own time, so they keep in step.
+  const FAST = 1.6, SLOW = 1.1, SLOW_FROM = 15.6
+  let rate = 0
+  const pace = (t: number) => {
+    const want = t < SLOW_FROM ? FAST : SLOW
+    if (want === rate && video.playbackRate === want) return
+    rate = want
+    video.defaultPlaybackRate = want
+    video.playbackRate = want
+  }
+
   // the clock: the film's time, every frame it shows (rVFC where there is one: it gives the shown frame's own time)
   const tick = (_now?: number, meta?: { mediaTime?: number }) => {
+    pace(video.currentTime || 0)
     if (!ended) draw(video.currentTime || 0)
     pins(meta && typeof meta.mediaTime === 'number' ? meta.mediaTime : video.currentTime || 0)
     schedule()

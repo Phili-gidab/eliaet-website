@@ -113,9 +113,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .story__shade {
     position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background:
-      linear-gradient(180deg, rgb(12 9 7 / 0.55) 0%, rgb(12 9 7 / 0) 20%),
-      linear-gradient(0deg, rgb(12 9 7 / 0.92) 0%, rgb(12 9 7 / 0.6) 22%, rgb(12 9 7 / 0) 50%),
-      radial-gradient(110% 85% at 0% 100%, rgb(12 9 7 / 0.72), transparent 66%);
+      linear-gradient(180deg, rgb(60 30 22 / 0.55) 0%, rgb(60 30 22 / 0) 20%),
+      linear-gradient(0deg, rgb(60 30 22 / 0.92) 0%, rgb(60 30 22 / 0.6) 22%, rgb(60 30 22 / 0) 50%),
+      radial-gradient(110% 85% at 0% 100%, rgb(60 30 22 / 0.72), transparent 66%);
   }
 
   /* the pins: a lit dot on the thing, a hairline up from it, its name on a small glass tag. They ride on the film
@@ -124,20 +124,20 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .pin { position: absolute; left: 0; top: 0; --stem: 46px; will-change: transform; }
   .pin__dot {
     position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%;
-    box-shadow: inset 0 0 0 1.5px var(--amber), 0 0 0 5px rgb(246 183 75 / 0.14), 0 0 22px rgb(246 183 75 / 0.55);
+    box-shadow: inset 0 0 0 1.5px var(--amber), 0 0 0 5px rgb(226 160 37 / 0.14), 0 0 22px rgb(226 160 37 / 0.55);
     transform: scale(0); transition: transform 0.35s var(--ease);
   }
   .pin__dot::after { content: ''; position: absolute; inset: 3.5px; border-radius: 50%; background: var(--amber); }
   .pin__stem {
     position: absolute; left: -0.5px; bottom: 7px; width: 1px; height: var(--stem);
-    background: linear-gradient(0deg, rgb(246 183 75 / 0.95), rgb(245 236 223 / 0.5));
+    background: linear-gradient(0deg, rgb(226 160 37 / 0.95), rgb(255 252 245 / 0.5));
     transform-origin: 50% 100%; transform: scaleY(0); transition: transform 0.3s var(--ease);
   }
   .pin__tag {
     position: absolute; left: -1px; bottom: calc(var(--stem) + 9px); display: inline-flex; align-items: center; gap: 0.75em;
     padding: 6px 11px 6px 9px; border-radius: 8px; white-space: nowrap;
     font-family: var(--f-mono); font-size: 11px; font-weight: 450; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream);
-    background: rgb(18 13 10 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.16);
+    background: rgb(60 30 22 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     opacity: 0; transform: translateY(6px); transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
   }
@@ -161,9 +161,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     font-family: var(--f-display); font-weight: 640; font-stretch: 80%; letter-spacing: -0.026em; line-height: 0.88;
     font-size: clamp(3rem, 1.2rem + 6.2vw, 7.6rem); text-wrap: balance; text-shadow: 0 2px 40px rgb(0 0 0 / 0.35);
   }
-  .ch__title :global(em) { font-family: var(--f-serif); font-style: italic; font-weight: 400; font-stretch: normal; letter-spacing: -0.02em; color: var(--amber); }
+  .ch__title :global(em) { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.02em; color: var(--amber); }
   .ch__title--final { font-size: clamp(3.2rem, 1.2rem + 7vw, 8.6rem); }
-  .ch__line { margin-top: 20px; max-width: 46ch; font-size: var(--step-1); line-height: 1.45; color: rgb(245 236 223 / 0.84); text-wrap: pretty; }
+  .ch__line { margin-top: 20px; max-width: 46ch; font-size: var(--step-1); line-height: 1.45; color: rgb(255 252 245 / 0.84); text-wrap: pretty; }
   .ch__pill { margin-bottom: 22px; }
   .ch__ctas { margin-top: 30px; }
 
@@ -176,9 +176,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     transition-delay: calc(var(--i) * 0.035s);
   }
   :global(.js) .ch.on .ch__label { opacity: 1; transform: none; transition-delay: 0s; }
-  :global(.js) .ch.on :global(.w) { opacity: 1; transform: none; filter: none; transition-delay: calc(0.12s + var(--i) * 0.06s); transition-duration: 0.9s, 1.1s, 0.9s; }
-  :global(.js) .ch.on .ch__line, :global(.js) .ch.on .ch__pill { opacity: 1; transform: none; transition-delay: 0.55s; }
-  :global(.js) .ch.on .ch__ctas { opacity: 1; transform: none; transition-delay: 0.8s; }
+  :global(.js) .ch.on :global(.w) { opacity: 1; transform: none; filter: none; transition-delay: calc(0.06s + var(--i) * 0.04s); transition-duration: 0.7s, 0.85s, 0.7s; }
+  :global(.js) .ch.on .ch__line, :global(.js) .ch.on .ch__pill { opacity: 1; transform: none; transition-delay: 0.3s; }
+  :global(.js) .ch.on .ch__ctas { opacity: 1; transform: none; transition-delay: 0.5s; }
   :global(.js) .ch.gone :global(.w) { opacity: 0; transform: translateY(-0.3em); filter: blur(10px); transition-delay: calc(var(--i) * 0.02s); }
   :global(.js) .ch.gone .ch__label, :global(.js) .ch.gone .ch__line { opacity: 0; transform: translateY(-8px); }
   @media (prefers-reduced-motion: reduce) {
@@ -191,18 +191,18 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .rail { position: absolute; left: 0; right: 0; bottom: clamp(22px, 4vh, 40px); z-index: 4; display: flex; align-items: center; gap: 14px; margin-inline: auto; }
   .rail__list { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .rail__seg { display: grid; gap: 10px; width: 100%; text-align: left; padding: 8px 0; }
-  .rail__lbl { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(245 236 223 / 0.5); transition: color 0.4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rail__lbl b { color: rgb(246 183 75 / 0.6); font-weight: 500; margin-right: 6px; transition: color 0.4s; }
-  .rail__bar { position: relative; display: block; height: 2px; border-radius: 2px; background: rgb(255 240 220 / 0.18); overflow: hidden; }
+  .rail__lbl { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 252 245 / 0.5); transition: color 0.4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rail__lbl b { color: rgb(226 160 37 / 0.85); font-weight: 500; margin-right: 6px; transition: color 0.4s; }
+  .rail__bar { position: relative; display: block; height: 2px; border-radius: 2px; background: rgb(255 252 245 / 0.18); overflow: hidden; }
   .rail__bar i { position: absolute; inset: 0; background: var(--amber); transform-origin: left; transform: scaleX(var(--p, 0)); box-shadow: 0 0 12px var(--amber); }
   .rail__seg:hover .rail__lbl, .rail__seg.on .rail__lbl { color: var(--cream); }
   .rail__seg.on .rail__lbl b { color: var(--amber); }
   .rail__btn {
     flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-    background: rgb(20 15 12 / 0.45); box-shadow: inset 0 0 0 1px rgb(255 236 210 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgb(60 30 22 / 0.45); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     transition: background 0.25s, transform 0.4s var(--spring);
   }
-  .rail__btn:hover { background: rgb(20 15 12 / 0.7); transform: scale(1.06); }
+  .rail__btn:hover { background: rgb(60 30 22 / 0.7); transform: scale(1.06); }
   .rail__btn svg { width: 18px; height: 18px; grid-area: 1 / 1; }
   .rail__btn .i-play, .rail__btn .i-replay { display: none; }
   .story[data-state='paused'] .rail__btn .i-pause { display: none; }
@@ -217,8 +217,8 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   @media (max-width: 900px) and (orientation: portrait) {
     .story__shade {
       background:
-        linear-gradient(180deg, rgb(12 9 7 / 0.7) 0%, rgb(12 9 7 / 0) 22%),
-        linear-gradient(0deg, rgb(12 9 7 / 0.95) 0%, rgb(12 9 7 / 0.75) 30%, rgb(12 9 7 / 0) 58%);
+        linear-gradient(180deg, rgb(60 30 22 / 0.7) 0%, rgb(60 30 22 / 0) 22%),
+        linear-gradient(0deg, rgb(60 30 22 / 0.95) 0%, rgb(60 30 22 / 0.75) 30%, rgb(60 30 22 / 0) 58%);
     }
     .story__copy { padding-bottom: 96px; }
     .ch__title { font-size: clamp(2.7rem, 12vw, 4.2rem); }

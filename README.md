@@ -5,10 +5,14 @@ server that also runs the forms API. Films rendered in Blender.
 
 ## The idea
 
-- **Brand intro**: the logo film from Blender. The thread traces Ethiopia, becomes the "e", the sun rises, the
-  wordmark slides out. Once per visit, skippable, and replaced by the end frame for people who ask for less motion.
+- **Page loader**: the logo draws itself (the amber e sweeps in, its dot drops, the wordmark slides out) in about a
+  second, once per visit, on whichever page the visit starts, while the page loads. Drawn from the logo's vectors
+  (`components/Loader.astro`); none for people who ask for less motion.
+- **The logo film** (Blender): the outline of Ethiopia is drawn and becomes the "e", the sun rises, the wordmark
+  follows. It plays at the top of the About page; people who ask for less motion see its last frame.
 - **Home: the story film**: one continuous shot of a tannery at work, rendered in Blender in two shapes (16:9 for
-  wide screens, 9:16 for phones). It starts at the turning drums, rises over the machines and the hide conveyor,
+  wide screens, 9:16 for phones). Rendered to run 20 s, it plays in about 14: the walk through the works at 1.6 times
+  its speed, the way out to the hills at 1.1 (`FAST`, `SLOW` in `scripts/story.ts`). It starts at the turning drums, rises over the machines and the hide conveyor,
   settles on a table of finished goods, then pulls back out of the loading door until the works stand in the
   Ethiopian highlands. The film is the clock for the copy: each chapter's words arrive with their moment in the
   film; the last chapter (the page title and buttons) stays on the final frame. A rail of chapters under it seeks.
@@ -20,12 +24,15 @@ server that also runs the forms API. Films rendered in Blender.
   drying, Finishing, Garments, Bags, Finished leather). Where each thing is, frame by frame, comes from the film's
   own cameras (`web/public/film/pins.json`, made with the Blender scripts `track6.py` and `pins6.py`), so the pins
   move with the shot; each keeps off the chapter's words and the other pins, and none show for less motion.
-- **Dark and cinematic**: a tanned near-black lit with amber, sections that slide in like sheets, cards like app
-  panels, a condensed display face with a serif italic for the word that carries the light, Ge'ez beside the titles.
+- **In ELIA's brand** (the brand guide ELIA sent, October 2026): the dark sections are the brand brown, the light
+  ones the guide's cream, amber the light in the dark; sections slide in like sheets, cards sit like panels; titles
+  in Roboto at a condensed width, the word that carries the light in Roboto's light italic; Ge'ez beside the titles.
 
-Type: Bricolage Grotesque (display), Instrument Serif (italic accents), Geist (text and UI), Geist Mono (labels and
-figures), Noto Sans Ethiopic (Ge'ez). All self-hosted. Colours from the logo file: amber `#F6B74B`/`#E2A025`, cream,
-a tanned near-black.
+Brand colours (with the tints the guide shows, as CSS variables in `styles/global.css`): main `#E2A025` (amber),
+main second `#7A6762` (taupe), secondary `#3C1E16` (brown), on `#FFFCF5`. Amber is not used for text on the cream
+(it would not read); there, small accents are taupe. Type: Roboto (the brand face) for everything, Noto Sans Ethiopic
+for Ge'ez, both self-hosted. The full lockup (logo with the name in Amharic and English, as in the guide) is in
+`web/public/media/brand/`: `elia-lockup.svg` for light backgrounds, `-reverse` for dark ones, each also `-stacked`.
 
 ## Run it
 

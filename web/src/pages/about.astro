@@ -28,8 +28,10 @@ const last = TIMELINE[TIMELINE.length - 1].year
     amharic="ስለ እኛ"
     title={['Ethiopian Leather', 'Industries', 'Association<em>.</em>']}
     lede={ABOUT_INTRO.body[0]}
-    image="/media/about-1.webp"
-    imageAlt="A leather jacket with leather shoes and gloves"
+    film={{
+      base: '/film/logo-t', sizes: [720, 1080], poster: '/film/logo-t-end-720.jpg', start: 0.9, rate: 1.25, bg: '#fcf0e0',
+      label: 'The ELIA logo film: the outline of Ethiopia is drawn and turns into the amber e of the logo, then the name follows.',
+    }}
   />
 
   <!-- 02 · who we are: the stamped label sits in the margin, the statement takes the measure -->
@@ -173,22 +175,22 @@ const last = TIMELINE[TIMELINE.length - 1].year
   .tl { --spine: clamp(150px, 27%, 400px); list-style: none; margin: clamp(56px, 7vw, 110px) 0 0; padding: 0; position: relative; }
   .tl::before {
     content: ''; position: absolute; top: 18px; bottom: 30px; left: var(--spine); width: 1.6px;
-    background: repeating-linear-gradient(180deg, var(--cognac) 0 7px, transparent 7px 13px); opacity: 0.75;
+    background: repeating-linear-gradient(180deg, var(--amber) 0 7px, transparent 7px 13px); opacity: 0.9;
   }
   .tl__item { position: relative; display: grid; grid-template-columns: var(--spine) minmax(0, 1fr); align-items: start; }
   .tl__item + .tl__item .tl__body { border-top: 1px solid var(--line-dark); }
   .tl__item::before {
     content: ''; position: absolute; left: calc(var(--spine) - 4.7px); top: calc(clamp(24px, 3vw, 44px) + 12px); width: 11px; height: 11px;
-    border-radius: 50%; background: var(--cognac); box-shadow: 0 0 0 5px var(--paper); z-index: 1;
+    border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 5px var(--paper); z-index: 1;
   }
   .tl__year {
     padding: clamp(18px, 2.4vw, 34px) clamp(28px, 3.4vw, 56px) 0 0; text-align: right;
-    font-size: clamp(2.4rem, 1.2rem + 3.6vw, 5.2rem); color: #2b1d14;
+    font-size: clamp(2.4rem, 1.2rem + 3.6vw, 5.2rem); color: var(--ink);
   }
   .tl__body { padding: clamp(24px, 3vw, 44px) 0 clamp(24px, 3vw, 44px) clamp(28px, 3.4vw, 56px); }
   .tl__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; max-width: 26ch; }
-  .tl__text { margin-top: 10px; color: #3d2e24; max-width: 54ch; text-wrap: pretty; }
-  .tl__item--last .tl__year { color: var(--cognac); }
+  .tl__text { margin-top: 10px; color: var(--ink); max-width: 54ch; text-wrap: pretty; }
+  .tl__item--last .tl__year { color: var(--taupe); }
   .tl__item--last::before { background: var(--gold); box-shadow: 0 0 0 5px var(--paper), 0 0 18px 4px rgb(226 160 37 / 0.55); }
 
   /* 05 · board: a lead tag for the chairman, the others as stitched tags beside it */
@@ -199,15 +201,15 @@ const last = TIMELINE[TIMELINE.length - 1].year
   }
   .pc {
     display: flex; flex-direction: column; gap: 12px; min-height: 220px; padding: clamp(24px, 2.4vw, 34px);
-    border-radius: 8px; background: linear-gradient(165deg, #2a1c14 0%, #1d1510 60%, #181009 100%);
-    box-shadow: inset 0 1px 0 rgb(255 236 210 / 0.06), 0 24px 50px -36px rgb(0 0 0 / 0.9);
+    border-radius: 8px; background: linear-gradient(165deg, #4b2f28 0%, #43261e 60%, #3c1e16 100%);
+    box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.06), 0 24px 50px -36px rgb(0 0 0 / 0.9);
   }
   .pc__role { color: var(--gold); }
   .pc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--cream); margin-top: auto; }
   .pc__co { font-size: 14.5px; line-height: 1.5; color: var(--muted); max-width: 30ch; }
   .pc--chair {
     grid-row: span 2; justify-content: flex-end; gap: 18px; min-height: 0;
-    background: linear-gradient(160deg, #4a2f1c 0%, #3b2618 45%, #24170f 100%);
+    background: linear-gradient(160deg, #5d443d 0%, #4b2f28 45%, #3c1e16 100%);
   }
   .pc--chair .stamp { align-self: flex-start; margin-bottom: auto; }
   .pc--chair .pc__name { font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(48px, 8vw, 140px); }
@@ -221,15 +223,15 @@ const last = TIMELINE[TIMELINE.length - 1].year
   .sc {
     display: flex; flex-direction: column; gap: 10px; padding: clamp(24px, 2.4vw, 34px); border-radius: 8px;
     background: rgb(255 255 255 / 0.42);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 26px 50px -40px rgb(60 40 25 / 0.5);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 26px 50px -40px rgb(60 30 22 / 0.5);
   }
   .sc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--ink); }
-  .sc__lines { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.45; color: #3d2e24; }
+  .sc__lines { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.45; color: var(--ink); }
   .sc__lines li { display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: baseline; gap: 8px; }
   .sc__lines .sc__sep { margin-top: 10px; }
-  .sc__k { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7f6a5a; }
+  .sc__k { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe); }
   .sc__a { justify-self: start; overflow-wrap: anywhere; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s; }
-  .sc__a:hover { background-size: 100% 1px; color: var(--cognac); }
+  .sc__a:hover { background-size: 100% 1px; color: var(--taupe); }
   .sc--lead { grid-row: span 2; background: var(--ink); color: var(--cream); justify-content: flex-end; gap: 14px; }
   .sc--lead::before { border-color: rgb(226 160 37 / 0.45); }
   .sc--lead .sc__role { color: var(--gold); }

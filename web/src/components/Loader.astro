@@ -1,0 +1,60 @@
+---
+/* The page loader: the ELIA logo drawing itself, once per visit, on whichever page the visit starts. A short form
+   of the brand film (now on the About page): the amber e sweeps in, its dot drops, the wordmark slides out from
+   behind it. Drawn from the logo's own vectors, so there is nothing to download; it lifts as soon as the page has
+   loaded (never before the logo has finished, never later than three seconds), and not at all for people who ask
+   for less motion or have no script. */
+import { E, DOT, WORDMARK, VIEW } from '../brand/logo'
+---
+
+<div class="loader" data-intro aria-hidden="true">
+  <svg class="loader__logo" viewBox={VIEW.lockup} xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- a thick ring around the e that draws itself round: the e shows where the ring has been -->
+      <mask id="loader-sweep">
+        <circle class="loader__sweep" cx="311" cy="281.6" r="42" fill="none" stroke="#fff" stroke-width="100" pathLength="1" transform="rotate(180 311 281.6)" />
+      </mask>
+    </defs>
+    <g class="loader__word">{WORDMARK.map((d) => <path d={d} />)}</g>
+    <path class="loader__e" d={E} mask="url(#loader-sweep)" />
+    <circle class="loader__dot" cx={DOT.cx} cy={DOT.cy} r={DOT.r} />
+  </svg>
+</div>
+<script is:inline>
+  (function () {
+    var html = document.documentElement
+    if (html.classList.contains('no-intro') || matchMedia('(prefers-reduced-motion: reduce)').matches) { html.classList.add('intro-done'); return }
+    try { sessionStorage.setItem('elia-intro', '1') } catch (e) {}
+    html.classList.add('intro-on')
+    var t0 = Date.now(), done = false
+    var finish = function () { if (done) return; done = true; html.classList.add('intro-done'); html.classList.remove('intro-on') }
+    var ready = function () { setTimeout(finish, Math.max(0, 1150 - (Date.now() - t0))) }
+    if (document.readyState === 'complete') ready(); else addEventListener('load', ready, { once: true })
+    setTimeout(finish, 3000)
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') finish() }, { once: true })
+  })()
+</script>
+
+<style>
+  .loader {
+    position: fixed; inset: 0; z-index: 120; display: none; place-items: center;
+    background: radial-gradient(60% 50% at 50% 46%, rgb(226 160 37 / 0.12), transparent 70%), var(--ink);
+    transition: opacity 0.45s var(--ease), visibility 0s linear 0.45s;
+  }
+  /* only with the script (it lifts the loader) and only on the first page of a visit */
+  :global(.js:not(.no-intro)) .loader { display: grid; }
+  :global(.intro-done) .loader { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loader__logo { width: min(340px, 62vw); height: auto; overflow: visible; }
+  .loader__e, .loader__dot { fill: var(--brand-amber); }
+  .loader__word { fill: var(--cream); opacity: 0.94; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .loader__sweep { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: loader-draw 0.6s cubic-bezier(0.55, 0, 0.3, 1) 0.1s forwards; }
+    .loader__dot { transform-box: fill-box; transform-origin: 50% 50%; transform: scale(0); animation: loader-pop 0.4s var(--spring) 0.55s forwards; }
+    .loader__word { transform: translateX(-56px); opacity: 0; animation: loader-slide 0.55s var(--ease) 0.6s forwards; }
+  }
+  @keyframes loader-draw { to { stroke-dashoffset: 0; } }
+  @keyframes loader-pop { to { transform: scale(1); } }
+  @keyframes loader-slide { to { transform: none; opacity: 0.94; } }
+  @media (prefers-reduced-motion: reduce) { .loader { display: none !important; } }
+</style>

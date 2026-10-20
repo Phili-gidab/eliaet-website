@@ -72,6 +72,14 @@ export function mountFilm(el: HTMLElement, opts: { onEnded?: () => void; hold?: 
   }
   video.muted = true; video.playsInline = true
   video.loop = el.dataset.loop !== 'false'
+  // a film that starts part-way in (past a blank opening) or plays faster than it was rendered
+  const start = parseFloat(el.dataset.start || '') || 0
+  const rate = parseFloat(el.dataset.rate || '') || 0
+  if (rate) { video.defaultPlaybackRate = rate; video.playbackRate = rate }
+  video.addEventListener('loadedmetadata', () => {
+    if (rate) video.playbackRate = rate
+    if (start && video.currentTime < start) video.currentTime = start
+  })
   video.addEventListener('playing', () => { el.classList.add('is-live'); show() })
   video.addEventListener('pause', show)
   // a film that plays once stays on its last frame: coming back into view must not start it again

@@ -253,16 +253,16 @@ const down = 'M12 4v15m-6-6 6 6 6-6'
   .apply__toc { list-style: none; margin: clamp(28px, 3.4vw, 44px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); }
   .apply__toc a {
     display: grid; grid-template-columns: 2.6em minmax(0, 1fr); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line-dark);
-    font-size: 15px; color: #3d2e24; transition: color 0.25s, padding 0.45s var(--ease);
+    font-size: 15px; color: var(--ink); transition: color 0.25s, padding 0.45s var(--ease);
   }
-  .apply__toc a span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; color: #8a5326; }
+  .apply__toc a span { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; color: var(--taupe); }
   .apply__toc a:hover { color: var(--ink); padding-left: 6px; }
 
   .apply__form { row-gap: clamp(14px, 1.6vw, 22px); }
   .part {
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; min-width: 0; margin: 0;
     padding: clamp(26px, 3vw, 44px); border: 0; border-radius: 10px; background: rgb(255 255 255 / 0.42);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 60px -40px rgb(60 40 25 / 0.45);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 60px -40px rgb(60 30 22 / 0.45);
     scroll-margin-top: calc(var(--header-h) + 20px);
   }
   /* a floated legend sits inside the panel as the first row of its grid */
@@ -271,32 +271,32 @@ const down = 'M12 4v15m-6-6 6 6 6-6'
     display: flex; align-items: baseline; gap: 14px;
     font-family: var(--f-display); font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink);
   }
-  .part__n { min-width: 2.1em; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; color: #8a5326; }
+  .part__n { min-width: 2.1em; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; color: var(--taupe); }
   .part .chips { margin-top: 4px; }
   .staff { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 16px; min-width: 0; margin: 4px 0 0; padding: 0; border: 0; }
   .staff legend {
     float: left; grid-column: 1 / -1; width: 100%; padding: 0; margin: 0 0 -4px;
-    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #6f5a4b;
+    font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--taupe);
   }
 
   /* optional marks, hints and errors, readable on paper */
-  .apply__form .field > span:first-child b, .staff legend b { color: #8a5326; font-weight: 500; }
-  .apply__form .hint { font-size: 13.5px; color: #5a4638; }
+  .apply__form .field > span:first-child b, .staff legend b { color: var(--ink); font-weight: 600; }
+  .apply__form .hint { font-size: 13.5px; color: var(--brown-80); }
   .stamp-hint { margin-top: -10px; }
   .apply__form .hint--bad { color: #a33d27; font-weight: 500; }
-  .apply__form .form__msg { color: #5a4638; }
+  .apply__form .form__msg { color: var(--brown-80); }
   .apply__form:not(.sending) .form__msg[data-ok='0'] { color: #a33d27; }
-  .apply__form .form__msg[data-ok='1'] { color: #8a5326; }
+  .apply__form .form__msg[data-ok='1'] { color: var(--ink); font-weight: 600; }
   .apply__form :global(.err) { color: #a33d27; }
   .apply__form :global([aria-invalid='true']),
   .apply__form :global([aria-invalid='true']:focus) { box-shadow: inset 0 0 0 1.5px #b4432c, 0 0 0 4px rgb(180 67 44 / 0.12); }
   /* a radio group or the consent box marked invalid shows on what can be seen */
   .apply__form .chips:has([aria-invalid='true']) .chip span { box-shadow: inset 0 0 0 1.5px #b4432c; }
   .apply__form .check:has([aria-invalid='true']) { color: #a33d27; }
-  .apply__form .check input:focus-visible { outline: 2px solid var(--cognac); outline-offset: 3px; }
+  .apply__form .check input:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
   /* the stamp upload */
-  .stamp-file input[type='file'] { min-height: 64px; padding: 12px; cursor: pointer; color: #3d2e24; font-size: 14.5px; }
+  .stamp-file input[type='file'] { min-height: 64px; padding: 12px; cursor: pointer; color: var(--ink); font-size: 14.5px; }
   .stamp-file input[type='file']::file-selector-button {
     margin-right: 16px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; cursor: pointer;
     font: 600 14px/1 var(--f-text); color: var(--cream); background: var(--ink); transition: background 0.3s;

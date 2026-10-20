@@ -1,7 +1,6 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import Intro from '../components/Intro.astro'
 import Story from '../components/Story.astro'
 import SectionHead from '../components/SectionHead.astro'
 import NewsCard from '../components/NewsCard.astro'
@@ -25,7 +24,6 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
 ---
 
 <Base overHero bodyClass="home" description={HERO.lede}>
-  <Intro />
 
   <!-- 01 · the film, its copy in step -->
   <Story />
@@ -214,8 +212,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .about__title { max-width: 12ch; }
   .about__title :global(.inlay) { width: 1.5em; height: 0.78em; }
   .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 10px 18px; padding: clamp(22px, 2.6vw, 32px); }
-  .about__num { grid-row: span 2; font-size: clamp(5rem, 2rem + 9vw, 10.5rem); color: var(--amber); text-shadow: 0 0 60px rgb(246 183 75 / 0.25); }
-  .about__countlbl { display: grid; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); align-self: end; }
+  .about__num { grid-row: span 2; font-size: clamp(5rem, 2rem + 9vw, 10.5rem); color: var(--amber); text-shadow: 0 0 60px rgb(226 160 37 / 0.25); }
+  .about__countlbl { display: grid; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); align-self: end; }
   .about__since { justify-self: start; align-self: start; }
   .about__body { margin-top: clamp(28px, 3vw, 40px); }
   .pillars { list-style: none; margin: clamp(56px, 7vw, 104px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -227,8 +225,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .sector__num { font-size: clamp(3.2rem, 2rem + 3.4vw, 5.2rem); color: var(--cream); margin-top: 18px; }
   .sector__name { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; font-size: 1.5rem; line-height: 1.05; letter-spacing: -0.02em; }
   .sector__name .geez { font-size: 0.8rem; color: var(--muted); margin-left: 6px; white-space: nowrap; font-weight: 400; }
-  .sector__go { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--amber); background: rgb(246 183 75 / 0.1); transition: transform 0.4s var(--spring), background 0.3s; }
-  .sector:hover .sector__go { transform: rotate(-45deg); background: rgb(246 183 75 / 0.2); }
+  .sector__go { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--amber); background: rgb(226 160 37 / 0.1); transition: transform 0.4s var(--spring), background 0.3s; }
+  .sector:hover .sector__go { transform: rotate(-45deg); background: rgb(226 160 37 / 0.2); }
   @media (max-width: 900px) {
     .about__grid, .pillars, .sectors { grid-template-columns: 1fr; }
   }
@@ -247,9 +245,9 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .stage__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; margin: 8px 8px 0; border-radius: calc(var(--radius) - 6px); }
   .stage__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.6s var(--ease); }
   .stage:hover .stage__pic img { transform: scale(1.05); }
-  .stage__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(12 9 7 / 0.7), transparent 45%); }
-  .stage__n { position: absolute; z-index: 1; left: 18px; bottom: 12px; font-size: 4.2rem; color: rgb(245 236 223 / 0.92); }
-  .stage__am { position: absolute; z-index: 1; right: 18px; bottom: 20px; font-size: 1.1rem; color: rgb(245 236 223 / 0.8); }
+  .stage__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(60 30 22 / 0.7), transparent 45%); }
+  .stage__n { position: absolute; z-index: 1; left: 18px; bottom: 12px; font-size: 4.2rem; color: rgb(255 252 245 / 0.92); }
+  .stage__am { position: absolute; z-index: 1; right: 18px; bottom: 20px; font-size: 1.1rem; color: rgb(255 252 245 / 0.8); }
   .stage__text { padding: 20px 22px 26px; display: grid; gap: 12px; align-content: start; }
   .stage .h3 { font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.9rem); }
   .stage p { color: var(--bone); font-size: 15px; }
@@ -260,8 +258,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .strip__nav { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
   .strip__bar { flex: 1; height: 2px; border-radius: 2px; background: var(--line-2); position: relative; overflow: hidden; }
   .strip__bar i { position: absolute; inset: 0; background: var(--amber); transform-origin: left; transform: scaleX(var(--sp, 0.25)); transition: transform 0.3s; }
-  .strip__btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 240 220 / 0.06); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s; }
-  .strip__btn:hover { background: rgb(255 240 220 / 0.12); }
+  .strip__btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 252 245 / 0.06); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s; }
+  .strip__btn:hover { background: rgb(255 252 245 / 0.12); }
 
   /* what we do: a bento */
   .bento { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
@@ -277,7 +275,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .bento__text { padding: 20px 24px 26px; display: grid; gap: 12px; align-content: end; }
   .bento__text p { color: var(--bone); max-width: 52ch; font-size: 15.5px; }
   .bento__go { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-    background: rgb(20 15 12 / 0.5); box-shadow: inset 0 0 0 1px var(--line-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.45s var(--spring), background 0.3s, color 0.3s; }
+    background: rgb(60 30 22 / 0.5); box-shadow: inset 0 0 0 1px var(--line-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.45s var(--spring), background 0.3s, color 0.3s; }
   .bento__go svg { width: 18px; height: 18px; }
   .bento__item:hover .bento__go { transform: scale(1.08); background: var(--amber); color: var(--ink); }
   @media (max-width: 960px) {
@@ -290,10 +288,10 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .why__text .h2 { max-width: 15ch; }
   .why__points { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; display: grid; gap: 12px; }
   .why__points li { display: grid; grid-template-columns: minmax(96px, 0.3fr) 1fr; gap: 4px 24px; padding: 22px 24px; border-radius: var(--radius); background: rgb(255 255 255 / 0.45); box-shadow: inset 0 0 0 1px var(--line-dark); }
-  .why__fig { grid-row: span 3; font-size: clamp(2.6rem, 1.8rem + 2.4vw, 4rem); color: var(--cognac); }
+  .why__fig { grid-row: span 3; font-size: clamp(2.6rem, 1.8rem + 2.4vw, 4rem); color: var(--taupe); }
   .why__figlbl { margin-top: -2px; }
   .why__h { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.5rem; line-height: 1.1; }
-  .why__points p { color: #4a382c; font-size: 15.5px; }
+  .why__points p { color: var(--brown-80); font-size: 15.5px; }
   .why__imgs { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
   .why__img { aspect-ratio: 3 / 4; }
   .why__img--0 { grid-column: 1 / 6; }
@@ -305,11 +303,11 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .aalf-band__in { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
   .aalf-band__title { font-size: clamp(3.4rem, 1.6rem + 7vw, 8.4rem); }
   .aalf-band__title em { display: block; }
-  .aalf-band__count { padding: clamp(24px, 3vw, 36px); background: rgb(12 9 7 / 0.45); }
+  .aalf-band__count { padding: clamp(24px, 3vw, 36px); background: rgb(60 30 22 / 0.45); }
   .aalf-band__units { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .aalf-band__units span { display: grid; gap: 6px; }
   .aalf-band__units b { font-size: clamp(2.8rem, 1.8rem + 3vw, 4.4rem); color: var(--amber); }
-  .aalf-band__units i { font-style: normal; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .aalf-band__units i { font-style: normal; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   @media (max-width: 860px) { .aalf-band__in { grid-template-columns: 1fr; } }
 
   /* news */
@@ -321,7 +319,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   /* partners */
   .partners { background: var(--ink); border-top: 1px solid var(--line); }
   .partners__row { margin-top: 28px; }
-  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: #f3eadc; padding: 16px 22px; }
+  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: var(--paper); padding: 16px 22px; }
   .logo-tile img { max-height: 60px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.05); opacity: 0.8; transition: filter 0.3s, opacity 0.3s; }
   .logo-tile:hover img { filter: none; opacity: 1; }
   @media (max-width: 560px) { .logo-tile { width: 140px; padding: 12px 14px; } .logo-tile img { max-height: 44px; } }

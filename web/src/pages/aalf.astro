@@ -201,8 +201,8 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   /* 01 · the ticket in the page head */
   .ticket {
     margin-top: clamp(30px, 3.6vw, 48px); max-width: 600px; padding: clamp(24px, 2.6vw, 36px); border-radius: 10px;
-    background: linear-gradient(160deg, #2c1d14 0%, #1d1510 60%, #160f0b 100%);
-    box-shadow: inset 0 1px 0 rgb(255 236 210 / 0.07), 0 30px 60px -40px rgb(0 0 0 / 0.95);
+    background: linear-gradient(160deg, #4b2f28 0%, #43261e 60%, #3c1e16 100%);
+    box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.07), 0 30px 60px -40px rgb(0 0 0 / 0.95);
   }
   .ticket__logo { width: clamp(150px, 14vw, 190px); height: auto; }
   .ticket__grid { margin: 22px 0 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: 1px dashed rgb(226 160 37 / 0.35); }
@@ -215,7 +215,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   .ticket__count { margin-top: 22px; padding-top: 16px; border-top: 1px dashed rgb(226 160 37 / 0.35); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
   .ticket__count[hidden] { display: none; }
   .ticket__count .label { margin-right: 4px; }
-  .ticket__unit { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .ticket__unit { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .ticket__unit b { font-size: 1.85rem; font-weight: 300; color: var(--amber); letter-spacing: -0.04em; margin-right: 4px; }
   .ticket__cta { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; }
 
@@ -248,14 +248,14 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   .facts__lead { max-width: 24ch; }
   .facts__list { list-style: none; margin: clamp(36px, 4.4vw, 64px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px clamp(20px, 3vw, 48px); }
   .facts__list li {
-    padding-top: 20px; color: #3d2e24; text-wrap: pretty;
-    border-top: 1.6px solid transparent; border-image: repeating-linear-gradient(90deg, var(--cognac) 0 7px, transparent 7px 13px) 1;
+    padding-top: 20px; color: var(--ink); text-wrap: pretty;
+    border-top: 1.6px solid transparent; border-image: repeating-linear-gradient(90deg, var(--amber) 0 7px, transparent 7px 13px) 1;
   }
 
   /* 05 · partners and financing: the sources of funding kept like a ledger */
   .partners__grid { margin-top: clamp(44px, 5.4vw, 84px); display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px clamp(32px, 5vw, 96px); align-items: start; }
   .partners__body { color: var(--bone); }
-  .ledger { padding: clamp(26px, 2.8vw, 40px); border-radius: 10px; background: rgb(18 13 10 / 0.38); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5), 0 1px 0 rgb(255 222 175 / 0.06); }
+  .ledger { padding: clamp(26px, 2.8vw, 40px); border-radius: 10px; background: rgb(60 30 22 / 0.38); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5), 0 1px 0 rgb(250 239 219 / 0.06); }
   .ledger__intro { margin-top: 14px; color: var(--bone); max-width: 40ch; }
   .ledger__list { list-style: none; margin: 18px 0 0; padding: 0; }
   .ledger__list li {
@@ -272,7 +272,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
     font-family: var(--f-display); font-size: var(--step-3); line-height: 1.04; letter-spacing: -0.016em; color: var(--ink); text-wrap: balance;
   }
   .outcomes__list li:first-child { font-size: var(--step-2); line-height: 1.16; padding-top: 0; padding-right: 12%; }
-  .outcomes__list a { display: inline-flex; align-items: center; gap: 0.3em; color: var(--cognac-ink); transition: gap 0.4s var(--ease); }
+  .outcomes__list a { display: inline-flex; align-items: center; gap: 0.3em; color: var(--taupe); transition: gap 0.4s var(--ease); }
   .outcomes__list a svg { width: 0.62em; height: 0.62em; }
   .outcomes__list a:hover { gap: 0.5em; }
 
@@ -287,7 +287,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   /* closing band */
   .again__in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 40px; }
   .again__name { margin-top: 12px; font-family: var(--f-display); font-size: var(--step-2); line-height: 1.08; color: var(--ink); }
-  .again__meta { margin-top: 8px; color: #3d2e24; }
+  .again__meta { margin-top: 8px; color: var(--ink); }
 
   @media (max-width: 1000px) {
     .partners__grid { grid-template-columns: 1fr; }
