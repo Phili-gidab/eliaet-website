@@ -63,7 +63,10 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
     <div class="wrap">
       <div class="brand__top">
         <SectionHead index="03" eyebrow="The brand" title={dot(EHL_BRAND.title)} align="stack" />
-        <img class="brand__logo" src={EHL_IMAGES.logo} alt="Ethiopian Highland Leather" width="265" height="147" loading="lazy" decoding="async" data-reveal="fade" />
+        <!-- the mark, branded into a patch of natural tan leather -->
+        <div class="brand__patch hide hide--tan stitched" data-reveal="fade">
+          <img class="t-burn" src="/media/ehl/ehl-mark.webp" alt="Ethiopian Highland Leather" width="960" height="532" loading="lazy" decoding="async" />
+        </div>
       </div>
       <div class="body brand__body" data-reveal>
         {EHL_BRAND.body.map((p) => <p>{p}</p>)}
@@ -199,7 +202,13 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
 
   /* 03 · brand */
   .brand__top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
-  .brand__logo { width: clamp(150px, 16vw, 230px); height: auto; margin-bottom: 6px; }
+  .brand__patch {
+    --stitch-in: 9px; --panel-r: 14px; border-radius: 14px; width: clamp(240px, 25vw, 360px); margin-bottom: 6px;
+    padding: clamp(22px, 2.4vw, 30px) clamp(24px, 2.6vw, 34px) clamp(20px, 2.2vw, 28px);
+    --hide-veil: radial-gradient(120% 100% at 30% 0%, rgb(255 236 205 / 0.18), transparent 65%);
+    box-shadow: inset 0 1px 0 rgb(255 240 215 / 0.4), inset 0 -2px 0 rgb(80 40 10 / 0.25), 0 22px 44px -28px rgb(60 30 22 / 0.75);
+  }
+  .brand__patch img { position: relative; z-index: 1; display: block; width: 100%; height: auto; }
   .brand__body { margin-top: clamp(36px, 4.4vw, 60px); max-width: none; columns: 2 26em; column-gap: clamp(32px, 4vw, 72px); }
   .brand__body p { break-inside: avoid; }
   .brand__body p:first-child { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.4; color: var(--ink); }
@@ -275,7 +284,7 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
     .figs__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 34px; }
     .fig + .fig:nth-child(3) { padding-left: 0; border-left: 0; }
     .brand__top { grid-template-columns: 1fr; }
-    .brand__logo { order: -1; width: 150px; }
+    .brand__patch { order: -1; width: min(100%, 280px); }
     .brand__body { columns: 1; }
     .sus__list { grid-template-columns: 1fr; row-gap: 0; }
     .sus__item, .sus__item + .sus__item, .sus__item + .sus__item:nth-child(3n + 1) { padding: 20px 0; border-left: 0; }

@@ -6,11 +6,13 @@ import '../styles/fonts.css'
 import '../styles/global.css'
 import '../styles/forms.css'
 import '../styles/cms.css'
+import '../styles/leather.css'
 import textUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-normal.woff2?url'
 import italicUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-italic.woff2?url'
 import Header from '../components/Header.astro'
 import Loader from '../components/Loader.astro'
 import Footer from '../components/Footer.astro'
+import LeatherDefs from '../components/LeatherDefs.astro'
 import { ORG } from '../copy/site'
 
 interface Props {
@@ -77,6 +79,7 @@ const ogImage = imageRaw ?? new URL(image, Astro.site).toString()
     <slot name="head" />
   </head>
   <body class={bodyClass}>
+    <LeatherDefs />
     <Loader />
     <a class="skip" href="#main">Skip to content</a>
     <Header path={section ?? path} overHero={overHero} />

@@ -42,7 +42,7 @@ export const EHL_PROGRAM = {
     'Ethiopian Highland Leather is the national brand of Ethiopian sheep leather, produced from sheep raised in the Ethiopian highlands. Developed in 2015 with support from the Ethiopia Industrial Promotion Project, the brand is owned and managed by ELIA and is registered in Ethiopia, the United States, Japan, the European Union and the United Kingdom.',
     'Research by the national leather institute confirms that Ethiopian highland sheepskin is light, thin and soft, yet strong and durable. EHL leather is inspected by an internationally accredited national laboratory.',
   ],
-  producers: ['Davimpex Bahir Dar Tannery', 'Ethio-Leather Industry PLC (ELICO)', 'New Wing Shoe Manufacturer', 'Pitards Ethiopia Tannery'],
+  producers: ['Davimpex Bahir Dar Tannery', 'Ethio-Leather Industry PLC (ELICO)', 'New Wing Shoe Manufacturer', 'Pittards Ethiopia Tannery'],
   why: [
     { title: 'By-Product', text: 'A 100% by-product of the Ethiopian food culture.' },
     { title: 'Environment', text: 'Produced with extra care for the environment.' },

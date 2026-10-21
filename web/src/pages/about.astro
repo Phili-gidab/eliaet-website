@@ -105,8 +105,10 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
           </figcaption>
         </figure>
       </div>
-      <blockquote class="lead__quote" data-reveal style="--d:.1s">
-        <p>{PRESIDENT.message}</p>
+      <!-- the message, printed on a stitched panel of natural tan leather, its quotation mark stamped in foil -->
+      <blockquote class="lead__quote hide hide--tan stitched" data-reveal style="--d:.1s">
+        <span class="lead__mark t-foil" aria-hidden="true">“</span>
+        <p class="t-print">{PRESIDENT.message}</p>
       </blockquote>
     </div>
   </section>
@@ -214,12 +216,20 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
   .lead__who figcaption { display: grid; gap: 4px; }
   .lead__name { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.35rem; color: var(--ink); }
   .lead__role { font-size: 14.5px; color: var(--brown-80); max-width: 26ch; }
-  .lead__quote { margin: 0; position: relative; padding-left: clamp(22px, 3vw, 44px); border-left: 2px solid var(--amber); }
-  .lead__quote p {
-    font-family: var(--f-display); font-size: clamp(1.3rem, 1rem + 1vw, 1.95rem); line-height: 1.38; letter-spacing: -0.01em;
-    color: var(--ink); text-wrap: pretty;
+  .lead__quote {
+    margin: 0; --stitch-in: 14px; --panel-r: var(--radius); border-radius: var(--radius);
+    padding: clamp(66px, 7.2vw, 104px) clamp(30px, 4.4vw, 72px) clamp(40px, 4.6vw, 64px);
+    --hide-veil: radial-gradient(130% 100% at 20% 0%, rgb(255 238 210 / 0.22), transparent 62%), linear-gradient(rgb(255 240 220 / 0.06), rgb(255 240 220 / 0.06));
+    box-shadow: inset 0 1px 0 rgb(255 240 215 / 0.45), inset 0 -2px 0 rgb(80 40 10 / 0.25), 0 30px 60px -36px rgb(60 30 22 / 0.75);
   }
-  .lead__quote p::before { content: '“'; position: absolute; left: clamp(-6px, -0.5vw, 0px); top: -0.55em; font-size: 4.2em; line-height: 1; color: rgb(226 160 37 / 0.35); font-family: var(--f-display); }
+  .lead__quote > p { position: relative; z-index: 1; }
+  .lead__mark {
+    position: absolute; z-index: 1; left: clamp(24px, 3.2vw, 50px); top: clamp(14px, 1.6vw, 24px); font-family: var(--f-display); font-weight: 800;
+    font-size: clamp(5.4rem, 3.8rem + 4.4vw, 9rem); line-height: 1;
+  }
+  .lead__quote p {
+    font-family: var(--f-display); font-size: clamp(1.25rem, 1rem + 0.9vw, 1.8rem); line-height: 1.4; letter-spacing: -0.01em; text-wrap: pretty;
+  }
 
   /* 08 · governance */
   .gov { background: var(--ink); }

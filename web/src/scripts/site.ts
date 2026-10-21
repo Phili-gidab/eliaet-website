@@ -90,6 +90,18 @@ if (reduce) {
   }
 }
 
+/* ── leather: a hide's picture loads when its place comes near (styles/leather.css) ── */
+{
+  const els = document.querySelectorAll<HTMLElement>('.hide, .sec--saddle')
+  if (!('IntersectionObserver' in window)) els.forEach((el) => el.classList.add('is-near'))
+  else {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-near'); io.unobserve(e.target) }
+    }, { rootMargin: '900px 0px' })
+    els.forEach((el) => io.observe(el))
+  }
+}
+
 /* ── counters: <span data-count="194">194</span> counts up from 0 when it comes into view. The page carries the real
    number (without the script, and for search engines); one already on screen when the page opens just stays put. ── */
 {

@@ -1,5 +1,5 @@
 {
-  "_note": "The member companies the database starts with: those the current eliaet.com lists (members.html and ehl.html, October 2026), and Pitards (an EHL-certified producer in the content document). The other members of the 194 are added in the back office (one at a time, or from a spreadsheet: Members > Import).",
+  "_note": "The member companies the database starts with: those the current eliaet.com lists (members.html and ehl.html, October 2026), and Pittards Ethiopia Tannery (an EHL-certified producer in the content document, which spells it Pitards). The other members of the 194 are added in the back office (one at a time, or from a spreadsheet: Members > Import).",
   "members": [
     {
       "slug": "davimpex-bahir-dar-tannery",
@@ -298,8 +298,8 @@
       "website": "shirshirethiopia.com"
     },
     {
-      "slug": "pitards-ethiopia-tannery",
-      "name": "Pitards Ethiopia Tannery",
+      "slug": "pittards-ethiopia-tannery",
+      "name": "Pittards Ethiopia Tannery",
       "sectors": [
         "tannery"
       ],

@@ -4,11 +4,13 @@ import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import ItemGrid from '../components/ItemGrid.astro'
 import FactTable from '../components/FactTable.astro'
+import Seals from '../components/Seals.astro'
 import {
   PROGRAMS_HEAD, PROGRAM_MENU, AALF_PROGRAM, EHL_PROGRAM, ELDSC_PROGRAM, MARKET_DEVELOPMENT, CAPACITY_BUILDING, SUSTAINABILITY,
 } from '../copy/programs'
 import { AALF_2026 } from '../copy/aalf'
 
+const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 November 2026'
 const pad = (n: number) => String(n).padStart(2, '0')
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 const out = 'M7 17 17 7M9 7h8v8'
@@ -40,6 +42,9 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
         <p class="label label--rule" data-reveal="fade"><b>02</b> All Africa Leather Fair</p>
         <h2 class="h2 pg__title" id="aalf-h" data-reveal>Africa’s leather trade show, organized by ELIA <em>since 2008</em>.</h2>
         <p class="body" data-reveal style="--d:.08s">{AALF_PROGRAM.text}</p>
+        <div data-reveal style="--d:.12s">
+          <p class="pg__date"><span class="pg__date-d"><span class="t-foil">{fairDays}</span> <em class="t-foil">{fairMonth}</em></span><span class="pg__date-at">{fairYear} · {AALF_2026.city.split(',')[0]}</span></p>
+        </div>
       </div>
       <figure class="frame pg__pic" data-reveal="mask">
         <img src="/media/profile/fair-hall.webp" alt="The All Africa Leather Fair's exhibition hall from above: rows of stands and a seating area" loading="lazy" decoding="async" {...responsive('/media/profile/fair-hall.webp', '(max-width: 900px) 92vw, 620px')} />
@@ -72,8 +77,8 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
         <p class="label label--rule" data-reveal="fade"><b>03</b> Ethiopian Highland Leather</p>
         <h2 class="h2 pg__title" id="ehl-h" data-reveal>A national brand of premium <em>sheepskin</em>.</h2>
         <div class="body" data-reveal style="--d:.08s">{EHL_PROGRAM.text.map((t) => <p>{t}</p>)}</div>
-        <h3 class="label pg__sub mt-l" data-reveal="fade">Certified producers</h3>
-        <ul class="producers" role="list" data-reveal>{EHL_PROGRAM.producers.map((p) => <li><span class="producers__mark" aria-hidden="true">EHL</span>{p}</li>)}</ul>
+        <h3 class="label pg__sub mt-l" id="ehl-producers" data-reveal="fade">Certified producers</h3>
+        <div data-reveal><Seals names={EHL_PROGRAM.producers} label="Certified producers" /></div>
       </div>
       <figure class="frame pg__pic" data-reveal="mask">
         <img src="/media/home/ehl.webp" alt="Three women in white shawls seated on hides, one holding a round leather shield" loading="lazy" decoding="async" {...responsive('/media/home/ehl.webp', '(max-width: 900px) 92vw, 620px')} />
@@ -170,14 +175,16 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   .pg__recent { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; color: var(--bone); max-width: 80ch; }
   .pg__cta { gap: 12px; flex-wrap: wrap; align-items: center; }
 
-  .producers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .producers li { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-s); background: #fff; box-shadow: inset 0 0 0 1px var(--line-dark); font-weight: 600; color: var(--ink); }
-  .producers__mark { flex: none; font: 700 10.5px/1 var(--f-text); letter-spacing: 0.12em; color: var(--paper); background: var(--ink); padding: 6px 7px; border-radius: 4px; }
+  /* the fair's dates, stamped in amber foil on the hide */
+  .pg__date { margin-top: clamp(26px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; font-family: var(--f-display); }
+  .pg__date-d { font-weight: 800; font-stretch: 80%; font-size: clamp(2.6rem, 1.6rem + 3.4vw, 4.6rem); line-height: 0.95; letter-spacing: -0.03em; }
+  .pg__date-d em { font-weight: 300; }
+  .pg__date-at { font: 600 12.5px/1.4 var(--f-text); letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone); }
 
   @media (max-width: 960px) {
     .pg__in, .pg--flip .pg__in, .pg__more { grid-template-columns: 1fr; }
     .pg--flip .pg__pic { order: 0; }
     .pg__pic { aspect-ratio: 4 / 3; max-height: none; }
   }
-  @media (max-width: 560px) { .toc, .producers { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .toc { grid-template-columns: 1fr; } }
 </style>

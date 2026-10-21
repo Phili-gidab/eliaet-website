@@ -1,0 +1,55 @@
+---
+/* The certified producers on a piece of natural tan hide: the Ethiopian Highland Leather mark branded into it, and
+   each producer as an ink stamp, a ring reading "EHL certified · Ethiopian Highland Leather" round its name, each
+   pressed at its own slight angle. The names are text. */
+interface Props {
+  names: string[]
+  /** the branded mark above the stamps */
+  brand?: boolean
+  class?: string
+  label?: string
+}
+const { names, brand = true, class: cls, label = 'EHL-certified producers' } = Astro.props
+const ROT = [-7, 5, -3, 8, -5, 3]
+const RING = 'EHL CERTIFIED · ETHIOPIAN HIGHLAND LEATHER ·'
+---
+
+<div class:list={['seals', 'hide', 'hide--tan', 'stitched', cls]}>
+  {brand && <img class="seals__brand t-burn" src="/media/ehl/ehl-mark.webp" alt="Ethiopian Highland Leather" width="960" height="532" loading="lazy" decoding="async" />}
+  <ul class="seals__list" role="list" aria-label={label}>
+    {names.map((n, i) => (
+      <li class="seal" style={`--rot:${ROT[i % ROT.length]}deg`}>
+        <span class="seal__ink t-ink">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs><path id={`seal-ring-${i}`} d="M100 100m-77 0a77 77 0 1 1 154 0a77 77 0 1 1-154 0" /></defs>
+            <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" />
+            <circle cx="100" cy="100" r="62" fill="none" stroke="currentColor" stroke-width="2" />
+            <text font-size="13.5" font-weight="800" letter-spacing="1.5" fill="currentColor">
+              <textPath href={`#seal-ring-${i}`} textLength="470" lengthAdjust="spacing">{RING}</textPath>
+            </text>
+          </svg>
+          <span class="seal__name">{n}</span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .seals { container-type: inline-size; --stitch-in: 12px; --panel-r: var(--radius); border-radius: var(--radius); padding: clamp(20px, 3vw, 40px);
+    --hide-veil: radial-gradient(120% 90% at 30% 0%, rgb(255 236 205 / 0.2), transparent 60%);
+    box-shadow: inset 0 1px 0 rgb(255 240 215 / 0.4), inset 0 -2px 0 rgb(80 40 10 / 0.25), 0 24px 50px -32px rgb(60 30 22 / 0.7); }
+  .seals > * { position: relative; z-index: 1; }
+  .seals__brand { display: block; width: min(66%, 300px); height: auto; margin: 6px auto clamp(22px, 2.6vw, 34px); }
+  .seals__list { list-style: none; margin: 0 auto; padding: 0; max-width: 500px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; justify-items: center; }
+  .seal { width: min(100%, 196px); container-type: inline-size; }
+  @container (min-width: 760px) {
+    .seals__list { max-width: none; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .seal { width: min(100%, 176px); }
+  }
+  .seal__ink { position: relative; display: grid; place-items: center; aspect-ratio: 1; transform: rotate(var(--rot)); }
+  .seal__ink svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  /* the name fits inside the inner ring, its size following the stamp's */
+  .seal__name { position: relative; max-width: 52%; text-align: center; font-weight: 800; font-stretch: 84%; font-size: clamp(9.5px, 7cqi, 12.5px);
+    line-height: 1.15; text-transform: uppercase; letter-spacing: 0.04em; text-wrap: balance; }
+</style>

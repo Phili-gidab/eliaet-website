@@ -108,7 +108,7 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
     <div class="wrap meet__in">
       <div>
         <p class="label label--rule" data-reveal="fade"><b>05</b> {MEET_AT_AALF.title}</p>
-        <h2 class="h1 mt-m meet__date" id="meet-h" data-reveal>{fairDays} <em>{fairMonth}</em><span class="sr-only"> 2026: {MEET_AT_AALF.title}</span></h2>
+        <h2 class="h1 mt-m meet__date" id="meet-h" data-reveal><span class="t-foil">{fairDays}</span> <em class="t-foil">{fairMonth}</em><span class="sr-only"> 2026: {MEET_AT_AALF.title}</span></h2>
         <p class="lede mt-m meet__text" data-reveal style="--d:.08s">{MEET_AT_AALF.text}</p>
         <div class="row mt-l" data-reveal style="--d:.14s">
           <a class="btn" href={AALF_2026.register} target="_blank" rel="noopener">Register as a Visitor <Fragment set:html={svg(out)} /><span class="sr-only"> (opens {new URL(AALF_2026.register).host} in a new tab)</span></a>

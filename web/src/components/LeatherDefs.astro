@@ -1,0 +1,59 @@
+---
+/* The light and shade of words set into leather (styles/leather.css): SVG filters that read only the shape of the
+   letters (or of a mark's picture), so the words stay real text. One copy in every page (layouts/Base.astro).
+   The light comes from the upper left, 48° up, as everywhere on the site. */
+---
+
+<svg class="leather-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <!-- pressed in (blind deboss): the letters' edges become slopes; the one facing the light catches it, the far one
+       falls into shade. Flat leather comes out unchanged (its light, sin 48° = 0.743, maps to no colour at all). The
+       pressed floor is the element's own colour (styles/leather.css sets it per hide): smoother and a shade darker
+       than the grain around it, as the press flattens and burnishes it. -->
+  <filter id="elia-press" color-interpolation-filters="sRGB" x="-3%" y="-10%" width="106%" height="120%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="slope" />
+    <feDiffuseLighting in="slope" surfaceScale="-3.4" diffuseConstant="1" lighting-color="#fff" result="light">
+      <feDistantLight azimuth="225" elevation="48" />
+    </feDiffuseLighting>
+    <feColorMatrix in="light" type="matrix" values="0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.78  1.35 0 0 0 -1.012" result="catch" />
+    <feColorMatrix in="light" type="matrix" values="0 0 0 0 0.07  0 0 0 0 0.03  0 0 0 0 0.012  -1.55 0 0 0 1.148" result="shade" />
+    <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="floor" />
+    <feMerge><feMergeNode in="floor" /><feMergeNode in="shade" /><feMergeNode in="catch" /></feMerge>
+  </filter>
+  <!-- the same for the smaller sizes on a phone: a narrower slope -->
+  <filter id="elia-press-s" color-interpolation-filters="sRGB" x="-3%" y="-10%" width="106%" height="120%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="slope" />
+    <feDiffuseLighting in="slope" surfaceScale="-2.6" diffuseConstant="1" lighting-color="#fff" result="light">
+      <feDistantLight azimuth="225" elevation="48" />
+    </feDiffuseLighting>
+    <feColorMatrix in="light" type="matrix" values="0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.78  1.4 0 0 0 -1.05" result="catch" />
+    <feColorMatrix in="light" type="matrix" values="0 0 0 0 0.07  0 0 0 0 0.03  0 0 0 0 0.012  -1.6 0 0 0 1.19" result="shade" />
+    <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="floor" />
+    <feMerge><feMergeNode in="floor" /><feMergeNode in="shade" /><feMergeNode in="catch" /></feMerge>
+  </filter>
+  <!-- branded: burnt into the leather, a deep brown that is a little uneven along the lines, their edges slightly
+       ragged, and a warm brown singe spreading just past them. Made for a mark drawn in lines (the EHL mark); the
+       element multiplies onto the hide, so the grain shows through the burn. -->
+  <filter id="elia-burn" color-interpolation-filters="sRGB" x="-6%" y="-10%" width="112%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="5" result="noise" />
+    <feDisplacementMap in="SourceAlpha" in2="noise" scale="1.1" xChannelSelector="R" yChannelSelector="G" result="ragged" />
+    <feGaussianBlur in="ragged" stdDeviation="2.2" result="halo" />
+    <feColorMatrix in="halo" type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.26  0 0 0 0 0.1  0 0 0 1.5 0" result="singe" />
+    <feGaussianBlur in="ragged" stdDeviation="0.35" result="core" />
+    <feColorMatrix in="core" type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.065  0 0 0 0 0.03  0 0 0 0.94 0" result="burnt" />
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="13" result="blotch" />
+    <feColorMatrix in="blotch" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.4 0 0 0 0.35" result="uneven" />
+    <feComposite in="burnt" in2="uneven" operator="in" result="burntUneven" />
+    <feMerge><feMergeNode in="singe" /><feMergeNode in="burntUneven" /></feMerge>
+  </filter>
+  <!-- ink from a stamp: patchy where the grain did not take it, the edges a little uneven -->
+  <filter id="elia-ink" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="3" seed="9" result="noise" />
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2 1.62" result="takes" />
+    <feComposite in="SourceGraphic" in2="takes" operator="in" result="patchy" />
+    <feDisplacementMap in="patchy" in2="noise" scale="1.4" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>
+
+<style>
+  .leather-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+</style>
