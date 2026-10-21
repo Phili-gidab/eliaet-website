@@ -2,6 +2,8 @@
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
+import Stage3D from '../components/Stage3D.astro'
+import { PIECES } from '../copy/stage'
 import { PROGRAMS_INTRO, PROGRAMS } from '../copy/programs'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -12,8 +14,7 @@ const ALT: Record<string, string> = {
   aalf: 'An exhibition hall seen from above, with rows of stands',
   eldsc: 'Leather hides dyed blue, brown, red, pink and yellow, laid side by side',
   afcfta: 'A young woman at a sewing machine on a factory floor',
-  shop: 'A brown leather messenger bag with buckled straps',
-  members: 'An emblem of a hide in the colours of the Ethiopian flag, with a jacket, bags and shoes',
+  members: 'Rolls of finished leather behind a chestnut leather tote and a pair of brown leather boots: the three sectors, tanneries, shoe makers and leather goods makers',
 }
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 const out = 'M7 17 17 7M9 7h8v8'
@@ -25,8 +26,8 @@ const out = 'M7 17 17 7M9 7h8v8'
     eyebrow={PROGRAMS_INTRO.eyebrow}
     amharic="ፕሮግራሞች"
     title={['Our latest projects', 'and innovative', 'works<em>.</em>']}
-    image="/media/carousel-0.webp"
-    imageAlt="A woman in orange lying on a tan leather sofa, holding a green leather card holder"
+    image="/media/studio/goods-head.webp"
+    imageAlt="A chestnut leather tote and a pair of brown leather lace-up boots on a dark brown studio floor"
   >
     <ol class="toc" role="list" aria-label="The programs on this page" data-reveal style="--d:.3s">
       {PROGRAMS.map((p, i) => (
@@ -53,14 +54,18 @@ const out = 'M7 17 17 7M9 7h8v8'
       >
         <div class="wrap pg__in">
           <div class="pg__media">
-            <div class="frame pg__frame" data-reveal="fade">
-              <img src={p.image} alt={ALT[p.slug] ?? ''} loading="lazy" decoding="async" width="500" height="700" {...responsive(p.image, '(max-width: 900px) 92vw, 620px')} />
-            </div>
+            {p.slug === 'shop' ? (
+              <div class="pg__stage" data-reveal="fade"><Stage3D pieces={PIECES} sizes="(max-width: 760px) 92vw, 520px" /></div>
+            ) : (
+              <div class="frame pg__frame" data-reveal="fade">
+                <img src={p.image} alt={ALT[p.slug] ?? ''} loading="lazy" decoding="async" width="500" height="700" {...responsive(p.image, '(max-width: 900px) 92vw, 620px')} />
+              </div>
+            )}
           </div>
           <div class="pg__text">
             <p class="label label--rule" data-reveal="fade"><b>{pad(i + 2)}</b> {p.name}</p>
             {p.short === '194' ? (
-              <p class="pg__code figure-num" aria-hidden="true"><span data-count="194">0</span></p>
+              <p class="pg__code figure-num" aria-hidden="true"><span data-count="194">194</span></p>
             ) : (
               <p class="pg__code figure-num" aria-hidden="true" data-reveal="fade">{p.short}</p>
             )}
@@ -110,6 +115,7 @@ const out = 'M7 17 17 7M9 7h8v8'
   .pg--flip .pg__media { grid-column: 8 / span 5; grid-row: 1; }
   .pg--flip .pg__text { grid-column: 1 / span 6; grid-row: 1; }
   .pg__frame { aspect-ratio: 5 / 7; max-height: min(78vh, 760px); width: 100%; }
+  .pg__stage { width: 100%; max-width: 560px; }
   /* this photo has a flat brown band along its foot; push it out of the frame */
   #eldsc .pg__frame img { transform: scale(1.16); transform-origin: 50% 0; }
 

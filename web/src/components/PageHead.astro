@@ -11,8 +11,13 @@ interface Props {
   lede?: string
   image?: string
   imageAlt?: string
-  /** a film beside the title instead of a picture: one rendition set (its tall cut suits both shapes of the frame) */
-  film?: { base: string; sizes: number[]; poster: string; label: string; start?: number; rate?: number; bg?: string }
+  /** a film beside the title instead of a picture. Its frame is tall (4:5) beside the title and wide (16:11) above
+      it on narrow screens, which are mostly phones held upright: so `phone`, the film's wide cut, is given to the
+      Film as its "tall" rendition (the one it plays on upright screens), and the tall cut plays everywhere else */
+  film?: {
+    base: string; sizes: number[]; poster: string; label: string; start?: number; rate?: number; bg?: string
+    phone?: { base: string; sizes: number[]; poster: string }
+  }
   tone?: 'dark' | 'paper'
 }
 const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', film, tone = 'dark' } = Astro.props
@@ -36,6 +41,7 @@ const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', film,
     {film && !image && (
       <div class="ph__media frame" data-reveal="mask" style={`--d:.15s;--film-bg:${film.bg ?? 'var(--hide)'}`}>
         <Film class="ph__film" wide={{ base: film.base, sizes: film.sizes }} poster={film.poster} label={film.label} formats="vp9,h264"
+          tall={film.phone && { base: film.phone.base, sizes: film.phone.sizes }} posterTall={film.phone?.poster}
           loop={false} toggle={false} posterLoading="lazy" posterWhen="still" start={film.start} rate={film.rate} />
       </div>
     )}

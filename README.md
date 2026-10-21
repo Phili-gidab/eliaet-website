@@ -24,6 +24,15 @@ server that also runs the forms API. Films rendered in Blender.
   drying, Finishing, Garments, Bags, Finished leather). Where each thing is, frame by frame, comes from the film's
   own cameras (`web/public/film/pins.json`, made with the Blender scripts `track6.py` and `pins6.py`), so the pins
   move with the shot; each keeps off the chapter's words and the other pins, and none show for less motion.
+- **Studio pictures and the 3D stage** (Blender): the goods from the film's table (the tote, the field boots, rolls
+  of finished leather) and the All African Leather Fair's boot, in a studio of the brand's brown with a warm pool of
+  light behind them. They stand in for photos that did not fit: the Programs head and its 194-members section (the
+  three sectors: rolls of leather, boots, the tote), the home page's programme cards (the AALF boot taken apart, layer
+  above layer; the goods), the Membership head (a member's card in dark leather, the lockup stamped in amber foil),
+  the News head (close on the tote's handle) and the 404 (one boot, its pair walked off). On the home page and on
+  Programs, the tote and the boot can be turned in 3D (`components/Stage3D.astro`): three.js and the model load only
+  as the stage comes near; until then, without 3D, or on a connection that asks to save data, the stage shows the
+  piece's picture, rendered in Blender from the same camera.
 - **In ELIA's brand** (the brand guide ELIA sent, October 2026): the dark sections are the brand brown, the light
   ones the guide's cream, amber the light in the dark; sections slide in like sheets, cards sit like panels; titles
   in Roboto at a condensed width, the word that carries the light in Roboto's light italic; Ge'ez beside the titles.
@@ -61,6 +70,8 @@ npm start          # one process on $PORT (default 4000) serves the pages, the f
 | `web/src/styles/` | `global.css` (type, colour, sections), `forms.css` |
 | `web/public/film/` | The films and their posters (copied from `blender/film/`) |
 | `web/public/media/` | Photos and logos from the current site, as WebP; `fair/` holds four photos from the AALF website. Large photos have smaller copies next to them (`name-480.webp`, `-720`, `-960`, `-1280`) |
+| `web/public/media/studio/` | The studio pictures (Blender); `web/public/media/3d/` the 3D stage's models (GLB, meshopt and WebP) and their pictures |
+| `tools/studio/` | The Blender scripts behind them: the studio (`studio.py`), the shots (`shots.py`, `card.py`), the stage's pictures (`posters.py`), the tote's bake and export (`export_tote.py`, then `pack.mjs`) |
 | `tools/media_variants.py` | Makes those smaller copies. **Run it after adding or replacing a large photo** (`python tools/media_variants.py`, needs Pillow); the pages pick the copies up by name |
 | `web/scripts/fonts.mjs` | Runs before every build: cuts Noto Sans Ethiopic down to the Ge'ez letters the site uses (15 kB instead of 200 kB) |
 | `server/data/members.json` | The member directory. **The pages are built from it**: after editing, run `npm run build` again |
@@ -79,6 +90,17 @@ To replace a film, encode the new frames with `tools/encode_film.sh` into `blend
 The home film (`tannery-*`, 20 s, 25 fps) was rendered at 1600×900 and 720×1280; its frames were checked one by one for
 graphics-driver glitches before encoding, and its VP9 renditions were made with ffmpeg (libvpx-vp9, two passes)
 because Blender's own VP9 output showed colour smears.
+
+### The 3D stage
+
+`components/Stage3D.astro` shows one piece at a time, chosen with the buttons under it (`copy/stage.ts` lists the
+pieces: the model, its picture, its camera). The models live in `web/public/media/3d/`: the tote (from the film; its
+procedural leather baked to a 2048 atlas of colour, roughness, ambient occlusion and the grain as a normal map) and
+the AALF boot (its animation's last pose, the finished boot). Both are meshopt-compressed with WebP textures; the
+page loads three.js (about 180 kB compressed) and a model only when the stage is near. The pictures are rendered with
+the same camera (`tools/studio/posters.py`), on a transparent film with only the piece's shadow, so the page's cream
+shows through as it does around the model. To change a piece's camera, change it in both `copy/stage.ts` and
+`posters.py`, render the picture again and rebuild.
 
 ## Speed
 

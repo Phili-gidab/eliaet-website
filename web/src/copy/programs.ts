@@ -81,7 +81,7 @@ export const PROGRAMS: Program[] = [
     title: '194 leather manufacturing companies.',
     text: 'Ethiopian Leather Industries Association (ELIA) is a nonprofit trade association of the leather industries businesses. ELIA works to enhance and improve the leather industries business climate by promoting export of leather, shoes and leather goods and garment, protecting the rights of members, and assisting businesses to improve.',
     points: ['Natural qualities of clarity', 'Flexibility & strength', 'Thickness & compact texture'],
-    image: '/media/home/aalia.webp',
+    image: '/media/studio/goods-sectors.webp',
     to: '/members',
     cta: 'Members directory',
   },

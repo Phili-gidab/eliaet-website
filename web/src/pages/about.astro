@@ -30,6 +30,7 @@ const last = TIMELINE[TIMELINE.length - 1].year
     lede={ABOUT_INTRO.body[0]}
     film={{
       base: '/film/logo-t', sizes: [720, 1080], poster: '/film/logo-t-end-720.jpg', start: 0.9, rate: 1.25, bg: '#fcf0e0',
+      phone: { base: '/film/logo', sizes: [1280, 1920], poster: '/film/logo-end-1280.jpg' },
       label: 'The ELIA logo film: the outline of Ethiopia is drawn and turns into the amber e of the logo, then the name follows.',
     }}
   />
@@ -42,7 +43,7 @@ const last = TIMELINE[TIMELINE.length - 1].year
       <div class="stitch who__stitch" aria-hidden="true"></div>
       <div class="who__count" data-reveal>
         <p class="who__n figure-num">
-          <span data-count={ABOUT.count.value} aria-hidden="true">0</span><span class="sr-only">{ABOUT.count.value}</span>
+          <span data-count={ABOUT.count.value} aria-hidden="true">{ABOUT.count.value}</span><span class="sr-only">{ABOUT.count.value}</span>
         </p>
         <p class="label who__l">{ABOUT.count.label.map((l) => <span>{l}</span>)}</p>
       </div>
@@ -139,9 +140,6 @@ const last = TIMELINE[TIMELINE.length - 1].year
 </Base>
 
 <style>
-  /* the hero photo is a portrait; on narrow screens PageHead crops it wide, so favour the shoes and gloves */
-  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 82%; } }
-
   /* 02 · who we are */
   .who__in { row-gap: 28px; align-items: end; }
   .who__label { grid-column: 1 / span 3; align-self: start; margin-top: 1.1em; }

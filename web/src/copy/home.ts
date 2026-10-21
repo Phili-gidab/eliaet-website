@@ -1,5 +1,6 @@
 /* Home page copy. Text marked "legacy" is carried over word for word from the current eliaet.com home page
    (obvious typos corrected). New copy written for the redesign is marked "new". */
+import { AALF_2026 } from './aalf'
 
 export const HERO = {
   // new
@@ -50,13 +51,13 @@ export const PINS: { id: string; label: string; n?: string }[] = [
   { id: 'leather', label: 'Finished leather' },
 ]
 
-/* legacy: the four slides of the current home-page carousel */
+/* legacy: the four slides of the current home-page carousel (the fair's slide brought up to its 2026 edition) */
 export const HIGHLIGHTS = [
   {
-    title: '14th All African Leather Fair',
-    text: 'At Millennium Hall: brings together leather goods manufacturers and technology suppliers, chemical and inputs suppliers, training institutions, trade promotion organizations, etc. from all over the world.',
+    title: `${AALF_2026.edition.replace(' edition', '')} All African Leather Fair`,
+    text: `${AALF_2026.dates}, at the ${AALF_2026.venue}: brings together leather goods manufacturers and technology suppliers, chemical and inputs suppliers, training institutions, trade promotion organizations, etc. from all over the world.`,
     to: '/aalf',
-    image: '/media/carousel-5.webp',
+    image: '/media/studio/aalf-boot.webp',
   },
   {
     title: 'Enhancing Ethiopian leather industries',
@@ -74,7 +75,9 @@ export const HIGHLIGHTS = [
     title: 'Styles you have to see',
     text: 'A modern classic style that lasts a lifetime.',
     to: '/members?sector=leather-goods',
-    image: '/media/carousel-0.webp',
+    image: '/media/studio/goods-styles.webp',
+    /** the card is wider than the picture on large screens: keep the handles in */
+    focus: '58% 28%',
   },
 ]
 
@@ -163,7 +166,6 @@ export const WHY = {
       figure: { value: '5+', label: 'years income tax holiday' },
     },
   ],
-  images: ['/media/home/leather1.webp', '/media/home/leather2.webp'],
 }
 
 /* legacy: "Make An Appointment To Discuss About A Project" */

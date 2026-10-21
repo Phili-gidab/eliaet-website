@@ -5,6 +5,8 @@ import Story from '../components/Story.astro'
 import SectionHead from '../components/SectionHead.astro'
 import NewsCard from '../components/NewsCard.astro'
 import Appointment from '../components/Appointment.astro'
+import Stage3D from '../components/Stage3D.astro'
+import { PIECES } from '../copy/stage'
 import { HERO, HIGHLIGHTS, PILLARS, ABOUT, PROCESS, WHY } from '../copy/home'
 import { AALF_2026 } from '../copy/aalf'
 import { PARTNERS, BRANDS } from '../copy/impact'
@@ -36,16 +38,16 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
           <p class="label" data-reveal="fade"><b>02</b> {ABOUT.eyebrow}</p>
           <h2 class="h1 about__title mt-m words" data-reveal="fade">
             <span class="w" style="--i:0">Ethiopian</span>
-            <span class="w inlay" style="--i:1;background-image:url(/media/home/leather1.webp)" aria-hidden="true"></span>
+            <span class="w inlay" style="--i:1;background-image:url(/media/studio/inlay-stitch.webp)" aria-hidden="true"></span>
             <span class="w" style="--i:2"><em>Leather</em></span>
             <span class="w" style="--i:3">Industries</span>
-            <span class="w inlay" style="--i:4;background-image:url(/media/carousel-0-480.webp)" aria-hidden="true"></span>
+            <span class="w inlay" style="--i:4;background-image:url(/media/studio/inlay-boots.webp)" aria-hidden="true"></span>
             <span class="w" style="--i:5">Association</span>
           </h2>
         </div>
         <div class="about__side">
           <div class="about__count card" data-reveal>
-            <span class="figure-num about__num"><span data-count={ABOUT.count.value}>0</span></span>
+            <span class="figure-num about__num"><span data-count={ABOUT.count.value}>{ABOUT.count.value}</span></span>
             <span class="about__countlbl">{ABOUT.count.label.map((l) => <span>{l}</span>)}</span>
             <span class="pill about__since"><i></i>Since {ORG.founded}</span>
           </div>
@@ -65,7 +67,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
           <li data-reveal style={`--d:${i * 0.08}s`}>
             <a class="sector card" href={`/members?sector=${k}`}>
               <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true">→</span></span>
-              <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>0</span>
+              <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span>
               <span class="sector__name">{SECTORS[k].plural} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
             </a>
           </li>
@@ -111,7 +113,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
       <div class="bento">
         {HIGHLIGHTS.map((h, i) => (
           <a class:list={['bento__item', 'card', `bento__item--${i}`]} href={h.to} data-reveal style={`--d:${(i % 2) * 0.1}s`}>
-            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" {...responsive(h.image, '(max-width: 900px) 88vw, 760px')} /></div>
+            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" style={'focus' in h && h.focus ? `object-position:${h.focus}` : undefined} {...responsive(h.image, '(max-width: 900px) 88vw, 760px')} /></div>
             <div class="bento__text">
               <span class="label"><b>{pad(i + 1)}</b></span>
               <h3 class="h3">{h.title}</h3>
@@ -142,12 +144,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
           ))}
         </ol>
       </div>
-      <div class="why__imgs">
-        {WHY.images.map((src, i) => (
-          <div class:list={['frame', 'why__img', `why__img--${i}`]} data-reveal="mask" style={`--d:${i * 0.15}s`}>
-            <img src={src} alt="" loading="lazy" decoding="async" />
-          </div>
-        ))}
+      <div class="why__stage" data-reveal style="--d:.12s">
+        <Stage3D pieces={PIECES} />
       </div>
     </div>
   </section>
@@ -292,11 +290,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   .why__figlbl { margin-top: -2px; }
   .why__h { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.5rem; line-height: 1.1; }
   .why__points p { color: var(--brown-80); font-size: 15.5px; }
-  .why__imgs { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
-  .why__img { aspect-ratio: 3 / 4; }
-  .why__img--0 { grid-column: 1 / 6; }
-  .why__img--1 { grid-column: 2 / 7; margin-top: -30%; box-shadow: 0 0 0 10px var(--paper); }
-  @media (max-width: 960px) { .why__in { grid-template-columns: 1fr; } .why__imgs { max-width: 560px; } }
+  .why__stage { position: sticky; top: 96px; }
+  @media (max-width: 960px) { .why__in { grid-template-columns: 1fr; } .why__stage { position: static; max-width: 560px; } }
   @media (max-width: 480px) { .why__points li { grid-template-columns: 1fr; } .why__fig { grid-row: auto; } }
 
   /* the fair */

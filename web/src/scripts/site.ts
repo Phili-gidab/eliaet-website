@@ -77,7 +77,8 @@ if (reduce) {
   }
 }
 
-/* ── counters: <span data-count="194">0</span> counts up when seen ── */
+/* ── counters: <span data-count="194">194</span> counts up from 0 when it comes into view. The page carries the real
+   number (without the script, and for search engines); one already on screen when the page opens just stays put. ── */
 {
   const els = document.querySelectorAll<HTMLElement>('[data-count]')
   const run = (el: HTMLElement) => {
@@ -93,11 +94,15 @@ if (reduce) {
     }
     requestAnimationFrame(step)
   }
-  if (els.length) {
+  if (els.length && !reduce) {
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { run(e.target as HTMLElement); io.unobserve(e.target) }
     }, { threshold: 0.6 })
-    els.forEach((el) => io.observe(el))
+    els.forEach((el) => {
+      if (el.getBoundingClientRect().top < innerHeight) return
+      el.textContent = '0'
+      io.observe(el)
+    })
   }
 }
 
