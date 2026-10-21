@@ -1,17 +1,13 @@
 ---
 import Logo from './Logo.astro'
-import { NAV, ORG, CONTACT, SOCIAL } from '../copy/site'
+import { NAV, ORG, CONTACT, SOCIAL, PRIMARY_NAV, SHORT_LABEL } from '../copy/site'
 
 interface Props { path: string; overHero?: boolean }
 const { path, overHero = false } = Astro.props
-const PRIMARY = [
-  { label: 'About', to: '/about' },
-  { label: 'Members', to: '/members', note: String(ORG.members) },
-  { label: 'Programs', to: '/programs' },
-  { label: 'AALF 2026', to: '/aalf' },
-  { label: 'News', to: '/news' },
-  { label: 'Contact', to: '/contact' },
-]
+const PRIMARY = PRIMARY_NAV.map((to) => {
+  const n = NAV.find((x) => x.to === to)!
+  return { label: SHORT_LABEL[to] ?? n.label, to, note: to === '/members' ? String(ORG.members) : undefined }
+})
 const isActive = (to: string) => (to === '/' ? path === '/' : path === to || path.startsWith(to + '/'))
 const social = SOCIAL.filter((s) => s.href)
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -34,7 +30,11 @@ const pad = (n: number) => String(n).padStart(2, '0')
       </ul>
     </nav>
     <div class="hdr__end">
-      <a href="/membership" class="hdr__cta">Become a member</a>
+      <!-- "Member login", or "My account" once signed in (a small cookie the server sets says so; see members.ts) -->
+      <a href="/members/login" class="hdr__cta" data-account>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7" /><path d="M5 19.5c1.4-3.3 4-5 7-5s5.6 1.7 7 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+        <span data-account-label>Member login</span>
+      </a>
       <button class="hdr__menu" type="button" aria-label="Menu" aria-haspopup="dialog" aria-controls="menu" data-menu-open>
         <span class="hdr__menu-txt">Menu</span>
         <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
@@ -64,7 +64,8 @@ const pad = (n: number) => String(n).padStart(2, '0')
             </a>
           </li>
         ))}
-        <li style={`--i:${NAV.length + 1}`}><a href="/membership" aria-current={path === '/membership' ? 'page' : undefined}><span class="menu__n">{pad(NAV.length + 1)}</span><span class="menu__t">Membership</span><span class="menu__am geez" lang="am">አባልነት</span></a></li>
+        <li style={`--i:${NAV.length + 1}`}><a href="/members#apply"><span class="menu__n">{pad(NAV.length + 1)}</span><span class="menu__t">Become a member</span><span class="menu__am geez" lang="am">አባልነት</span></a></li>
+        <li style={`--i:${NAV.length + 2}`}><a href="/members/login" data-account aria-current={path.startsWith('/members/') ? 'page' : undefined}><span class="menu__n">{pad(NAV.length + 2)}</span><span class="menu__t" data-account-label>Member login</span></a></li>
       </ol>
     </nav>
     <div class="menu__foot">
@@ -113,7 +114,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
   .hdr__nav { margin-inline: auto; }
   .hdr__nav ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
   .hdr__nav a {
-    position: relative; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px;
+    position: relative; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border-radius: 999px; white-space: nowrap;
     font-size: 14px; font-weight: 500; letter-spacing: -0.005em; color: rgb(255 252 245 / 0.78);
     transition: color 0.25s, background 0.25s;
   }
@@ -126,10 +127,11 @@ const pad = (n: number) => String(n).padStart(2, '0')
   .hdr__end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
   .hdr__nav + .hdr__end { margin-left: 0; }
   .hdr__cta {
-    display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px 0 14px; border-radius: 999px; white-space: nowrap;
     font-size: 14px; font-weight: 600; color: var(--ink); background: var(--amber);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 8px 24px -10px rgb(226 160 37 / 0.6); transition: background 0.3s, transform 0.4s var(--spring);
   }
+  .hdr__cta svg { width: 18px; height: 18px; flex: none; }
   .hdr__cta:hover { background: var(--amber-hi); }
   .hdr__cta:active { transform: scale(0.97); }
   .hdr__menu {
@@ -141,7 +143,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
   .hdr__burger { width: 30px; height: 30px; border-radius: 50%; display: grid; place-content: center; gap: 4px; background: rgb(255 252 245 / 0.1); }
   .hdr__burger i { display: block; width: 12px; height: 1.5px; border-radius: 2px; background: currentColor; transition: transform 0.4s var(--ease); }
   .hdr__menu:hover .hdr__burger i:last-child { transform: translateX(3px); }
-  @media (max-width: 1100px) {
+  @media (max-width: 1240px) {
     .hdr__nav { display: none; }
     .hdr__end, .hdr__nav + .hdr__end { margin-left: auto; }
   }

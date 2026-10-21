@@ -1,0 +1,15 @@
+---
+/* The Secretariat's back office: one page, the app does the rest (app/admin). The server sends it for /admin. */
+import Base from '../layouts/Base.astro'
+import { Admin } from '../app/admin/Admin'
+import '../styles/app.css'
+---
+
+<Base title="Back office" noindex section="/admin" bodyClass="app-page admin-page">
+  <section class="apphead apphead--slim lit"></section>
+  <section class="sec sec--paper sheet appsec appsec--admin">
+    <div class="wrap appsec__in--admin">
+      <Admin client:only="preact"><p slot="fallback" class="loading">Loading the back office…</p></Admin>
+    </div>
+  </section>
+</Base>

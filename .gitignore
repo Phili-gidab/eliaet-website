@@ -11,3 +11,4 @@ server/.env
 shot*.png
 hosting/out/
 hosting/.stage-*/
+server/.data/

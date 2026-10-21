@@ -1,0 +1,198 @@
+---
+import { responsive } from '../lib/media'
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import ItemGrid from '../components/ItemGrid.astro'
+import Steps from '../components/Steps.astro'
+import FactTable from '../components/FactTable.astro'
+import Stage3D from '../components/Stage3D.astro'
+import { PIECES } from '../copy/stage'
+import { INVEST_HEAD, WHY_ETHIOPIA, BUYERS, INVESTORS, MEET_AT_AALF } from '../copy/invest'
+import { AALF_2026 } from '../copy/aalf'
+
+const pad = (n: number) => String(n).padStart(2, '0')
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const out = 'M7 17 17 7M9 7h8v8'
+const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>`
+const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 2026'
+---
+
+<Base title={INVEST_HEAD.title} description={`${INVEST_HEAD.subtitle} ${BUYERS.text}`}>
+  <PageHead
+    index="01"
+    eyebrow="Invest and source"
+    amharic="ኢንቨስትመንት"
+    title={['Invest and', '<em>source</em> in', 'Ethiopia.']}
+    lede={INVEST_HEAD.subtitle}
+    image="/media/profile/fair-stand.webp"
+    imageAlt="A buyer holding up a leather bag at an exhibitor's stand, talking with the maker"
+  >
+    <div class="row mt-l" data-reveal style="--d:.32s">
+      <a class="btn" href="/contact?form=buyer#forms">Buyer Inquiry <Fragment set:html={svg(arrow)} /></a>
+      <a class="btn btn--ghost" href="/contact?form=investor#forms">Investor Inquiry <Fragment set:html={svg(arrow)} /></a>
+    </div>
+  </PageHead>
+
+  <!-- 02 · why Ethiopia -->
+  <section class="sec sec--paper sheet why" aria-labelledby="why-h">
+    <div class="wrap why__in">
+      <div class="why__head">
+        <p class="label label--rule" data-reveal="fade"><b>02</b> Why Ethiopia</p>
+        <h2 class="h2 mt-m" id="why-h" data-reveal>Why <em>Ethiopia</em>.</h2>
+        <p class="body mt-m why__lede" data-reveal style="--d:.08s">Seven reasons buyers and investors look to Ethiopia for leather.</p>
+      </div>
+      <ol class="why__list" role="list">
+        {WHY_ETHIOPIA.map((w, i) => (
+          <li data-reveal style={`--d:${(i % 2) * 0.06}s`}>
+            <span class="why__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
+            <h3 class="why__t">{w.title}</h3>
+            <p class="why__p">{w.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 03 · for buyers -->
+  <section class="sec sheet lit buyers" id="buyers" aria-labelledby="buy-h">
+    <div class="wrap">
+      <div class="buyers__head">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> For buyers</p>
+        <h2 class="h2 mt-m" id="buy-h" data-reveal>Source leather and leather <em>products</em> from Ethiopia.</h2>
+        <p class="body mt-m buyers__text" data-reveal style="--d:.08s">{BUYERS.text}</p>
+      </div>
+      <h3 class="label buyers__sub" data-reveal="fade">How ELIA helps buyers</h3>
+      <Steps items={BUYERS.steps} label="How ELIA helps buyers, step by step" />
+      <div class="buyers__goods">
+        <div>
+          <h3 class="label buyers__sub buyers__sub--tight" data-reveal="fade">Products available</h3>
+          <FactTable rows={BUYERS.products.map((p) => ({ k: p.category, v: p.examples }))} head={['Category', 'Examples']} caption="Products available from Ethiopian manufacturers" />
+          <p class="row mt-l" data-reveal>
+            <a class="btn" href="/contact?form=buyer#forms">Buyer Inquiry Form <Fragment set:html={svg(arrow)} /></a>
+          </p>
+        </div>
+        <div class="buyers__stage" data-reveal style="--d:.1s">
+          <Stage3D pieces={PIECES} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · for investors -->
+  <section class="sec sec--paper sheet investors" id="investors" aria-labelledby="inv-h">
+    <div class="wrap">
+      <div class="investors__in">
+        <div>
+          <p class="label label--rule" data-reveal="fade"><b>04</b> For investors</p>
+          <h2 class="h2 mt-m" id="inv-h" data-reveal>Invest in Ethiopian <em>leather</em>.</h2>
+          <p class="body mt-m" data-reveal style="--d:.08s">{INVESTORS.text}</p>
+          <h3 class="label mt-l investors__sub" data-reveal="fade">Investment opportunities</h3>
+          <ul class="opps" role="list">
+            {INVESTORS.opportunities.map((o, i) => <li data-reveal style={`--d:${i * 0.05}s`}><span aria-hidden="true">{pad(i + 1)}</span>{o}</li>)}
+          </ul>
+        </div>
+        <figure class="frame investors__pic" data-reveal="mask">
+          <img src="/media/fair/lounge-wide.webp" alt="Buyers and manufacturers in conversation around a low table in a fair's meeting lounge" loading="lazy" decoding="async" {...responsive('/media/fair/lounge-wide.webp', '(max-width: 960px) 92vw, 560px')} />
+        </figure>
+      </div>
+      <h3 class="label investors__sub mt-l" data-reveal="fade">How ELIA helps investors</h3>
+      <ItemGrid items={INVESTORS.help} cols={4} />
+      <p class="row mt-l" data-reveal>
+        <a class="btn btn--dark" href="/contact?form=investor#forms">Investor Inquiry Form <Fragment set:html={svg(arrow)} /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · meet us at AALF 2026 -->
+  <section class="sec sec--saddle grain meet" aria-labelledby="meet-h">
+    <div class="wrap meet__in">
+      <div>
+        <p class="label label--rule" data-reveal="fade"><b>05</b> {MEET_AT_AALF.title}</p>
+        <h2 class="h1 mt-m meet__date" id="meet-h" data-reveal>{fairDays} <em>{fairMonth}</em><span class="sr-only"> 2026: {MEET_AT_AALF.title}</span></h2>
+        <p class="lede mt-m meet__text" data-reveal style="--d:.08s">{MEET_AT_AALF.text}</p>
+        <div class="row mt-l" data-reveal style="--d:.14s">
+          <a class="btn" href={AALF_2026.register} target="_blank" rel="noopener">Register as a Visitor <Fragment set:html={svg(out)} /><span class="sr-only"> (opens {new URL(AALF_2026.register).host} in a new tab)</span></a>
+          <a class="btn btn--ghost" href="/programs#aalf">About the fair</a>
+        </div>
+      </div>
+      <figure class="frame meet__pic" data-reveal="mask">
+        <img src="/media/fair/hall.webp" alt="The fair's hall seen from the gallery: rows of stands with garments and leather goods" loading="lazy" decoding="async" {...responsive('/media/fair/hall.webp', '(max-width: 960px) 92vw, 440px')} />
+      </figure>
+    </div>
+  </section>
+
+  <!-- 06 · send an inquiry -->
+  <section class="sec sec--paper sheet ask" aria-labelledby="ask-h">
+    <div class="wrap">
+      <p class="label label--rule" data-reveal="fade"><b>06</b> Send an inquiry</p>
+      <h2 class="h2 mt-m" id="ask-h" data-reveal>Tell us what you <em>need</em>.</h2>
+      <div class="ask__grid">
+        <a class="ask__card card" href="/contact?form=buyer#forms" data-reveal>
+          <span class="label">Buyers</span>
+          <span class="ask__t">Buyer Inquiry Form</span>
+          <span class="ask__p">The product, quality standard, volume and timeline you need. We reply with suitable ELIA members.</span>
+          <span class="link ask__go">Open the form <Fragment set:html={svg(arrow)} /></span>
+        </a>
+        <a class="ask__card card" href="/contact?form=investor#forms" data-reveal style="--d:.08s">
+          <span class="label">Investors</span>
+          <span class="ask__t">Investor Inquiry Form</span>
+          <span class="ask__p">The investment area, its estimated size and your preferred location. We reply with information and introductions.</span>
+          <span class="link ask__go">Open the form <Fragment set:html={svg(arrow)} /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* 02 · why Ethiopia */
+  .why__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
+  .why__head { position: sticky; top: 110px; }
+  .why__lede { max-width: 30ch; }
+  .why__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(20px, 3vw, 48px); }
+  .why__list li { display: grid; grid-template-columns: 3.2em minmax(0, 1fr); column-gap: 6px; row-gap: 8px; padding: 24px 0 26px; border-top: 1px solid var(--line-dark); }
+  .why__n { grid-row: span 2; font-size: 1.5rem; color: var(--taupe); }
+  .why__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem); line-height: 1.12; letter-spacing: -0.02em; }
+  .why__p { color: var(--brown-80); font-size: 15.5px; line-height: 1.55; }
+
+  /* 03 · for buyers */
+  .buyers__head { max-width: 760px; }
+  .buyers__text { max-width: 56ch; }
+  .buyers__sub { margin: clamp(48px, 6vw, 88px) 0 28px; }
+  .buyers__sub--tight { margin-top: 0; }
+  .buyers__goods { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 88px); align-items: start; margin-top: clamp(56px, 7vw, 110px); }
+  .buyers__stage { position: sticky; top: 96px; padding: 10px 10px 14px; border-radius: calc(var(--radius) + 8px); background: var(--paper); box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.85); }
+
+  /* 04 · for investors */
+  .investors__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
+  .investors__sub { margin-bottom: 18px; }
+  .investors__pic { margin: 0; aspect-ratio: 4 / 5; }
+  .investors__pic img { object-position: 42% 50%; }
+  .opps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-dark); }
+  .opps li { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line-dark); color: var(--ink); font-size: 16px; line-height: 1.5; }
+  .opps span { font-weight: 600; font-size: 13px; color: var(--taupe); padding-top: 3px; font-variant-numeric: tabular-nums; }
+
+  /* 05 · meet us at the fair */
+  .meet__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
+  .meet__date { font-size: clamp(3.2rem, 1.6rem + 6.4vw, 7.6rem); }
+  .meet__date em { display: block; }
+  .meet__text { max-width: 44ch; }
+  .meet__pic { margin: 0; aspect-ratio: 4 / 5; }
+
+  /* 06 · send an inquiry */
+  .ask__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: clamp(36px, 4.4vw, 64px); }
+  .ask__card { display: grid; gap: 14px; align-content: start; padding: clamp(24px, 3vw, 40px); color: var(--ink); }
+  .ask__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); line-height: 1.06; letter-spacing: -0.025em; }
+  .ask__p { color: var(--brown-80); font-size: 15.5px; line-height: 1.55; max-width: 44ch; }
+  .ask__go { justify-self: start; margin-top: 8px; color: var(--ink); }
+
+  @media (max-width: 960px) {
+    .why__in, .buyers__goods, .investors__in, .meet__in { grid-template-columns: 1fr; }
+    .why__head, .buyers__stage { position: static; }
+    .buyers__stage { max-width: 560px; }
+    .investors__pic, .meet__pic { aspect-ratio: 16 / 11; }
+  }
+  @media (max-width: 620px) {
+    .why__list, .ask__grid { grid-template-columns: 1fr; }
+  }
+</style>

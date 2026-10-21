@@ -79,5 +79,5 @@ export const PARTNERS: Partner[] = [
 /* The two ELIA brands shown in the same carousel on the current site */
 export const BRANDS: Partner[] = [
   { short: 'EHL', name: 'Ethiopian Highland Leather', kind: 'Brand', logo: '/media/partners/ehl.webp', text: 'The Ethiopian Highland Leather Project is an industrial project to promote exports from Ethiopia by adding value to Ethiopian sheep leather.' },
-  { short: 'AALF', name: 'All African Leather Fair', kind: 'Brand', logo: '/media/partners/aalf.webp', text: 'The trade show organised by the Ethiopian Leather Industries Association (ELIA) since its first edition in 2008.' },
+  { short: 'AALF', name: 'All Africa Leather Fair', kind: 'Brand', logo: '/media/partners/aalf.webp', text: 'The trade show organised by the Ethiopian Leather Industries Association (ELIA) since its first edition in 2008.' },
 ]

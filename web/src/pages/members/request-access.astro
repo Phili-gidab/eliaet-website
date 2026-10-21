@@ -1,0 +1,8 @@
+---
+import App from '../../layouts/App.astro'
+import { RequestAccess } from '../../app/Auth'
+---
+
+<App title="Request access" heading="Request access" lede="For member companies without an account. The ELIA Secretariat approves each request and e-mails a link to set a password." width="narrow">
+  <div class="auth auth--one"><div class="auth__card"><RequestAccess client:only="preact"><p slot="fallback" class="loading">Loading…</p></RequestAccess></div></div>
+</App>

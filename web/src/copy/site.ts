@@ -1,4 +1,5 @@
-/* Site-wide facts. Everything here is carried over from the current eliaet.com (October 2026). */
+/* Site-wide facts: from ELIA's website content document (October 2026); what it leaves open (the street address)
+   is carried over from the current eliaet.com. */
 
 export const ORG = {
   name: 'Ethiopian Leather Industries Association',
@@ -11,20 +12,21 @@ export const ORG = {
 
 export const CONTACT = {
   address: {
+    // the content document leaves the street address to be filled in; this is the current site's
     lines: ['Lion Building, 6th floor', 'Ras Mekonen St., Meskel Square', 'Kirikos Sub-city, Wereda 19', 'Addis Ababa, Ethiopia'],
     full: 'Kirikos Sub-city; Wereda 19, Meskel Square, Ras Mekonen St., Lion Building 6th floor, Addis Ababa, Ethiopia',
   },
   phones: [
-    { label: 'Tel 1', value: '+251-115-156144', href: 'tel:+251115156144' },
-    { label: 'Tel 2', value: '+251-115-506043', href: 'tel:+251115506043' },
-    { label: 'Mobile', value: '+251 902 224728', href: 'tel:+251902224728' },
+    { label: 'Phone', value: '+251 911 635 644', href: 'tel:+251911635644' },
+    { label: 'Phone', value: '+251 902 224 728', href: 'tel:+251902224728' },
   ],
-  fax: '+251-11-5508935',
-  poBox: '25039',
+  poBox: '12898',
   emails: [
-    { label: 'General', value: 'info@eliaet.com' },
-    { label: 'AALF & secretariat', value: 'elia.aalf2@gmail.com' },
+    { label: 'General inquiries', value: 'info@eliaet.com' },
+    { label: 'AALF inquiries', value: 'elia.aalf2@gmail.com' },
   ],
+  website: 'www.eliaet.com',
+  hours: 'Monday to Friday, 8:30 AM to 5:30 PM',
   map: {
     // the pin used by the current site's Google Map
     lat: 9.011928,
@@ -35,13 +37,12 @@ export const CONTACT = {
   },
 } as const
 
-/* The current site shows Facebook, X, LinkedIn, Instagram and YouTube icons but none of them link anywhere.
-   Add the real addresses here and they appear in the footer and menu; empty ones stay hidden. */
+/* "Follow ELIA" (the content document): add each address here and it appears in the footer, the menu and on the
+   Contact page; empty ones stay hidden. */
 export const SOCIAL: { label: string; short: string; href: string }[] = [
   { label: 'Facebook', short: 'Fb', href: '' },
-  { label: 'X', short: 'X', href: '' },
   { label: 'LinkedIn', short: 'In', href: '' },
-  { label: 'Instagram', short: 'Ig', href: '' },
+  { label: 'Telegram', short: 'Tg', href: '' },
   { label: 'YouTube', short: 'Yt', href: '' },
 ]
 
@@ -49,32 +50,37 @@ export type NavItem = { label: string; to: string; amharic?: string; note?: stri
 
 export const NAV: NavItem[] = [
   { label: 'About', to: '/about', amharic: 'ስለ እኛ' },
-  { label: 'Services', to: '/services', amharic: 'አገልግሎቶች' },
   { label: 'Members', to: '/members', amharic: 'አባላት', note: '194' },
+  { label: 'The Industry', to: '/industry', amharic: 'ኢንዱስትሪው' },
   { label: 'Programs', to: '/programs', amharic: 'ፕሮግራሞች' },
-  { label: 'Highland Leather', to: '/ehl', note: 'EHL' },
+  { label: 'Invest & Source', to: '/invest', amharic: 'ኢንቨስትመንት' },
   { label: 'Leather Fair', to: '/aalf', note: 'AALF' },
+  { label: 'Highland Leather', to: '/ehl', note: 'EHL' },
   { label: 'ELDSC', to: '/eldsc' },
-  { label: 'News', to: '/news', amharic: 'ዜና' },
+  { label: 'News & Events', to: '/news', amharic: 'ዜና' },
   { label: 'Contact', to: '/contact', amharic: 'አድራሻ' },
 ]
 
-export const PRIMARY_NAV = ['/about', '/members', '/programs', '/news', '/contact']
+/** the header's own links (the rest are in the menu) */
+export const PRIMARY_NAV = ['/about', '/members', '/industry', '/programs', '/invest', '/news', '/contact']
+/** shorter names for the header */
+export const SHORT_LABEL: Record<string, string> = { '/industry': 'Industry', '/invest': 'Invest', '/news': 'News' }
 
 export const FOOTER_LINKS = {
   'Quick links': [
-    { label: 'About us', to: '/about' },
-    { label: 'Our services', to: '/services' },
-    { label: 'All African Leather Fair', to: '/aalf' },
-    { label: 'Apply for membership', to: '/membership' },
-    { label: 'Blog & news', to: '/news' },
+    { label: 'About ELIA', to: '/about' },
+    { label: 'Ethiopia’s leather industry', to: '/industry' },
+    { label: 'Invest and source', to: '/invest' },
+    { label: 'Projects and programs', to: '/programs' },
+    { label: 'News, events and publications', to: '/news' },
     { label: 'Contact us', to: '/contact' },
   ],
   Members: [
-    { label: 'Ethiopian Leather Development', to: '/eldsc' },
-    { label: 'Leather product manufacturers', to: '/members?sector=leather-goods' },
-    { label: 'Shoe manufacturers', to: '/members?sector=footwear' },
-    { label: 'Tanneries', to: '/members?sector=tannery' },
+    { label: 'Members directory', to: '/members' },
+    { label: 'Member login', to: '/members/login' },
+    { label: 'Become a member', to: '/members#apply' },
+    { label: 'All Africa Leather Fair', to: '/aalf' },
+    { label: 'Ethiopian Highland Leather', to: '/ehl' },
   ],
 } as const
 

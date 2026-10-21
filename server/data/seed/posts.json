@@ -1,0 +1,79 @@
+{
+  "_note": "The posts the database starts with (the content document's starter posts and featured articles, October 2026). After the first start, posts are managed in the back office (/admin).",
+  "posts": [
+    {
+      "slug": "elia-partners-with-messe-frankfurt-for-aalf-2026",
+      "title": "ELIA Partners with Messe Frankfurt to Host the All Africa Leather Fair 2026",
+      "date": "2026-02",
+      "category": "announcements",
+      "summary": "ELIA signed a partnership with Messe Frankfurt to host the All Africa Leather Fair alongside Africa Sourcing and Fashion Week (ASFW Addis), positioning Addis Ababa as a continental hub for leather fashion and sourcing.",
+      "body": "ELIA signed a partnership with Messe Frankfurt to host the All Africa Leather Fair alongside Africa Sourcing and Fashion Week (ASFW Addis), positioning Addis Ababa as a continental hub for leather fashion and sourcing.\n\nThe All Africa Leather Fair 2026 takes place from 12 to 15 November 2026 at the Addis International Convention Center, Addis Ababa, held alongside ASFW Addis 2026. Its closing event is the ELIA Award and Gala Night on 15 November 2026 at the Sheraton Addis.\n\n[About the fair](/programs#aalf)",
+      "image_url": "/media/fair/lounge-wide.webp",
+      "status": "published"
+    },
+    {
+      "slug": "elia-raises-industry-priorities-with-government",
+      "title": "ELIA Raises Industry Priorities with Government",
+      "date": "2026-02",
+      "category": "advocacy",
+      "summary": "At a press briefing in Addis Ababa, ELIA President Zelalem Merawi called for stronger action on raw hide supply, access to finance and planned relocation of factories to serviced industrial parks.",
+      "body": "At a press briefing in Addis Ababa, ELIA President Zelalem Merawi called for stronger action on raw hide supply, access to finance and planned relocation of factories to serviced industrial parks.\n\nThe Ministry of Industry outlined reforms to the raw hide marketing law and the development of Modjo Leather City.\n\n[More on the industry](/industry)",
+      "image_url": "/media/profile/industrial-park.webp",
+      "status": "published"
+    },
+    {
+      "slug": "all-africa-leather-fair-2025-concludes",
+      "title": "All Africa Leather Fair 2025 Concludes in Addis Ababa",
+      "date": "2025-05",
+      "category": "industry-news",
+      "summary": "The fair, held at Millennium Hall from 23 to 25 May, hosted more than 70 exhibitors, fashion shows, an innovation zone and panel discussions.",
+      "body": "The fair, held at Millennium Hall from 23 to 25 May, hosted more than 70 exhibitors, fashion shows, an innovation zone and panel discussions.\n\nIt was opened by the State Minister of Industry, with support from ALLPI for exhibitors from nine African countries.",
+      "image_url": "/media/fair/hall.webp",
+      "status": "published"
+    },
+    {
+      "slug": "ethiopian-leather-and-the-afcfta",
+      "title": "Ethiopian Leather and the AfCFTA",
+      "date": "2023-11",
+      "category": "advocacy",
+      "summary": "ELIA, the UN Economic Commission for Africa and ECCSA co-organized the first workshop on the opportunities the African Continental Free Trade Area offers the Ethiopian leather industry.",
+      "body": "ELIA, the UN Economic Commission for Africa and ECCSA co-organized the first workshop on the opportunities the African Continental Free Trade Area offers the Ethiopian leather industry.",
+      "image_url": "/media/home/acfta.webp",
+      "status": "published"
+    },
+    {
+      "slug": "filming-a-video-for-ethiopian-highland-leather",
+      "title": "Filming a video for Ethiopian Highland Leather",
+      "date": "2021-10-26",
+      "category": "industry-news",
+      "summary": "The Ethiopia Industrial Promotion Project (Export Promotion) (Phase 2) aims to increase the export revenue of leather products, and has supported the launch of Ethiopian Highland Leather (EHL), a national brand of sheepskin materials.",
+      "body": "",
+      "image_url": "/media/blog/jica-blog.webp",
+      "link_url": "https://www.jica.go.jp/Resource/ethiopia/english/office/topics/211026.html",
+      "status": "published"
+    },
+    {
+      "slug": "why-trade-associations-matter",
+      "title": "Why Trade Associations Matter in the Leather Industry",
+      "date": "2026-10",
+      "category": "insights",
+      "featured": true,
+      "summary": "In many developing countries, competing leather businesses share interests that often go unrecognized. Working together through an association gives the industry a stronger voice with government and a better chance to grow.",
+      "body": "",
+      "image_url": "/media/fair/components.webp",
+      "link_url": "https://leatherpanel.org/content/trade-associations-leather-related-industries",
+      "status": "published"
+    },
+    {
+      "slug": "ethiopian-highland-leather-from-raw-material-to-national-brand",
+      "title": "Ethiopian Highland Leather: From Raw Material to National Brand",
+      "date": "2026-10",
+      "category": "insights",
+      "featured": true,
+      "summary": "How Ethiopia's highland sheepskin became a registered national brand, and what it means for producers and international buyers.",
+      "body": "Ethiopian Highland Leather is the national brand of Ethiopian sheep leather, produced from sheep raised in the Ethiopian highlands. Developed in 2015 with support from the Ethiopia Industrial Promotion Project, the brand is owned and managed by ELIA and is registered in Ethiopia, the United States, Japan, the European Union and the United Kingdom.\n\n## A material with a reputation\n\nResearch by the national leather institute confirms that Ethiopian highland sheepskin is light, thin and soft, yet strong and durable. It is valued worldwide for its fine grain, compact fibre structure and strength, and is a preferred material for premium gloves, footwear and leather goods. EHL leather is inspected by an internationally accredited national laboratory.\n\n## Certified producers\n\n- Davimpex Bahir Dar Tannery\n- Ethio-Leather Industry PLC (ELICO)\n- New Wing Shoe Manufacturer\n- Pitards Ethiopia Tannery\n\n## Why it matters\n\n- **By-product:** a 100% by-product of the Ethiopian food culture.\n- **Environment:** produced with extra care for the environment.\n- **Jobs:** employment for many women and young people.\n- **Fair value:** a premium price that helps reduce inequality in international trade.\n\n[About Ethiopian Highland Leather](/ehl)",
+      "image_url": "/media/profile/highland-sheep.webp",
+      "status": "published"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+/* A two-column table of facts (AALF 2026 at a glance, the sector in figures, the products buyers can source):
+   a real <table>, so it reads as one to screen readers, laid out as a ledger. */
+interface Props {
+  rows: { k: string; v: string; big?: string }[]
+  head?: [string, string]
+  caption?: string
+  class?: string
+}
+const { rows, head, caption, class: cls } = Astro.props
+---
+
+<table class:list={['ft', cls]}>
+  {caption && <caption class="sr-only">{caption}</caption>}
+  {head && <thead><tr><th scope="col">{head[0]}</th><th scope="col">{head[1]}</th></tr></thead>}
+  <tbody>
+    {rows.map((r, i) => (
+      <tr data-reveal style={`--d:${i * 0.05}s`}>
+        <th scope="row">{r.k}</th>
+        <td>{r.big && <span class="ft__big figure-num" aria-hidden="true">{r.big}</span>}<span class="ft__v">{r.v}</span></td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .ft { width: 100%; border-collapse: collapse; }
+  .ft thead th {
+    text-align: left; padding: 0 0 12px; font: 560 11.5px/1 var(--f-text); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--line-2);
+  }
+  :global(.sec--paper) .ft thead th { color: var(--taupe); border-color: var(--line-dark); }
+  .ft tbody th, .ft td { padding: 18px 0; vertical-align: top; border-bottom: 1px solid var(--line); text-align: left; }
+  :global(.sec--paper) .ft tbody th, :global(.sec--paper) .ft td { border-color: var(--line-dark); }
+  .ft tbody th { width: 38%; padding-right: 24px; font-weight: 600; font-size: 15.5px; color: var(--cream); }
+  :global(.sec--paper) .ft tbody th { color: var(--ink); }
+  .ft td { color: var(--bone); font-size: 15.5px; line-height: 1.5; }
+  :global(.sec--paper) .ft td { color: var(--brown-80); }
+  .ft__big { display: block; font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.4rem); line-height: 1; color: var(--amber); margin-bottom: 8px; }
+  :global(.sec--paper) .ft__big { color: var(--taupe); }
+  @media (max-width: 620px) {
+    .ft tbody tr { display: grid; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    :global(.sec--paper) .ft tbody tr { border-color: var(--line-dark); }
+    .ft tbody th, .ft td { width: auto; padding: 0; border: 0; }
+    .ft tbody th { margin-bottom: 6px; }
+  }
+</style>

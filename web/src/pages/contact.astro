@@ -1,33 +1,54 @@
 ---
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
-import { ORG, CONTACT } from '../copy/site'
+import MembershipForm from '../components/MembershipForm.astro'
+import { ORG, CONTACT, SOCIAL } from '../copy/site'
+import { INQUIRIES, TEAMS, INTERESTS } from '../../../shared/options'
+import { BUYERS } from '../copy/invest'
 
-const [general] = CONTACT.emails
 const coord = `${CONTACT.map.lat.toFixed(4)}° N · ${CONTACT.map.lng.toFixed(4)}° E`
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 const out = 'M7 17 17 7M9 7h8v8'
+const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>`
+
+/* the content document's confirmation message (the server e-mails it too, with the reference) */
+const ACK = 'Thank you for contacting the Ethiopian Leather Industries Association. We have received your message and will reply within three working days.'
+
+/* the forms, in the content document's order; each says which Secretariat team answers it */
+const FORMS = [
+  { key: 'general', title: 'General Inquiry', tab: 'General inquiry', team: TEAMS[INQUIRIES.general.team] },
+  { key: 'membership', title: 'Membership Application', tab: 'Membership application', team: TEAMS.members },
+  { key: 'buyer', title: 'Buyer Inquiry', tab: 'Buyer inquiry', team: TEAMS[INQUIRIES.buyer.team] },
+  { key: 'investor', title: 'Investor Inquiry', tab: 'Investor inquiry', team: TEAMS[INQUIRIES.investor.team] },
+  { key: 'aalf', title: 'AALF Exhibitor and Sponsor Inquiry', tab: 'AALF exhibitor and sponsor', team: TEAMS[INQUIRIES.aalf.team] },
+  { key: 'media', title: 'Media Inquiry', tab: 'Media inquiry', team: TEAMS[INQUIRIES.media.team] },
+] as const
+const PRODUCTS = [...BUYERS.products.map((p) => p.category), 'Other']
+const AREAS = ['Tanning and finishing', 'Footwear manufacturing', 'Leather goods manufacturing', 'Joint venture with an Ethiopian manufacturer', 'Effluent treatment, chemicals or machinery', 'Gelatin and other by-products', 'Other']
+const social = SOCIAL.filter((s) => s.href)
+const today = new Date().toISOString().slice(0, 10)
 ---
 
 <Base
-  title="Contact"
-  description={`Contact the ${ORG.name}: ${CONTACT.address.full}. Tel ${CONTACT.phones[0].value}, e-mail ${general.value}.`}
+  newsletter={false}
+  title="Contact Us"
+  description={`Contact the ${ORG.name}: ${CONTACT.address.full}. Phone ${CONTACT.phones.map((p) => p.value).join(' / ')}, e-mail ${CONTACT.emails[0].value}.`}
 >
   <PageHead
     index="01"
     eyebrow="Contact"
     amharic="አድራሻ"
-    title={['Visit, call', 'or <em>write</em>.']}
-    lede="Call or write to the association, or visit the office at Meskel Square in Addis Ababa."
+    title={['Contact', '<em>us</em>.']}
+    lede="We welcome inquiries from members, buyers, investors, partners and the media."
   >
     <address class="ledger" data-reveal style="--d:.35s">
       <div class="ledger__col">
         <p class="label"><b>Visit</b></p>
         <p class="ledger__addr">{CONTACT.address.lines.map((l) => <span>{l}</span>)}</p>
-        <p class="ledger__po">P.O. Box {CONTACT.poBox}</p>
-        <a class="link ledger__map" href={CONTACT.map.link} target="_blank" rel="noopener">
-          Open in Maps <svg viewBox="0 0 24 24" aria-hidden="true"><path d={out} fill="none" stroke="currentColor" stroke-width="1.6" /></svg><span class="sr-only"> (opens in a new tab)</span>
-        </a>
+        <dl class="ledger__dl">
+          <div><dt>P.O. Box</dt><dd>{CONTACT.poBox}, Addis Ababa</dd></div>
+          <div><dt>Office hours</dt><dd>{CONTACT.hours}</dd></div>
+        </dl>
       </div>
       <div class="ledger__col">
         <p class="label"><b>Call</b></p>
@@ -35,7 +56,6 @@ const out = 'M7 17 17 7M9 7h8v8'
           {CONTACT.phones.map((p) => (
             <div><dt>{p.label}</dt><dd><a href={p.href}>{p.value}</a></dd></div>
           ))}
-          <div><dt>Fax</dt><dd>{CONTACT.fax}</dd></div>
         </dl>
       </div>
       <div class="ledger__col">
@@ -44,9 +64,11 @@ const out = 'M7 17 17 7M9 7h8v8'
           {CONTACT.emails.map((e) => (
             <div><dt>{e.label}</dt><dd><a href={`mailto:${e.value}`}>{e.value}</a></dd></div>
           ))}
+          <div><dt>Website</dt><dd><a href={`https://${CONTACT.website}`}>{CONTACT.website}</a></dd></div>
         </dl>
       </div>
     </address>
+    <p class="ph-forms" data-reveal style="--d:.42s"><a class="btn" href="#forms">Inquiry forms <Fragment set:html={svg('M12 4v15m-6-6 6 6 6-6')} /></a></p>
   </PageHead>
 
   <!-- 02 · the map -->
@@ -58,7 +80,7 @@ const out = 'M7 17 17 7M9 7h8v8'
         <p class="body map__addr" data-reveal style="--d:.08s">{CONTACT.address.full}</p>
         <p class="map__cta" data-reveal style="--d:.14s">
           <a class="btn btn--ghost" href={CONTACT.map.link} target="_blank" rel="noopener">
-            Open in Maps <svg viewBox="0 0 24 24" aria-hidden="true"><path d={out} fill="none" stroke="currentColor" stroke-width="1.6" /></svg><span class="sr-only"> (opens in a new tab)</span>
+            Open in Maps <Fragment set:html={svg(out)} /><span class="sr-only"> (opens in a new tab)</span>
           </a>
         </p>
       </div>
@@ -78,41 +100,233 @@ const out = 'M7 17 17 7M9 7h8v8'
     </div>
   </section>
 
-  <!-- 03 · the form -->
-  <section class="sec sec--paper write" id="message" aria-labelledby="write-h">
-    <div class="wrap write__in">
-      <div class="write__text">
-        <p class="label label--rule" data-reveal="fade"><b>03</b> Message</p>
-        <h2 class="h2 write__title" id="write-h" data-reveal>Send a <em>message</em>.</h2>
-        <p class="body write__body" data-reveal style="--d:.08s">
-          Write to the association here, or <span class="nowrap">e-mail</span> <a class="write__a" href={`mailto:${general.value}`}>{general.value}</a>.
+  <!-- 03 · the inquiry forms -->
+  <section class="sec sec--paper sheet forms" id="forms" aria-labelledby="forms-h">
+    <div class="wrap forms__in" data-ftabs>
+      <div class="forms__side">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> Inquiry forms</p>
+        <h2 class="h2 mt-m" id="forms-h" data-reveal>Send an <em>inquiry</em>.</h2>
+        <p class="body mt-m forms__note" data-reveal style="--d:.08s">
+          Each form goes straight to the Secretariat team responsible for it. You receive a confirmation by e-mail, with a reference.
         </p>
-        <ul class="write__more" role="list" data-reveal style="--d:.12s">
-          <li>
-            <span>Applying to join?</span>
-            <a class="link" href="/membership">Membership application <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
-          </li>
-          <li>
-            <span>Discussing a project?</span>
-            <a class="link" href="/services#appointment">Request an appointment <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
-          </li>
-        </ul>
+        <div class="ftabs" role="tablist" aria-label="Inquiry forms">
+          {FORMS.map((f, i) => (
+            <button class="ftab" type="button" role="tab" id={`ft-${f.key}`} aria-controls={`fp-${f.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-key={f.key}>
+              <span class="ftab__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{f.tab}
+            </button>
+          ))}
+        </div>
       </div>
-      <form class="form write__form seam" action="/api/contact" method="post" data-form="contact"
-        data-ok="Thank you. Your message has been sent to the association." novalidate>
-        <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
-        <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="200" spellcheck="false" /></label>
-        <label class="field full"><span>Subject</span><input name="subject" required maxlength="200" /></label>
-        <label class="field full"><span>Message</span><textarea name="message" required maxlength="5000" rows="7"></textarea></label>
+
+      <div class="forms__panels">
+        <!-- General inquiry -->
+        <div class="fpanel" role="tabpanel" id="fp-general" aria-labelledby="ft-general">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-general">{FORMS[0].title}</h3><p class="fpanel__to">Answered by the {FORMS[0].team}</p></header>
+          <form class="form" action="/api/forms/general" method="post" data-form="general" data-ok={ACK} aria-labelledby="fh-general" novalidate>
+            <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+            <label class="field"><span>Organization <b>(optional)</b></span><input name="organization" autocomplete="organization" maxlength="160" /></label>
+            <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+            <label class="field"><span>Phone <b>(optional)</b></span><input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
+            <label class="field"><span>Country <b>(optional)</b></span><input name="country" autocomplete="country-name" maxlength="80" /></label>
+            <label class="field"><span>Subject</span><input name="subject" required maxlength="200" /></label>
+            <label class="field full"><span>Message</span><textarea name="message" required maxlength="5000" rows="6"></textarea></label>
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="form__end full">
+              <button class="btn btn--dark" type="submit">Send <Fragment set:html={svg(arrow)} /></button>
+              <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Membership application -->
+        <div class="fpanel fpanel--bare" role="tabpanel" id="fp-membership" aria-labelledby="ft-membership">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-membership">{FORMS[1].title}</h3><p class="fpanel__to">Answered by {FORMS[1].team}</p></header>
+          <p class="fpanel__intro">Membership is open to leather manufacturers and industry service providers operating in Ethiopia. <a href="/members#benefits">What membership brings</a>.</p>
+          <MembershipForm labelledby="fh-membership" id="cm" />
+        </div>
+
+        <!-- Buyer inquiry -->
+        <div class="fpanel" role="tabpanel" id="fp-buyer" aria-labelledby="ft-buyer">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-buyer">{FORMS[2].title}</h3><p class="fpanel__to">Answered by {FORMS[2].team}</p></header>
+          <form class="form" action="/api/forms/buyer" method="post" data-form="buyer" data-ok={ACK} aria-labelledby="fh-buyer" novalidate>
+            <label class="field"><span>Company name</span><input name="company" autocomplete="organization" required maxlength="160" /></label>
+            <label class="field"><span>Contact person</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+            <label class="field"><span>Country</span><input name="country" autocomplete="country-name" required maxlength="80" /></label>
+            <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+            <label class="field"><span>Phone <b>(optional)</b></span><input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
+            <label class="field">
+              <span>Product category</span>
+              <select name="product" required>
+                <option value="">Choose…</option>
+                {PRODUCTS.map((p) => <option>{p}</option>)}
+              </select>
+            </label>
+            <label class="field"><span>Quantity <b>(optional)</b></span><input name="quantity" maxlength="120" placeholder="e.g. 5,000 pairs a month" /></label>
+            <label class="field"><span>Target delivery date <b>(optional)</b></span><input name="delivery" type="date" min={today} /></label>
+            <label class="field full"><span>Quality requirements <b>(optional)</b></span><textarea name="quality" maxlength="1000" rows="3" placeholder="Leather type, finish, standards or certifications"></textarea></label>
+            <label class="field full"><span>Message <b>(optional)</b></span><textarea name="message" maxlength="5000" rows="4"></textarea></label>
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="form__end full">
+              <button class="btn btn--dark" type="submit">Send <Fragment set:html={svg(arrow)} /></button>
+              <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Investor inquiry -->
+        <div class="fpanel" role="tabpanel" id="fp-investor" aria-labelledby="ft-investor">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-investor">{FORMS[3].title}</h3><p class="fpanel__to">Answered by the {FORMS[3].team}</p></header>
+          <form class="form" action="/api/forms/investor" method="post" data-form="investor" data-ok={ACK} aria-labelledby="fh-investor" novalidate>
+            <label class="field"><span>Company name</span><input name="company" autocomplete="organization" required maxlength="160" /></label>
+            <label class="field"><span>Contact person</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+            <label class="field"><span>Country</span><input name="country" autocomplete="country-name" required maxlength="80" /></label>
+            <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+            <label class="field"><span>Phone <b>(optional)</b></span><input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
+            <label class="field">
+              <span>Investment area</span>
+              <select name="area" required>
+                <option value="">Choose…</option>
+                {AREAS.map((a) => <option>{a}</option>)}
+              </select>
+            </label>
+            <label class="field"><span>Estimated investment size <b>(optional)</b></span><input name="size" maxlength="120" placeholder="e.g. USD 5 million" /></label>
+            <label class="field"><span>Preferred location <b>(optional)</b></span><input name="location" maxlength="160" placeholder="e.g. Modjo, Addis Ababa" /></label>
+            <label class="field full"><span>Message <b>(optional)</b></span><textarea name="message" maxlength="5000" rows="5"></textarea></label>
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="form__end full">
+              <button class="btn btn--dark" type="submit">Send <Fragment set:html={svg(arrow)} /></button>
+              <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- AALF exhibitor and sponsor inquiry -->
+        <div class="fpanel" role="tabpanel" id="fp-aalf" aria-labelledby="ft-aalf">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-aalf">{FORMS[4].title}</h3><p class="fpanel__to">Answered by the {FORMS[4].team}</p></header>
+          <form class="form" action="/api/forms/aalf" method="post" data-form="aalf" data-ok={ACK} aria-labelledby="fh-aalf" novalidate>
+            <label class="field"><span>Company name</span><input name="company" autocomplete="organization" required maxlength="160" /></label>
+            <label class="field"><span>Contact person</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+            <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+            <label class="field"><span>Phone <b>(optional)</b></span><input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
+            <fieldset class="chips field">
+              <legend>Interest</legend>
+              {['Exhibit', 'Sponsor', 'Visit'].map((v) => <label class="chip"><input type="radio" name="interest" value={v} required /><span>{v}</span></label>)}
+            </fieldset>
+            <label class="field"><span>Booth size <b>(optional)</b></span><input name="booth" maxlength="80" placeholder="e.g. 9 m²" /></label>
+            <label class="field full"><span>Message <b>(optional)</b></span><textarea name="message" maxlength="5000" rows="5"></textarea></label>
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="form__end full">
+              <button class="btn btn--dark" type="submit">Send <Fragment set:html={svg(arrow)} /></button>
+              <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Media inquiry -->
+        <div class="fpanel" role="tabpanel" id="fp-media" aria-labelledby="ft-media">
+          <header class="fpanel__head"><h3 class="fpanel__t" id="fh-media">{FORMS[5].title}</h3><p class="fpanel__to">Answered by {FORMS[5].team}</p></header>
+          <form class="form" action="/api/forms/media" method="post" data-form="media" data-ok={ACK} aria-labelledby="fh-media" novalidate>
+            <label class="field"><span>Name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+            <label class="field"><span>Media outlet</span><input name="outlet" autocomplete="organization" required maxlength="160" /></label>
+            <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+            <label class="field"><span>Phone <b>(optional)</b></span><input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
+            <label class="field"><span>Deadline <b>(optional)</b></span><input name="deadline" type="date" min={today} /></label>
+            <label class="field full"><span>Request</span><textarea name="request" required maxlength="5000" rows="6"></textarea></label>
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="form__end full">
+              <button class="btn btn--dark" type="submit">Send <Fragment set:html={svg(arrow)} /></button>
+              <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script is:inline>
+      /* open the form a link asked for (?form=buyer), and fill in what it brought (?subject=, ?interest=), before the
+         page is painted; without the script every form is shown, one after another */
+      (function (box) {
+        if (!box) return
+        var q = new URLSearchParams(location.search), want = q.get('form')
+        var tabs = box.querySelectorAll('[role=tab]'), on = 0, i
+        for (i = 0; i < tabs.length; i++) if (tabs[i].getAttribute('data-key') === want) on = i
+        for (i = 0; i < tabs.length; i++) {
+          tabs[i].setAttribute('aria-selected', i === on ? 'true' : 'false')
+          tabs[i].tabIndex = i === on ? 0 : -1
+          document.getElementById(tabs[i].getAttribute('aria-controls')).hidden = i !== on
+        }
+        var s = q.get('subject'), f = s && box.querySelector('#fp-general [name=subject]')
+        if (f) f.value = s.slice(0, 200)
+        var it = q.get('interest')
+        box.querySelectorAll('#fp-aalf [name=interest]').forEach(function (r) { if (r.value === it) r.checked = true })
+      })(document.querySelector('[data-ftabs]'))
+    </script>
+  </section>
+
+  <!-- 04 · newsletter -->
+  <section class="sec sheet lit news-sub" aria-labelledby="sub-h">
+    <div class="wrap news-sub__in">
+      <div>
+        <p class="label label--rule" data-reveal="fade"><b>04</b> Newsletter</p>
+        <h2 class="h2 mt-m" id="sub-h" data-reveal>Subscribe for <em>updates</em>.</h2>
+        <p class="body mt-m" data-reveal style="--d:.08s">Receive the latest news, events and opportunities from ELIA.</p>
+        {social.length > 0 && (
+          <div class="follow" data-reveal style="--d:.12s">
+            <p class="label">Follow ELIA</p>
+            <ul class="follow__list" role="list">
+              {social.map((s) => <li><a class="btn btn--ghost btn--sm" href={s.href} target="_blank" rel="noopener">{s.label}<span class="sr-only"> (opens in a new tab)</span></a></li>)}
+            </ul>
+          </div>
+        )}
+      </div>
+      <form class="form news-sub__form card" action="/api/forms/subscribe" method="post" data-form="subscribe"
+        data-ok="Thank you. You are subscribed to ELIA’s updates; a confirmation is on its way to your inbox." aria-labelledby="sub-h" novalidate data-reveal>
+        <label class="field full"><span>E-mail address</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+        <fieldset class="chips field full">
+          <legend>I am interested as a <b>(optional)</b></legend>
+          {INTERESTS.map((v) => <label class="chip"><input type="checkbox" name="interests" value={v} /><span>{v}</span></label>)}
+        </fieldset>
         <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <div class="form__end full">
-          <button class="btn btn--dark" type="submit">Send the message <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+          <button class="btn" type="submit">Subscribe <Fragment set:html={svg(arrow)} /></button>
           <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
         </div>
       </form>
     </div>
   </section>
 </Base>
+
+<script>
+  /* the forms' tabs: click, or the arrow keys, Home and End (a vertical list beside the forms, a row above them on a
+     phone); the address keeps the open form, so a reload or a shared link opens the same one */
+  const box = document.querySelector<HTMLElement>('[data-ftabs]')
+  if (box) {
+    const tabs = [...box.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+    const select = (t: HTMLButtonElement, focus = false) => {
+      tabs.forEach((x) => {
+        const on = x === t
+        x.setAttribute('aria-selected', String(on))
+        x.tabIndex = on ? 0 : -1
+        const p = document.getElementById(x.getAttribute('aria-controls')!)
+        if (p) p.hidden = !on
+      })
+      if (focus) t.focus()
+      t.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      const u = new URL(location.href)
+      u.searchParams.set('form', t.dataset.key!)
+      history.replaceState(history.state, '', u)
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t))
+      t.addEventListener('keydown', (e) => {
+        const n = tabs.length
+        const j = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? (i + 1) % n
+          : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? (i - 1 + n) % n
+          : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1
+        if (j >= 0) { e.preventDefault(); select(tabs[j], true) }
+      })
+    })
+  }
+</script>
 
 <style>
   /* 01 · the ledger under the title: visit, call, write */
@@ -125,16 +339,13 @@ const out = 'M7 17 17 7M9 7h8v8'
   .ledger__col:first-child { padding-left: 0; }
   .ledger__col + .ledger__col { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
   .ledger__addr { display: grid; font-size: var(--step-0); line-height: 1.5; color: var(--cream); }
-  .ledger__po { font-size: 15px; color: var(--muted); }
-  .ledger__map { justify-self: start; margin-top: 4px; }
   .ledger__dl { margin: 0; display: grid; gap: 10px; }
   .ledger__dl div { display: grid; gap: 2px; }
-  .ledger__dl dt { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .ledger__dl dt { font-weight: 560; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .ledger__dl dd { margin: 0; font-size: var(--step-0); color: var(--cream); overflow-wrap: anywhere; }
-  .ledger__dl a {
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s;
-  }
+  .ledger__dl a { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s; }
   .ledger__dl a:hover { background-size: 100% 1px; color: var(--amber); }
+  .ph-forms { margin-top: clamp(28px, 3vw, 40px); }
 
   /* 02 · the map */
   .map__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: end; }
@@ -144,7 +355,6 @@ const out = 'M7 17 17 7M9 7h8v8'
   .map__cta { margin-top: 30px; }
   .map__frame { grid-column: 6 / -1; aspect-ratio: 16 / 11; box-shadow: 0 0 0 1px var(--line), 0 40px 80px -50px rgb(0 0 0 / 0.9); }
   .map__frame iframe { position: relative; z-index: 1; display: block; width: 100%; height: 100%; border: 0; filter: sepia(0.18) saturate(0.88); }
-  /* under the map: a graticule, the pin and the coordinates */
   .map__under {
     position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 18px;
     background:
@@ -155,36 +365,56 @@ const out = 'M7 17 17 7M9 7h8v8'
   }
   .map__pin { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; border: 1.4px dashed rgb(226 160 37 / 0.6); }
   .map__pin i { width: 12px; height: 12px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); }
-  .map__coord { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .map__coord { font-weight: 520; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 
-  /* 03 · the form */
-  .write__in { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 110px); align-items: start; }
-  .write__title { margin-top: 22px; max-width: 12ch; }
-  .write__body { margin-top: 26px; max-width: 40ch; }
-  .write__a { font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: rgb(226 160 37 / 0.5); text-underline-offset: 3px; overflow-wrap: anywhere; }
-  .write__a:hover { color: var(--taupe); text-decoration-color: currentColor; }
-  .write__more { list-style: none; margin: clamp(30px, 3.4vw, 44px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); max-width: 440px; }
-  .write__more li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; padding: 16px 0; border-bottom: 1px solid var(--line-dark); }
-  .write__more span { color: var(--brown-80); font-size: 15px; }
-  .write__more .link { color: var(--ink); }
-  .write__form {
-    padding: clamp(26px, 3.4vw, 48px); background: rgb(255 255 255 / 0.42); border-radius: 10px;
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 60px -40px rgb(60 30 22 / 0.45);
+  /* 03 · the forms: the list of forms beside them, each form a panel */
+  .forms { scroll-margin-top: 40px; }
+  .forms__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 40px clamp(32px, 5vw, 96px); align-items: start; }
+  .forms__side { position: sticky; top: calc(var(--header-h) + 28px); min-width: 0; }
+  .forms__note { max-width: 36ch; }
+  .ftabs { margin-top: clamp(28px, 3.4vw, 44px); display: grid; border-top: 1px solid var(--line-dark); }
+  :global(html:not(.js)) .ftabs { display: none; }
+  .ftab {
+    display: grid; grid-template-columns: 2.6em minmax(0, 1fr); align-items: baseline; padding: 13px 10px 13px 0; text-align: left;
+    border-bottom: 1px solid var(--line-dark); font: 500 15.5px/1.35 var(--f-text); color: var(--brown-80); cursor: pointer;
+    transition: color 0.25s, padding 0.4s var(--ease), background 0.25s;
   }
-  /* readable on paper: the status line, server errors and the invalid state */
-  .write__form .form__msg { color: var(--brown-80); }
-  .write__form:not(.sending) .form__msg[data-ok='0'] { color: #a33d27; }
-  .write__form .form__msg[data-ok='1'] { color: var(--ink); font-weight: 600; }
-  .write__form :global(.err) { color: #a33d27; }
-  .write__form :global([aria-invalid='true']),
-  .write__form :global([aria-invalid='true']:focus) { box-shadow: inset 0 0 0 1.5px #b4432c, 0 0 0 4px rgb(180 67 44 / 0.12); }
+  .ftab__n { font-weight: 600; font-size: 11.5px; letter-spacing: 0.08em; color: var(--taupe); }
+  .ftab:hover { color: var(--ink); padding-left: 6px; }
+  .ftab[aria-selected='true'] { color: var(--ink); font-weight: 650; padding-left: 14px; box-shadow: inset 3px 0 0 var(--amber); background: rgb(226 160 37 / 0.08); }
+  .ftab:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+  .forms__panels { display: grid; gap: clamp(28px, 3vw, 44px); min-width: 0; }
+  .fpanel { padding: clamp(24px, 3.2vw, 44px); background: rgb(255 255 255 / 0.5); border-radius: 12px; box-shadow: inset 0 0 0 1px var(--line-dark), 0 30px 60px -44px rgb(60 30 22 / 0.4); }
+  .fpanel--bare { padding: 0; background: none; box-shadow: none; }
+  .fpanel[hidden] { display: none; }
+  .fpanel__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; margin-bottom: 24px; }
+  .fpanel__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.45rem, 1.2rem + 0.9vw, 2rem); line-height: 1.06; letter-spacing: -0.025em; color: var(--ink); }
+  .fpanel__to { font-size: 13.5px; color: var(--taupe); }
+  .fpanel__intro { margin: -8px 0 22px; color: var(--brown-80); max-width: 60ch; }
+  .fpanel__intro a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: rgb(226 160 37 / 0.6); text-underline-offset: 3px; }
+  .forms .field > span:first-child b { color: var(--ink); font-weight: 600; }
+  .forms :global(.err) { color: #a33d27; }
+
+  /* 04 · the newsletter */
+  .news-sub__in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px clamp(32px, 5vw, 96px); align-items: center; }
+  .news-sub__form { padding: clamp(24px, 3vw, 40px); }
+  .news-sub__form legend b { color: var(--muted); font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .follow { margin-top: clamp(28px, 3vw, 40px); display: grid; gap: 12px; }
+  .follow__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 
   @media (max-width: 1000px) {
     .map__text { grid-column: 1 / span 5; }
     .map__frame { grid-column: 6 / -1; }
   }
   @media (max-width: 960px) {
-    .write__in { grid-template-columns: 1fr; }
+    .forms__in, .news-sub__in { grid-template-columns: 1fr; }
+    .forms__side { position: static; }
+    /* the forms' list becomes a row to scroll sideways */
+    .ftabs { display: flex; gap: 8px; overflow-x: auto; border: 0; padding: 4px 2px 10px; margin-inline: -2px; scrollbar-width: thin; }
+    .ftab { flex: none; display: inline-flex; gap: 8px; padding: 10px 16px; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.24); font-size: 14.5px; }
+    .ftab:hover { padding-left: 16px; }
+    .ftab[aria-selected='true'] { padding-left: 16px; background: var(--ink); color: var(--cream); box-shadow: none; }
+    .ftab[aria-selected='true'] .ftab__n { color: var(--amber); }
   }
   @media (max-width: 860px) {
     .ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -198,5 +428,6 @@ const out = 'M7 17 17 7M9 7h8v8'
     .ledger__col + .ledger__col { border-left: 0; border-top: 1.4px dashed rgb(226 160 37 / 0.4); margin-top: 22px; }
     .ledger__col:nth-child(3) { grid-column: auto; }
     .map__frame { aspect-ratio: 1; }
+    .fpanel:not(.fpanel--bare) { padding: 22px 18px; }
   }
 </style>

@@ -1,0 +1,8 @@
+---
+import App from '../../layouts/App.astro'
+import { Directory } from '../../app/Directory'
+---
+
+<App title="Members directory" heading="Find a member" eyebrow="Members directory" lede="ELIA’s member enterprises: suppliers, partners and subcontractors across the leather value chain.">
+  <Directory client:only="preact"><p slot="fallback" class="loading">Loading the directory…</p></Directory>
+</App>

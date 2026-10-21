@@ -1,0 +1,34 @@
+---
+/* The members' area's pages: a short head, then the app (a Preact island) on paper. Kept out of search engines. */
+import Base from './Base.astro'
+import '../styles/app.css'
+
+interface Props {
+  title: string
+  /** the head's title; none: a slim band only (a company's page has its own) */
+  heading?: string
+  eyebrow?: string
+  lede?: string
+  /** narrow: a sign-in card; wide: the directory and the dashboard */
+  width?: 'narrow' | 'wide'
+}
+const { title, heading, eyebrow = 'Members’ area', lede, width = 'wide' } = Astro.props
+---
+
+<Base title={title} noindex section="/members" bodyClass="app-page">
+  <section class:list={['apphead', 'lit', { 'apphead--slim': !heading }]}>
+    {heading && (
+      <div class="wrap">
+        <p class="label label--rule" data-reveal="fade"><b>ELIA</b> {eyebrow}</p>
+        <h1 class="h1 apphead__t" data-reveal>{heading}</h1>
+        {lede && <p class="lede apphead__lede" data-reveal style="--d:.08s">{lede}</p>}
+        <slot name="head" />
+      </div>
+    )}
+  </section>
+  <section class="sec sec--paper sheet appsec">
+    <div class:list={['wrap', `appsec__in--${width}`]}>
+      <slot />
+    </div>
+  </section>
+</Base>

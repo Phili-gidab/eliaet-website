@@ -14,7 +14,7 @@ for (const f of ['content-assets.mjs', 'content-modules.mjs']) fs.rmSync(path.jo
 const today = new Date().toISOString().slice(0, 10)
 const pages = fs
   .readdirSync(dist)
-  .filter((f) => f.endsWith('.html') && f !== '404.html')
+  .filter((f) => f.endsWith('.html') && !['404.html', 'admin.html'].includes(f))
   .map((f) => (f === 'index.html' ? '/' : '/' + f.replace(/\.html$/, '')))
   .sort((a, b) => (a === '/' ? -1 : b === '/' ? 1 : a.localeCompare(b)))
 const urls = pages

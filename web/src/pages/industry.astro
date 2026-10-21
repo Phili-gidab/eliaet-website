@@ -1,0 +1,125 @@
+---
+import { responsive } from '../lib/media'
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/PageHead.astro'
+import SectionHead from '../components/SectionHead.astro'
+import ItemGrid from '../components/ItemGrid.astro'
+import Steps from '../components/Steps.astro'
+import FactTable from '../components/FactTable.astro'
+import { INDUSTRY_HEAD, INDUSTRY_INTRO, FIGURES, FIGURES_SOURCE, HIGHLAND, VALUE_CHAIN, POLICY, CHALLENGES, OPPORTUNITIES } from '../copy/industry'
+
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
+---
+
+<Base title={INDUSTRY_HEAD.title} description={`${INDUSTRY_HEAD.subtitle} ${INDUSTRY_INTRO}`}>
+  <PageHead
+    index="01"
+    eyebrow="The industry"
+    amharic="ኢንዱስትሪው"
+    title={['Ethiopia’s', 'leather', '<em>industry</em>.']}
+    lede={INDUSTRY_HEAD.subtitle}
+    image="/media/profile/highland-sheep.webp"
+    imageAlt="Two highland sheep on a green hillside, a wide valley and mountains behind them"
+  />
+
+  <!-- 02 · introduction -->
+  <section class="sec sec--paper intro" aria-label="Introduction">
+    <div class="wrap grid intro__in">
+      <p class="label label--rule intro__label" data-reveal="fade"><b>02</b> Introduction</p>
+      <p class="intro__text" data-reveal>{INDUSTRY_INTRO}</p>
+    </div>
+  </section>
+
+  <!-- 03 · the sector in figures -->
+  <section class="sec sheet lit figures" aria-labelledby="fig-h">
+    <div class="wrap figures__in">
+      <div class="figures__head">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> The sector in figures</p>
+        <h2 class="h2 mt-m" id="fig-h" data-reveal>Africa’s largest <em>livestock</em> resource.</h2>
+        <p class="small figures__src" data-reveal style="--d:.1s">{FIGURES_SOURCE}</p>
+      </div>
+      <FactTable rows={FIGURES.map((f) => ({ k: f.indicator, v: f.figure, big: f.big }))} head={['Indicator', 'Figure']} caption="The Ethiopian leather sector in figures" />
+    </div>
+  </section>
+
+  <!-- 04 · highland hides and skins -->
+  <section class="sec sec--paper sheet highland" aria-labelledby="hl-h">
+    <div class="wrap highland__in">
+      <figure class="frame highland__pic" data-reveal="mask">
+        <img src="/media/profile/shepherd.webp" alt="A young shepherd with his flock of sheep on a highland pasture" loading="lazy" decoding="async" {...responsive('/media/profile/shepherd.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+      <div class="highland__text">
+        <p class="label label--rule" data-reveal="fade"><b>04</b> Highland hides and skins</p>
+        <h2 class="h2 mt-m" id="hl-h" data-reveal>Ethiopian Highland <em>Hides and Skins</em>.</h2>
+        <p class="body mt-m" data-reveal style="--d:.08s">{HIGHLAND.text}</p>
+        <p class="mt-l" data-reveal style="--d:.14s"><a class="btn btn--dark" href="/ehl">Ethiopian Highland Leather <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · the value chain -->
+  <section class="sec sec--hide chain" aria-labelledby="chain-h">
+    <div class="wrap">
+      <SectionHead index="05" eyebrow="The value chain" amharic="የእሴት ሰንሰለት" title="From the farm to the <em>market</em>." id="chain-h" />
+      <Steps items={VALUE_CHAIN} label="The leather value chain, in order" class="mt-xl" ring="var(--ink-1)" />
+    </div>
+  </section>
+
+  <div class="band" aria-hidden="true">
+    <img src="/media/profile/leather-rolls-wide.webp" alt="" loading="lazy" decoding="async" {...responsive('/media/profile/leather-rolls-wide.webp', '100vw')} />
+  </div>
+
+  <!-- 06 · policy and investment environment -->
+  <section class="sec sec--paper sheet" aria-labelledby="pol-h">
+    <div class="wrap">
+      <SectionHead index="06" eyebrow="Policy and investment environment" title="A <em>priority</em> sector." id="pol-h" />
+      <ItemGrid items={POLICY} cols={3} class="mt-xl" />
+    </div>
+  </section>
+
+  <!-- 07 · challenges -->
+  <section class="sec sec--saddle grain" aria-labelledby="ch-h">
+    <div class="wrap">
+      <SectionHead index="07" eyebrow="Challenges the industry is addressing" title="What stands in the <em>way</em>." intro={CHALLENGES.close} id="ch-h" />
+      <ItemGrid items={CHALLENGES.items} cols={4} class="mt-xl" />
+    </div>
+  </section>
+
+  <!-- 08 · opportunities -->
+  <section class="sec sec--paper sheet opp" aria-labelledby="opp-h">
+    <div class="wrap">
+      <SectionHead index="08" eyebrow="Opportunities" title="Where the <em>value</em> is." id="opp-h" />
+      <ItemGrid items={OPPORTUNITIES} cols={3} class="mt-xl" />
+      <div class="row mt-l opp__cta" data-reveal>
+        <a class="btn btn--dark" href="/invest">Invest and Source in Ethiopia <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+        <a class="btn btn--ghost" href="/downloads/profile">Download Industry Profile <svg viewBox="0 0 24 24" aria-hidden="true"><path d={down} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intro__in { row-gap: 24px; }
+  .intro__label { grid-column: 1 / span 3; margin-top: 1em; }
+  .intro__text {
+    grid-column: 4 / -1; max-width: 40ch; font-family: var(--f-display); font-size: clamp(1.45rem, 1.05rem + 1.5vw, 2.5rem);
+    line-height: 1.22; letter-spacing: -0.012em; color: var(--ink); text-wrap: pretty;
+  }
+  .figures__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
+  .figures__head { position: sticky; top: 110px; }
+  .figures__src { margin-top: 22px; color: var(--muted); max-width: 34ch; }
+  .highland__in { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(28px, 5vw, 96px); align-items: center; }
+  .highland__pic { margin: 0; aspect-ratio: 4 / 3; }
+  .band { height: clamp(180px, 26vw, 420px); overflow: hidden; background: var(--ink); }
+  .band img { width: 100%; height: 100%; object-fit: cover; }
+  .opp__cta { gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 960px) {
+    .figures__in, .highland__in { grid-template-columns: 1fr; }
+    .figures__head { position: static; }
+  }
+  @media (max-width: 860px) {
+    .intro__label, .intro__text { grid-column: 1 / -1; }
+    .intro__label { margin-top: 0; }
+  }
+</style>

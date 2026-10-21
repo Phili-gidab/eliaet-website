@@ -1,0 +1,24 @@
+---
+import App from '../../layouts/App.astro'
+import { Login } from '../../app/Auth'
+import { LOGIN_NOTE } from '../../copy/members'
+---
+
+<App title="Member login" heading="Member login" lede={LOGIN_NOTE} width="narrow">
+  <div class="auth">
+    <div class="auth__card">
+      <Login client:only="preact"><p slot="fallback" class="loading">Loading…</p></Login>
+    </div>
+    <aside class="auth__side">
+      <h2 class="auth__h">In the members’ area</h2>
+      <ul class="auth__list" role="list">
+        <li><b>Members directory</b> Find suppliers, partners and subcontractors across the leather value chain.</li>
+        <li><b>My profile</b> Keep your company’s details, products and photos up to date.</li>
+        <li><b>Notices and documents</b> Circulars, policy updates, meeting invitations and members-only reports.</li>
+        <li><b>Opportunities</b> Buyer inquiries, trade fair calls and training shared by ELIA.</li>
+        <li><b>Membership status</b> Your renewal date and dues.</li>
+      </ul>
+      <p class="auth__not">Not a member yet? <a href="/members#apply">Apply for membership</a>.</p>
+    </aside>
+  </div>
+</App>

@@ -1,174 +1,244 @@
 ---
-import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
-import SectionHead from '../components/SectionHead.astro'
-import NewsCard from '../components/NewsCard.astro'
-import { loadNews } from '../data/load'
-import { NEWS_INTRO } from '../copy/news'
+import { posts, postCount, events, publications, html } from '../data/cms'
+import { POST_CATEGORIES, PUBLICATION_TYPES } from '../../../shared/options'
 
-const posts = loadNews()
+/* The page as built shows the content the database starts with; on every visit the server puts the current posts,
+   events and publications between the <template data-cms> marks (server/src/pages.ts), and sets data-tab to the tab
+   asked for (?tab=news), which shows that tab's sections only. */
+const PER = 9
+const latest = posts({ limit: PER })
+const more = postCount() > PER
+const evs = events()
+const pubs = publications()
+const years = [...new Set(pubs.map((p) => p.year).filter(Boolean))].sort((a, b) => Number(b) - Number(a))
+const featured = posts({ featured: true, limit: 2 })
 
-/* The next event leads the page; if none is still to come (as of the build), every item stays in the grid. */
-const today = new Date().toISOString().slice(0, 10)
-const upcoming = posts
-  .filter((p) => p.kind === 'event' && p.date && p.date >= today)
-  .sort((a, b) => a.date!.localeCompare(b.date!))[0]
-const rest = posts.filter((p) => p !== upcoming)
-
-const when = upcoming?.date ? new Date(upcoming.date + 'T00:00:00Z') : null
-const fmt = (o: Intl.DateTimeFormatOptions) => (when ? when.toLocaleDateString('en-GB', { ...o, timeZone: 'UTC' }) : '')
-const eventLink = upcoming ? upcoming.to ?? upcoming.href : undefined
-const eventExternal = !!upcoming && !upcoming.to && !!upcoming.href
-
-const pad = (n: number) => String(n).padStart(2, '0')
+const TABS = [
+  { k: 'all', label: 'All', href: '/news' },
+  { k: 'news', label: 'News', href: '/news?tab=news#news' },
+  { k: 'events', label: 'Events', href: '/news?tab=events#events' },
+  { k: 'publications', label: 'Publications', href: '/news?tab=publications#publications' },
+  { k: 'spotlights', label: 'Member Spotlights', href: '/news?tab=spotlights#news' },
+]
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
-const out = 'M7 17 17 7M9 7h8v8'
+const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>`
+const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></span><span class="label">Page 1</span><a class="link" href="/news?tab=news&page=2#news">Older posts</a></nav>` : ''
 ---
 
-<Base title="News" description={`${NEWS_INTRO.title} ${NEWS_INTRO.features.map((f) => f.title).join(', ')}.`}>
+<Base newsletter={false} title="News, Events and Publications" description="Updates from ELIA and Ethiopia’s leather industry: news, the events calendar, and ELIA’s reports and downloads.">
+  <div class="ntabs-page" data-tab="all">
   <PageHead
     index="01"
-    eyebrow={NEWS_INTRO.eyebrow}
+    eyebrow="News · Events · Publications"
     amharic="ዜና"
-    title={['Blogs and news', 'about the leather', 'association<em>.</em>']}
-    lede="News, events and announcements from the association and the leather industry."
+    title={['News, events', 'and <em>publications</em>.']}
+    lede="Updates from ELIA and Ethiopia’s leather industry."
     image="/media/studio/tote-detail.webp"
     imageAlt="Close on a chestnut leather tote: where the handle meets the bag, a stitched keeper with a brass ring and rivet"
-  />
+  >
+    <nav class="ntabs" aria-label="News, events and publications" data-reveal style="--d:.32s">
+      {TABS.map((t) => <a class="ntab" href={t.href} data-k={t.k}>{t.label}</a>)}
+    </nav>
+    <p class="unsub" role="status" data-unsub hidden>You are unsubscribed from ELIA’s updates. You can subscribe again at any time below.</p>
+  </PageHead>
 
-  <!-- 02 · the next event -->
-  {upcoming && (
-    <section class="sec sec--paper ev" aria-labelledby="ev-h">
-      <div class="wrap ev__in">
-        <div class="ev__media">
-          <div class="frame ev__frame" data-reveal="mask">
-            {upcoming.image && <img src={upcoming.image} alt="" width="1080" height="1080" loading="lazy" decoding="async" {...responsive(upcoming.image, '(max-width: 900px) 92vw, 650px')} />}
-          </div>
-          {when && (
-            <p class="ev__date" data-reveal="fade" style="--d:.3s">
-              <time datetime={upcoming.date!}>
-                <span class="ev__day figure-num">{fmt({ day: 'numeric' })}</span>
-                <span class="ev__month">{fmt({ month: 'short' })} {fmt({ year: 'numeric' })}</span>
-                <span class="ev__wd">{fmt({ weekday: 'long' })}</span>
-              </time>
-            </p>
-          )}
+    <!-- 02 · news -->
+    <section class="sec sheet lit nsec" id="news" data-in="all news spotlights" aria-labelledby="news-h">
+      <div class="wrap">
+        <div class="nsec__head">
+          <p class="label label--rule" data-reveal="fade"><b>02</b> News</p>
+          <h2 class="h2 mt-m" id="news-h" data-reveal>
+            <span class="not-spot">Latest <em>news</em>.</span><span class="only-spot">Member <em>spotlights</em>.</span>
+          </h2>
         </div>
-        <div class="ev__text">
-          <p class="label label--rule" data-reveal="fade"><b>02</b> Upcoming event</p>
-          <p class="ev__meta" data-reveal="fade" style="--d:.08s">
-            <span class="stamp"><i></i>{upcoming.category ?? 'Event'}</span>
-          </p>
-          <h2 class="h2 ev__title" id="ev-h" data-reveal>{upcoming.title}</h2>
-          {upcoming.excerpt && <p class="lede ev__ex" data-reveal style="--d:.1s">{upcoming.excerpt}</p>}
-          {eventLink && (
-            <p class="ev__cta" data-reveal style="--d:.16s">
-              <a class="btn btn--dark" href={eventLink} target={eventExternal ? '_blank' : undefined} rel={eventExternal ? 'noopener' : undefined}>
-                Event details
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d={eventExternal ? out : arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-                {eventExternal && <span class="sr-only">(opens in a new tab)</span>}
-              </a>
-            </p>
-          )}
+        <ul class="cats not-spot" role="list" aria-label="Categories">
+          <li><a class="cat" href="/news?tab=news#news" data-cat="">All categories</a></li>
+          {Object.entries(POST_CATEGORIES).map(([k, v]) => <li><a class="cat" href={k === 'member-spotlights' ? '/news?tab=spotlights#news' : `/news?tab=news&cat=${k}#news`} data-cat={k}>{v}</a></li>)}
+        </ul>
+        <div class="news-grid">
+          <template data-cms="news"></template><Fragment set:html={html.posts(latest)} /><template data-cms-end="news"></template>
+        </div>
+        <template data-cms="news-pager"></template><Fragment set:html={pagerBuilt} /><template data-cms-end="news-pager"></template>
+        <p class="mt-l only-all"><a class="link nsec__all" href="/news?tab=news#news">View all news <Fragment set:html={svg(arrow)} /></a></p>
+      </div>
+    </section>
+
+    <!-- 03 · events -->
+    <section class="sec sec--hide sheet nsec" id="events" data-in="all events" aria-labelledby="events-h">
+      <div class="wrap nsec__split">
+        <div class="nsec__head">
+          <p class="label label--rule" data-reveal="fade"><b>03</b> Events calendar</p>
+          <h2 class="h2 mt-m" id="events-h" data-reveal>Upcoming <em>events</em>.</h2>
+          <p class="body mt-m nsec__note" data-reveal style="--d:.08s">Each event has its own page: the details, the venue on a map, registration, and a file to add it to your calendar.</p>
+        </div>
+        <ol class="ev-list" role="list">
+          <template data-cms="events"></template><Fragment set:html={evs.length ? html.events(evs) : '<li class="empty">No events are announced at the moment.</li>'} /><template data-cms-end="events"></template>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 04 · publications -->
+    <section class="sec sec--paper sheet nsec" id="publications" data-in="all publications" aria-labelledby="pubs-h">
+      <div class="wrap">
+        <div class="nsec__head nsec__head--row">
+          <div>
+            <p class="label label--rule" data-reveal="fade"><b>04</b> Publications library</p>
+            <h2 class="h2 mt-m" id="pubs-h" data-reveal>Reports and <em>downloads</em>.</h2>
+          </div>
+          <p class="body nsec__note" data-reveal style="--d:.08s">Download ELIA publications and industry resources. Some documents are available to members only.</p>
+        </div>
+        <form class="pubf" data-pubf aria-label="Filter the publications">
+          <label class="field">
+            <span>Year</span>
+            <select name="year">
+              <template data-cms="pub-years"></template><option value="">All years</option>{years.map((y) => <option>{y}</option>)}<template data-cms-end="pub-years"></template>
+            </select>
+          </label>
+          <label class="field">
+            <span>Type</span>
+            <select name="type"><option value="">All types</option>{PUBLICATION_TYPES.map((t) => <option>{t}</option>)}</select>
+          </label>
+          <label class="field">
+            <span>Access</span>
+            <select name="access"><option value="">Public and members only</option><option value="public">Public</option><option value="members">Members only</option></select>
+          </label>
+          <p class="pubf__count small" aria-live="polite" data-pubf-count></p>
+        </form>
+        <ul class="pub-list" role="list" data-pubs>
+          <template data-cms="pubs"></template><Fragment set:html={pubs.length ? html.pubs(pubs) : '<li class="empty">No publications yet.</li>'} /><template data-cms-end="pubs"></template>
+        </ul>
+        <p class="empty pubf__none" data-pubf-none hidden>No documents match. <button type="button" class="pubf__reset" data-pubf-reset>Show them all</button></p>
+      </div>
+    </section>
+
+    <!-- 05 · featured articles -->
+    <section class="sec sheet lit nsec" id="featured" data-in="all" aria-labelledby="feat-h">
+      <div class="wrap">
+        <div class="nsec__head">
+          <p class="label label--rule" data-reveal="fade"><b>05</b> Featured articles</p>
+          <h2 class="h2 mt-m" id="feat-h" data-reveal>Worth <em>reading</em>.</h2>
+        </div>
+        <div class="news-grid news-grid--two">
+          <template data-cms="featured"></template><Fragment set:html={html.posts(featured)} /><template data-cms-end="featured"></template>
         </div>
       </div>
     </section>
-  )}
+  </div>
 
-  <!-- the posts -->
-  <section class="sec grain posts" id="posts">
-    <div class="wrap">
-      <SectionHead index={upcoming ? '03' : '02'} eyebrow="Latest" title="From the <em>blog</em>." />
-      <div class="posts__grid">
-        {rest.map((p, i) => <NewsCard post={p} index={i} />)}
+  <!-- 06 · newsletter -->
+  <section class="sec sec--saddle grain sheet stay" aria-labelledby="stay-h">
+    <div class="wrap stay__in">
+      <div>
+        <p class="label label--rule" data-reveal="fade"><b>06</b> Newsletter</p>
+        <h2 class="h2 mt-m" id="stay-h" data-reveal>Stay <em>informed</em>.</h2>
+        <p class="body mt-m" data-reveal style="--d:.08s">Subscribe to receive ELIA news, event announcements and industry updates by email.</p>
       </div>
-    </div>
-  </section>
-
-  <!-- what the blog covers -->
-  <section class="sec sec--paper feat" id="about-the-blog">
-    <div class="wrap">
-      <SectionHead index={upcoming ? '04' : '03'} eyebrow="About the blog" title="What you will find <em>here</em>." intro={NEWS_INTRO.text} />
-      <ol class="feat__list" role="list">
-        {NEWS_INTRO.features.map((f, i) => (
-          <li class="feat__item" data-reveal style={`--d:${(i % 2) * 0.08}s`}>
-            <span class="feat__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
-            <div>
-              <h3 class="feat__title">{f.title}</h3>
-              <p class="feat__text">{f.text}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <form class="stay__form" action="/api/forms/subscribe" method="post" data-form="subscribe"
+        data-ok="Thank you. You are subscribed; a confirmation is on its way to your inbox." aria-labelledby="stay-h" novalidate data-reveal>
+        <label class="field stay__field"><span class="sr-only">E-mail address</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" placeholder="Your e-mail address" /></label>
+        <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button class="btn" type="submit">Subscribe <Fragment set:html={svg(arrow)} /></button>
+        <p class="form__msg stay__msg" role="status" aria-live="polite" data-form-msg></p>
+      </form>
     </div>
   </section>
 </Base>
 
+<script>
+  /* the tab and category shown (the server shows the right content; this marks the links for screen readers), the
+     unsubscribed note, and the publications' filters */
+  const q = new URLSearchParams(location.search)
+  const page = document.querySelector<HTMLElement>('[data-tab]')
+  const tab = page?.dataset.tab ?? 'all'
+  document.querySelectorAll<HTMLAnchorElement>('.ntab').forEach((a) => { if (a.dataset.k === tab) a.setAttribute('aria-current', 'page') })
+  const cat = q.get('cat') ?? ''
+  if (tab === 'news') document.querySelectorAll<HTMLAnchorElement>('.cat').forEach((a) => { if (a.dataset.cat === cat) a.setAttribute('aria-current', 'true') })
+  if (q.get('unsubscribed') === '1') document.querySelector<HTMLElement>('[data-unsub]')?.removeAttribute('hidden')
+
+  const form = document.querySelector<HTMLFormElement>('[data-pubf]')
+  const list = document.querySelector<HTMLElement>('[data-pubs]')
+  if (form && list) {
+    const count = form.querySelector<HTMLElement>('[data-pubf-count]')
+    const none = document.querySelector<HTMLElement>('[data-pubf-none]')
+    const apply = () => {
+      const f = new FormData(form)
+      const want = { year: String(f.get('year') ?? ''), type: String(f.get('type') ?? ''), access: String(f.get('access') ?? '') }
+      const rows = [...list.querySelectorAll<HTMLElement>('.pub')]
+      let shown = 0
+      for (const r of rows) {
+        const ok = (!want.year || r.dataset.year === want.year) && (!want.type || r.dataset.type === want.type) && (!want.access || r.dataset.access === want.access)
+        r.hidden = !ok
+        if (ok) shown++
+      }
+      const filtered = !!(want.year || want.type || want.access)
+      if (count) count.textContent = filtered ? `${shown} of ${rows.length} documents` : `${rows.length} documents`
+      if (none) none.hidden = shown > 0
+    }
+    form.addEventListener('change', apply)
+    form.addEventListener('submit', (e) => e.preventDefault())
+    document.querySelector('[data-pubf-reset]')?.addEventListener('click', () => { form.reset(); apply() })
+    apply()
+  }
+</script>
+
 <style>
-  /* on the wide crop of small screens keep her face in the frame */
-  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 26%; } }
+  /* on the wide crop of small screens keep the keeper and its ring in the frame */
+  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 40%; } }
+  .unsub { margin-top: 28px; padding: 14px 18px; border-radius: var(--radius-s); background: rgb(226 160 37 / 0.12); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.4); color: var(--cream); max-width: 52ch; }
+  .unsub[hidden] { display: none; }
 
-  /* 02 · the next event: the picture with its date stamped beside it */
-  .ev__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: center; }
-  .ev__media { grid-column: 1 / span 6; position: relative; }
-  .ev__frame { aspect-ratio: 1; }
-  .ev__frame img { object-position: 50% 30%; }
-  .ev__date {
-    position: absolute; right: clamp(-28px, -2vw, -12px); bottom: clamp(24px, 4vw, 56px);
-    display: grid; padding: 18px 22px 16px; border-radius: 8px; background: var(--ink); color: var(--cream);
-    box-shadow: 0 30px 60px -30px rgb(60 30 22 / 0.75);
-  }
-  .ev__date::before {
-    content: ''; position: absolute; inset: 6px; border: 1.2px dashed rgb(226 160 37 / 0.5); border-radius: 5px; pointer-events: none;
-  }
-  .ev__date time { display: grid; justify-items: center; gap: 4px; min-width: 6.4rem; }
-  .ev__day { font-size: clamp(3rem, 2rem + 2.6vw, 4.6rem); line-height: 0.9; color: var(--amber); }
-  .ev__month { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
-  .ev__wd { font-size: 12.5px; color: var(--muted); }
-  .ev__text { grid-column: 8 / span 5; }
-  .ev__meta { margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-  .ev__title { margin-top: 22px; max-width: 15ch; }
-  .ev__ex { margin-top: 24px; max-width: 42ch; }
-  .ev__cta { margin-top: clamp(28px, 3.2vw, 40px); }
+  /* the tabs, under the page's title */
+  .ntabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: clamp(28px, 3.4vw, 44px); }
+  .ntab { flex: none; display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; font-size: 14.5px; font-weight: 560; color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s, color 0.25s; }
+  .ntab:hover { color: var(--cream); background: rgb(255 252 245 / 0.06); }
+  [data-tab='all'] .ntab[data-k='all'], [data-tab='news'] .ntab[data-k='news'], [data-tab='events'] .ntab[data-k='events'],
+  [data-tab='publications'] .ntab[data-k='publications'], [data-tab='spotlights'] .ntab[data-k='spotlights'] { background: var(--amber); color: var(--ink); }
 
-  /* the posts */
-  .posts { background: var(--ink); }
-  .posts__grid {
-    margin-top: clamp(44px, 5.4vw, 84px);
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 48px clamp(18px, 2.2vw, 36px);
-  }
+  /* a tab shows its own sections only */
+  [data-tab='news'] .nsec:not([data-in~='news']), [data-tab='events'] .nsec:not([data-in~='events']),
+  [data-tab='publications'] .nsec:not([data-in~='publications']), [data-tab='spotlights'] .nsec:not([data-in~='spotlights']) { display: none; }
+  .only-spot { display: none; }
+  [data-tab='spotlights'] .only-spot { display: inline; }
+  [data-tab='spotlights'] .not-spot { display: none; }
+  .ntabs-page:not([data-tab='all']) .only-all { display: none; }
+  .nsec { scroll-margin-top: 40px; }
 
-  /* what the blog covers: a numbered list in two columns, each entry under a saddle stitch */
-  .feat__list {
-    list-style: none; margin: clamp(48px, 6vw, 90px) 0 0; padding: 0;
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 3vw, 44px) clamp(32px, 5vw, 96px);
-  }
-  .feat__item {
-    display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: 18px; padding-top: 22px;
-    border-top: 1.6px solid transparent; border-image: repeating-linear-gradient(90deg, var(--amber) 0 7px, transparent 7px 13px) 1;
-  }
-  .feat__n { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem); color: var(--taupe); line-height: 1; }
-  .feat__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; }
-  .feat__text { margin-top: 12px; color: var(--ink); max-width: 52ch; text-wrap: pretty; }
+  .nsec__head { margin-bottom: clamp(32px, 4vw, 56px); }
+  .nsec__head--row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 20px 40px; align-items: end; }
+  .nsec__note { max-width: 44ch; }
+  .nsec__split { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 32px clamp(32px, 5vw, 96px); align-items: start; }
+  .nsec__split .nsec__head { position: sticky; top: 110px; margin: 0; }
+
+  .cats { list-style: none; margin: -12px 0 clamp(28px, 3vw, 40px); padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .cat { display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; font-weight: 560; color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s, color 0.25s; }
+  .cat:hover { color: var(--cream); background: rgb(255 252 245 / 0.06); }
+  .cat[aria-current] { background: var(--cream); color: var(--ink); box-shadow: none; }
+  .nsec__all { color: var(--amber); }
+  .news-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .pubf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 14px 18px; align-items: end; margin-bottom: 26px; }
+  .pubf__count { color: var(--taupe); padding-bottom: 14px; white-space: nowrap; }
+  .pubf__none { padding: 22px 0; }
+  .pubf__none[hidden] { display: none; }
+  .pubf__reset { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  .stay__in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px clamp(32px, 5vw, 96px); align-items: center; }
+  .stay__form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+  .stay__msg { grid-column: 1 / -1; }
 
   @media (max-width: 960px) {
-    .ev__media { grid-column: 1 / span 6; }
-    .ev__text { grid-column: 7 / -1; }
-    .ev__date { right: 12px; }
+    .nsec__split, .stay__in, .nsec__head--row { grid-template-columns: 1fr; }
+    .nsec__split .nsec__head { position: static; }
   }
   @media (max-width: 760px) {
-    /* the section's label leads, then the picture, then the rest */
-    .ev__in { row-gap: 0; }
-    .ev__text { display: contents; }
-    .ev__text > *, .ev__media { grid-column: 1 / -1; }
-    .ev__text > .label { order: -1; margin-bottom: 26px; }
-    .ev__media { max-width: 520px; margin-bottom: 30px; }
-    .ev__date { bottom: -22px; right: 16px; padding: 14px 16px 12px; }
-    .ev__meta { margin-top: 8px; }
-    .feat__list { grid-template-columns: 1fr; }
+    .pubf { grid-template-columns: 1fr 1fr; }
+    .pubf__count { grid-column: 1 / -1; padding: 0; }
+    .news-grid--two { grid-template-columns: 1fr; }
   }
-  @media (max-width: 520px) {
-    .feat__item { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 12px; }
+  @media (max-width: 480px) {
+    .pubf { grid-template-columns: 1fr; }
+    .stay__form { grid-template-columns: 1fr; }
   }
 </style>

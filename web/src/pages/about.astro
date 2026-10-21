@@ -2,32 +2,22 @@
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
 import SectionHead from '../components/SectionHead.astro'
-import { ABOUT_INTRO, TIMELINE, BOARD, STAFF } from '../copy/about'
-import { PILLARS, ABOUT } from '../copy/home'
+import ItemGrid from '../components/ItemGrid.astro'
+import { ABOUT_HEAD, WHO, HISTORY, VISION, MISSION, WHAT_WE_DO, VALUES, PRESIDENT, GOVERNANCE, PARTNERS_INTRO, PARTNER_GROUPS } from '../copy/about'
+import { PARTNERS, BRANDS } from '../copy/impact'
+import { ORG } from '../copy/site'
 
-/* Phone lines read like "Mob. +251 09 02224728". The text stays as written; it becomes a tel: link only when it
-   resolves to a clean Ethiopian number (+251, the trunk 0 dropped, then nine digits). */
-const phone = (line: string) => {
-  const m = line.match(/^(Tel\.|Mob\.|WhatsApp)\s+(.+)$/)
-  const key = m ? m[1] : ''
-  const value = m ? m[2] : line
-  const digits = value.replace(/\D/g, '')
-  const local = value.trim().startsWith('+251') ? digits.slice(3).replace(/^0/, '') : ''
-  return { key, value, href: local.length === 9 ? `tel:+251${local}` : undefined }
-}
-
-const [chair, ...board] = BOARD
-const first = TIMELINE[0].year
-const last = TIMELINE[TIMELINE.length - 1].year
+const logos = [...PARTNERS, ...BRANDS].filter((p) => p.logo)
+const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
 ---
 
-<Base title="About" description={ABOUT_INTRO.nonprofit}>
+<Base title="About" description={`${ABOUT_HEAD.subtitle} ${WHO.body[0]}`}>
   <PageHead
     index="01"
-    eyebrow="About ELIA"
+    eyebrow={ABOUT_HEAD.title}
     amharic="ስለ እኛ"
-    title={['Ethiopian Leather', 'Industries', 'Association<em>.</em>']}
-    lede={ABOUT_INTRO.body[0]}
+    title={['The national voice', 'of Ethiopia’s leather', '<em>industry</em>.']}
+    lede={`Since ${ORG.founded}: the association of the country’s tanneries, footwear manufacturers, and leather goods and garment producers.`}
     film={{
       base: '/film/logo-t', sizes: [720, 1080], poster: '/film/logo-t-end-720.jpg', start: 0.9, rate: 1.25, bg: '#fcf0e0',
       phone: { base: '/film/logo', sizes: [1280, 1920], poster: '/film/logo-end-1280.jpg' },
@@ -35,234 +25,246 @@ const last = TIMELINE[TIMELINE.length - 1].year
     }}
   />
 
-  <!-- 02 · who we are: the stamped label sits in the margin, the statement takes the measure -->
+  <!-- 02 · who we are -->
   <section class="sec sec--paper who" aria-labelledby="who-h">
     <div class="wrap grid who__in">
-      <h2 class="label label--rule who__label" id="who-h" data-reveal="fade"><b>02</b> {ABOUT.eyebrow}</h2>
-      <p class="who__statement" data-reveal>{ABOUT_INTRO.nonprofit}</p>
+      <h2 class="label label--rule who__label" id="who-h" data-reveal="fade"><b>02</b> {WHO.title}</h2>
+      <p class="who__statement" data-reveal>{WHO.body[0]}</p>
       <div class="stitch who__stitch" aria-hidden="true"></div>
       <div class="who__count" data-reveal>
-        <p class="who__n figure-num">
-          <span data-count={ABOUT.count.value} aria-hidden="true">{ABOUT.count.value}</span><span class="sr-only">{ABOUT.count.value}</span>
-        </p>
-        <p class="label who__l">{ABOUT.count.label.map((l) => <span>{l}</span>)}</p>
+        <p class="who__n figure-num"><span data-count={ORG.members} aria-hidden="true">{ORG.members}</span><span class="sr-only">{ORG.members}</span></p>
+        <p class="label who__l"><span>Member</span><span>enterprises</span></p>
       </div>
-      <div class="body who__body" data-reveal style="--d:.1s">
-        <p>{ABOUT.body[0]}</p>
-      </div>
+      <div class="body who__body" data-reveal style="--d:.1s"><p>{WHO.body[1]}</p></div>
     </div>
   </section>
 
-  <!-- 03 · vision, mission, what we do -->
+  <!-- 03 · vision and mission -->
   <section class="sec sec--saddle grain pillars" aria-labelledby="pillars-h">
     <div class="wrap">
       <h2 class="label label--rule" id="pillars-h" data-reveal="fade"><b>03</b> Vision and mission</h2>
       <div class="stitch pillars__stitch" aria-hidden="true"></div>
       <div class="pillars__list">
-        {PILLARS.map((p, i) => (
-          <article class="pillar" data-reveal style={`--d:${i * 0.06}s`}>
-            <h3 class="pillar__k">{p.label}</h3>
-            <p class="pillar__t">{p.text}</p>
-          </article>
-        ))}
+        <article class="pillar" data-reveal><h3 class="pillar__k">Vision</h3><p class="pillar__t">{VISION}</p></article>
+        <article class="pillar" data-reveal style="--d:.06s"><h3 class="pillar__k">Mission</h3><p class="pillar__t">{MISSION}</p></article>
       </div>
     </div>
   </section>
 
-  <!-- 04 · history -->
-  <section class="sec sec--paper history" id="history">
+  <!-- 04 · what we do -->
+  <section class="sec sheet lit" id="what-we-do" aria-labelledby="what-h">
     <div class="wrap">
-      <SectionHead index="04" eyebrow="History" title={`Since <em>${first}</em>.`} intro={ABOUT.body[1]} />
-      <ol class="tl" role="list" aria-label={`ELIA, ${first} to ${last}`}>
-        {TIMELINE.map((t, i) => (
-          <li class:list={['tl__item', { 'tl__item--last': i === TIMELINE.length - 1 }]} data-reveal>
-            <p class="tl__year figure-num">{t.year}</p>
-            <div class="tl__body">
-              <h3 class="tl__title">{t.title}</h3>
-              <p class="tl__text">{t.text}</p>
-            </div>
+      <SectionHead index="04" eyebrow="What we do" amharic="የምንሰራው" title="Six ways we work for the <em>sector</em>." id="what-h" />
+      <ItemGrid items={WHAT_WE_DO} cols={3} class="mt-xl" />
+    </div>
+  </section>
+
+  <!-- 05 · history -->
+  <section class="sec sec--paper sheet history" id="history" aria-labelledby="history-h">
+    <div class="wrap">
+      <SectionHead index="05" eyebrow="Our history" title={`Since <em>${ORG.founded}</em>.`} id="history-h" />
+      <ol class="tl" role="list" aria-label={`ELIA, ${HISTORY[0].year} to ${HISTORY[HISTORY.length - 1].year}`}>
+        {HISTORY.map((t, i) => (
+          <li class:list={['tl__item', { 'tl__item--last': i === HISTORY.length - 1 }]} data-reveal>
+            <p class:list={['tl__year figure-num', { 'tl__year--long': t.year.length > 4 }]}>{t.year}</p>
+            <div class="tl__body"><p class="tl__title">{t.text}</p></div>
           </li>
         ))}
       </ol>
     </div>
   </section>
 
-  <!-- 05 · board -->
-  <section class="sec grain board" id="board">
+  <!-- 06 · values -->
+  <section class="sec sec--hide values" aria-labelledby="values-h">
     <div class="wrap">
-      <SectionHead index="05" eyebrow="Board" title="The board<em>.</em>" />
-      <div class="board__grid">
-        <article class="pc pc--chair seam" data-reveal>
-          <span class="stamp"><i></i>{chair.role}</span>
-          <h3 class="pc__name">{chair.name}</h3>
-          {chair.company && <p class="pc__co">{chair.company}</p>}
-        </article>
-        {board.map((p, i) => (
-          <article class="pc seam" data-reveal style={`--d:${((i % 3) + 1) * 0.06}s`}>
-            <p class="label pc__role">{p.role}</p>
-            <h3 class="pc__name">{p.name}</h3>
-            {p.company && <p class="pc__co">{p.company}</p>}
-          </article>
+      <SectionHead index="06" eyebrow="Our values" title="What we <em>hold to</em>." id="values-h" />
+      <ul class="values__list" role="list">
+        {VALUES.map((v, i) => (
+          <li class="value" data-reveal style={`--d:${i * 0.06}s`}>
+            <h3 class="value__k">{v.title}</h3>
+            <p class="value__t">{v.text}</p>
+          </li>
         ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 · leadership: the President's message -->
+  <section class="sec sec--paper sheet lead" id="leadership" aria-labelledby="lead-h">
+    <div class="wrap lead__in">
+      <div class="lead__side">
+        <p class="label label--rule" data-reveal="fade"><b>07</b> Leadership</p>
+        <h2 class="h2 mt-m" id="lead-h" data-reveal>Message from the <em>President</em>.</h2>
+        <figure class="lead__who" data-reveal style="--d:.08s">
+          {PRESIDENT.photo
+            ? <img class="lead__photo" src={PRESIDENT.photo} alt={PRESIDENT.name} width="240" height="300" loading="lazy" decoding="async" />
+            : <span class="lead__mono" aria-hidden="true">{initials}</span>}
+          <figcaption>
+            <span class="lead__name">{PRESIDENT.name}</span>
+            <span class="lead__role">{PRESIDENT.role}</span>
+          </figcaption>
+        </figure>
+      </div>
+      <blockquote class="lead__quote" data-reveal style="--d:.1s">
+        <p>{PRESIDENT.message}</p>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- 08 · governance and the Secretariat -->
+  <section class="sec grain gov" id="governance" aria-labelledby="gov-h">
+    <div class="wrap gov__in">
+      <div>
+        <p class="label label--rule" data-reveal="fade"><b>08</b> Governance</p>
+        <h2 class="h2 mt-m" id="gov-h" data-reveal>Elected by its <em>members</em>.</h2>
+      </div>
+      <div class="gov__cols">
+        <article class="gov__card card" data-reveal>
+          <p class="label">Board of Directors</p>
+          <p class="gov__text">{GOVERNANCE.board}</p>
+          <p class="gov__chair"><span class="stamp"><i></i>President</span> {PRESIDENT.name}</p>
+        </article>
+        <article class="gov__card card" data-reveal style="--d:.08s">
+          <p class="label">Secretariat</p>
+          <p class="gov__text">{GOVERNANCE.secretariat}</p>
+          <ul class="gov__teams" role="list">{GOVERNANCE.teams.map((t) => <li class="pill">{t}</li>)}</ul>
+          <a class="link gov__write" href="/contact#forms">Write to the Secretariat <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 06 · secretariat -->
-  <section class="sec sec--paper staff" id="secretariat">
+  <!-- 09 · partners -->
+  <section class="sec sec--paper sheet partners" id="partners" aria-labelledby="partners-h">
     <div class="wrap">
-      <SectionHead index="06" eyebrow="Secretariat" title="The secretariat<em>.</em>" />
-      <div class="staff__grid">
-        {STAFF.map((p, i) => {
-          const emails = p.email ?? []
-          const phones = (p.phone ?? []).map(phone)
-          return (
-            <article class:list={['sc seam', { 'sc--lead': i === 0 }]} data-reveal style={`--d:${(i % 3) * 0.06}s`}>
-              <p class="label sc__role">{p.role}</p>
-              <h3 class="sc__name">{p.name}</h3>
-              <ul class="sc__lines" role="list">
-                {emails.map((e, j) => (
-                  <li><span class="sc__k">{j === 0 ? 'E-mail' : ''}</span><a class="sc__a" href={`mailto:${e}`}>{e}</a></li>
-                ))}
-                {phones.map((ph, j) => (
-                  <li class:list={[{ sc__sep: j === 0 && emails.length > 0 }]}>
-                    <span class="sc__k">{ph.key}</span>
-                    {ph.href ? <a class="sc__a" href={ph.href}>{ph.value}</a> : <span>{ph.value}</span>}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          )
-        })}
-      </div>
+      <SectionHead index="09" eyebrow="Partners" title={PARTNERS_INTRO.title.replace('Together', '<em>Together</em>')} intro={PARTNERS_INTRO.text} id="partners-h" />
+      <dl class="pg">
+        {PARTNER_GROUPS.map((g, i) => (
+          <div class="pg__row" data-reveal style={`--d:${i * 0.05}s`}>
+            <dt class="label">{g.group}</dt>
+            <dd><ul role="list">{g.items.map((it) => <li>{it}</li>)}</ul></dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    <div class="marquee partners__row" style="--dur:60s;--gap:12px" data-label="Partners and brands">
+      {[0, 1].map((k) => (
+        <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
+          {logos.map((p) => (
+            <li class="logo-tile"><img src={p.logo} alt={k === 0 ? p.name : ''} loading="lazy" decoding="async" /></li>
+          ))}
+        </ul>
+      ))}
     </div>
   </section>
 </Base>
 
 <style>
+
   /* 02 · who we are */
   .who__in { row-gap: 28px; align-items: end; }
   .who__label { grid-column: 1 / span 3; align-self: start; margin-top: 1.1em; }
   .who__statement {
-    grid-column: 4 / -1; max-width: 36ch; font-family: var(--f-display); font-size: clamp(1.6rem, 1.05rem + 1.75vw, 2.75rem);
-    line-height: 1.18; letter-spacing: -0.012em; color: var(--ink); text-wrap: pretty;
+    grid-column: 4 / -1; max-width: 38ch; font-family: var(--f-display); font-size: clamp(1.5rem, 1.05rem + 1.6vw, 2.6rem);
+    line-height: 1.2; letter-spacing: -0.012em; color: var(--ink); text-wrap: pretty;
   }
   .who__stitch { grid-column: 1 / -1; margin-block: clamp(36px, 5vw, 76px) clamp(20px, 2.6vw, 40px); }
   .who__count { grid-column: 1 / span 6; display: flex; align-items: flex-end; gap: clamp(14px, 1.6vw, 24px); }
   .who__n { font-size: clamp(5.2rem, 2.4rem + 10vw, 12.5rem); color: var(--ink); margin-bottom: -0.06em; }
   .who__l { flex-direction: column; align-items: flex-start; gap: 3px; padding-bottom: 0.6em; }
-  .who__body { grid-column: 7 / -1; max-width: 46ch; padding-bottom: 0.4em; }
+  .who__body { grid-column: 7 / -1; max-width: 48ch; padding-bottom: 0.4em; }
 
-  /* 03 · pillars, on saddle leather */
+  /* 03 · pillars */
   .pillars__stitch { margin-top: clamp(36px, 4.4vw, 64px); }
-  .pillar {
-    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 14px clamp(24px, 3vw, 48px);
-    padding-block: clamp(30px, 4vw, 60px); border-bottom: 1px solid var(--line);
-  }
+  .pillar { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 14px clamp(24px, 3vw, 48px); padding-block: clamp(30px, 4vw, 60px); border-bottom: 1px solid var(--line); }
   .pillar:last-child { border-bottom: 0; padding-bottom: 0; }
-  .pillar__k {
-    font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: var(--step-2); line-height: 1.1;
-    color: var(--amber); padding-top: 0.1em;
-  }
-  .pillar__t {
-    font-family: var(--f-display); font-size: clamp(1.4rem, 1.05rem + 1.25vw, 2.35rem); line-height: 1.24; letter-spacing: -0.01em;
-    color: var(--cream); max-width: 38ch; text-wrap: pretty;
-  }
+  .pillar__k { font-family: var(--f-display); font-style: italic; font-weight: 300; font-stretch: 88%; font-size: var(--step-2); line-height: 1.1; color: var(--amber); padding-top: 0.1em; }
+  .pillar__t { font-family: var(--f-display); font-size: clamp(1.35rem, 1.05rem + 1.15vw, 2.2rem); line-height: 1.26; letter-spacing: -0.01em; color: var(--cream); max-width: 40ch; text-wrap: pretty; }
 
-  /* 04 · history: a saddle-stitched spine with the years set beside it */
+  /* 05 · history */
   .tl { --spine: clamp(150px, 27%, 400px); list-style: none; margin: clamp(56px, 7vw, 110px) 0 0; padding: 0; position: relative; }
-  .tl::before {
-    content: ''; position: absolute; top: 18px; bottom: 30px; left: var(--spine); width: 1.6px;
-    background: repeating-linear-gradient(180deg, var(--amber) 0 7px, transparent 7px 13px); opacity: 0.9;
-  }
+  .tl::before { content: ''; position: absolute; top: 18px; bottom: 30px; left: var(--spine); width: 1.6px; background: repeating-linear-gradient(180deg, var(--amber) 0 7px, transparent 7px 13px); opacity: 0.9; }
   .tl__item { position: relative; display: grid; grid-template-columns: var(--spine) minmax(0, 1fr); align-items: start; }
   .tl__item + .tl__item .tl__body { border-top: 1px solid var(--line-dark); }
-  .tl__item::before {
-    content: ''; position: absolute; left: calc(var(--spine) - 4.7px); top: calc(clamp(24px, 3vw, 44px) + 12px); width: 11px; height: 11px;
-    border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 5px var(--paper); z-index: 1;
-  }
-  .tl__year {
-    padding: clamp(18px, 2.4vw, 34px) clamp(28px, 3.4vw, 56px) 0 0; text-align: right;
-    font-size: clamp(2.4rem, 1.2rem + 3.6vw, 5.2rem); color: var(--ink);
-  }
+  .tl__item::before { content: ''; position: absolute; left: calc(var(--spine) - 4.7px); top: calc(clamp(24px, 3vw, 44px) + 12px); width: 11px; height: 11px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 5px var(--paper); z-index: 1; }
+  .tl__year { padding: clamp(18px, 2.4vw, 34px) clamp(28px, 3.4vw, 56px) 0 0; text-align: right; font-size: clamp(2.4rem, 1.2rem + 3.6vw, 5.2rem); color: var(--ink); }
+  .tl__year--long { font-size: clamp(1.5rem, 0.9rem + 2vw, 2.8rem); padding-top: clamp(26px, 3vw, 44px); }
   .tl__body { padding: clamp(24px, 3vw, 44px) 0 clamp(24px, 3vw, 44px) clamp(28px, 3.4vw, 56px); }
-  .tl__title { font-family: var(--f-display); font-weight: 400; font-size: var(--step-2); line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; max-width: 26ch; }
-  .tl__text { margin-top: 10px; color: var(--ink); max-width: 54ch; text-wrap: pretty; }
+  .tl__title { font-family: var(--f-display); font-weight: 400; font-size: clamp(1.2rem, 1rem + 0.7vw, 1.65rem); line-height: 1.3; letter-spacing: -0.01em; color: var(--ink); max-width: 44ch; text-wrap: pretty; }
   .tl__item--last .tl__year { color: var(--taupe); }
   .tl__item--last::before { background: var(--gold); box-shadow: 0 0 0 5px var(--paper), 0 0 18px 4px rgb(226 160 37 / 0.55); }
 
-  /* 05 · board: a lead tag for the chairman, the others as stitched tags beside it */
-  .board { background: var(--ink); }
-  .board__grid {
-    display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px);
-    margin-top: clamp(44px, 5.4vw, 84px);
-  }
-  .pc {
-    display: flex; flex-direction: column; gap: 12px; min-height: 220px; padding: clamp(24px, 2.4vw, 34px);
-    border-radius: 8px; background: linear-gradient(165deg, #4b2f28 0%, #43261e 60%, #3c1e16 100%);
-    box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.06), 0 24px 50px -36px rgb(0 0 0 / 0.9);
-  }
-  .pc__role { color: var(--gold); }
-  .pc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--cream); margin-top: auto; }
-  .pc__co { font-size: 14.5px; line-height: 1.5; color: var(--muted); max-width: 30ch; }
-  .pc--chair {
-    grid-row: span 2; justify-content: flex-end; gap: 18px; min-height: 0;
-    background: linear-gradient(160deg, #5d443d 0%, #4b2f28 45%, #3c1e16 100%);
-  }
-  .pc--chair .stamp { align-self: flex-start; margin-bottom: auto; }
-  .pc--chair .pc__name { font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(48px, 8vw, 140px); }
-  .pc--chair .pc__co { color: var(--bone); font-size: var(--step-0); }
+  /* 06 · values */
+  .values__list { list-style: none; margin: clamp(44px, 5.4vw, 84px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line-2); }
+  .value { padding: 26px clamp(14px, 1.6vw, 24px) 4px; display: grid; gap: 10px; align-content: start; }
+  .value + .value { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
+  .value:first-child { padding-left: 0; }
+  .value__k { font-family: var(--f-display); font-style: italic; font-weight: 300; font-stretch: 88%; font-size: var(--step-2); line-height: 1; color: var(--amber); }
+  .value__t { color: var(--bone); font-size: 15.5px; line-height: 1.5; }
 
-  /* 06 · secretariat: the Secretary General leads, the office beside */
-  .staff__grid {
-    display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px);
-    margin-top: clamp(44px, 5.4vw, 84px);
+  /* 07 · the President */
+  .lead__in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 96px); align-items: start; }
+  .lead__who { margin: clamp(28px, 3vw, 44px) 0 0; display: flex; align-items: center; gap: 18px; }
+  .lead__photo { width: 120px; height: 150px; object-fit: cover; border-radius: var(--radius); }
+  .lead__mono {
+    width: 96px; height: 96px; flex: none; border-radius: 50%; display: grid; place-items: center;
+    font: 700 2rem/1 var(--f-display); font-stretch: 80%; letter-spacing: 0.02em; color: var(--paper);
+    background: radial-gradient(80% 80% at 30% 20%, var(--amber), #b77a12); box-shadow: 0 16px 34px -18px rgb(60 30 22 / 0.7);
   }
-  .sc {
-    display: flex; flex-direction: column; gap: 10px; padding: clamp(24px, 2.4vw, 34px); border-radius: 8px;
-    background: rgb(255 255 255 / 0.42);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 26px 50px -40px rgb(60 30 22 / 0.5);
+  .lead__who figcaption { display: grid; gap: 4px; }
+  .lead__name { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.35rem; color: var(--ink); }
+  .lead__role { font-size: 14.5px; color: var(--brown-80); max-width: 26ch; }
+  .lead__quote { margin: 0; position: relative; padding-left: clamp(22px, 3vw, 44px); border-left: 2px solid var(--amber); }
+  .lead__quote p {
+    font-family: var(--f-display); font-size: clamp(1.3rem, 1rem + 1vw, 1.95rem); line-height: 1.38; letter-spacing: -0.01em;
+    color: var(--ink); text-wrap: pretty;
   }
-  .sc__name { font-family: var(--f-display); font-weight: 400; font-size: var(--step-1); line-height: 1.15; color: var(--ink); }
-  .sc__lines { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; font-size: 14.5px; line-height: 1.45; color: var(--ink); }
-  .sc__lines li { display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: baseline; gap: 8px; }
-  .sc__lines .sc__sep { margin-top: 10px; }
-  .sc__k { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe); }
-  .sc__a { justify-self: start; overflow-wrap: anywhere; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--ease), color 0.25s; }
-  .sc__a:hover { background-size: 100% 1px; color: var(--taupe); }
-  .sc--lead { grid-row: span 2; background: var(--ink); color: var(--cream); justify-content: flex-end; gap: 14px; }
-  .sc--lead::before { border-color: rgb(226 160 37 / 0.45); }
-  .sc--lead .sc__role { color: var(--gold); }
-  .sc--lead .sc__name { color: var(--cream); font-size: var(--step-3); line-height: 1.02; letter-spacing: -0.015em; margin-top: clamp(40px, 6vw, 110px); }
-  .sc--lead .sc__lines { color: var(--bone); font-size: 15px; }
-  .sc--lead .sc__k { color: var(--muted); }
-  .sc--lead .sc__a:hover { color: var(--amber); }
+  .lead__quote p::before { content: '“'; position: absolute; left: clamp(-6px, -0.5vw, 0px); top: -0.55em; font-size: 4.2em; line-height: 1; color: rgb(226 160 37 / 0.35); font-family: var(--f-display); }
+
+  /* 08 · governance */
+  .gov { background: var(--ink); }
+  .gov__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
+  .gov__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .gov__card { display: grid; gap: 14px; align-content: start; padding: clamp(22px, 2.4vw, 34px); }
+  .gov__text { color: var(--bone); font-size: 16px; line-height: 1.6; }
+  .gov__chair { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-weight: 600; color: var(--cream); }
+  .gov__teams { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .gov__teams .pill { font-size: 12.5px; letter-spacing: 0.02em; text-transform: none; }
+  .gov__write { justify-self: start; color: var(--amber); }
+
+  /* 09 · partners */
+  .pg { margin: clamp(44px, 5.4vw, 84px) 0 0; border-top: 1px solid var(--line-dark); }
+  .pg__row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 12px clamp(24px, 3vw, 48px); padding: 22px 0; border-bottom: 1px solid var(--line-dark); }
+  .pg__row dt { padding-top: 0.35em; }
+  .pg__row dd { margin: 0; }
+  .pg__row ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 26px; }
+  .pg__row li { font-family: var(--f-display); font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.3rem); line-height: 1.35; color: var(--ink); }
+  .partners__row { margin-top: clamp(48px, 6vw, 88px); }
+  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: #fff; padding: 16px 22px; box-shadow: inset 0 0 0 1px var(--line-dark); }
+  .logo-tile img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   @media (max-width: 1100px) {
-    .board__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .pc--chair { grid-column: 1 / -1; grid-row: auto; }
-    .pc--chair .pc__name { margin-top: 40px; }
-    .staff__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .sc--lead { grid-column: 1 / -1; grid-row: auto; }
-    .sc--lead .sc__name { margin-top: 28px; }
+    .values__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 18px; }
+    .value:nth-child(4) { padding-left: 0; border-left: 0; }
+    .gov__in { grid-template-columns: 1fr; }
   }
   @media (max-width: 860px) {
     .who__label, .who__statement, .who__count, .who__body { grid-column: 1 / -1; }
     .who__label { margin-top: 0; }
-    .pillar { grid-template-columns: 1fr; }
+    .pillar, .pg__row, .lead__in { grid-template-columns: 1fr; }
     .tl { --spine: 6px; }
     .tl::before { top: 30px; }
     .tl__item { grid-template-columns: 1fr; padding-left: 34px; }
     .tl__item + .tl__item { border-top: 1px solid var(--line-dark); }
     .tl__item + .tl__item .tl__body { border-top: 0; }
-    .tl__year { text-align: left; padding: 24px 0 0; font-size: clamp(2.2rem, 1.4rem + 4vw, 3.4rem); }
+    .tl__year, .tl__year--long { text-align: left; padding: 24px 0 0; font-size: clamp(1.9rem, 1.3rem + 3vw, 3rem); }
     .tl__body { padding: 10px 0 26px; }
     .tl__item::before { top: 36px; }
+    .gov__cols { grid-template-columns: 1fr; }
   }
-  @media (max-width: 600px) {
-    .board__grid, .staff__grid { grid-template-columns: 1fr; }
-    .pc { min-height: 0; }
-    .pc__name { margin-top: 6px; }
+  @media (max-width: 620px) {
+    .values__list { grid-template-columns: 1fr; }
+    .value, .value:first-child { padding-left: 0; border-left: 0; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
     .who__count { flex-direction: column; align-items: flex-start; gap: 6px; }
     .who__l { flex-direction: row; flex-wrap: wrap; gap: 0 0.6em; padding-bottom: 0; }
   }

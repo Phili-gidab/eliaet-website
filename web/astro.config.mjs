@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import preact from '@astrojs/preact'
 
 // Static output: every page is plain HTML. The Node server (../server) serves dist/ and the /api routes.
 export default defineConfig({
@@ -7,6 +8,8 @@ export default defineConfig({
   // goes somewhere else for a while (hosting/bundle.mjs: the subdomain of the AALF site)
   site: process.env.SITE_URL || 'https://www.eliaet.com',
   output: 'static',
+  // the members' area and the back office are small Preact islands; every other page ships no framework at all
+  integrations: [preact()],
   trailingSlash: 'never',
   // the styles go inside each page: no stylesheet request stands between a slow phone and the first paint
   build: { format: 'file', inlineStylesheets: 'always', assets: '_assets' },

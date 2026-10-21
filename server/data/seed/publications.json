@@ -1,0 +1,54 @@
+{
+  "_note": "The publications library the database starts with (the content document's table). Only the profile has its file so far: the others are listed as coming soon until their files are added in the back office. Each has a short address, /downloads/<key>, that always leads to its current file.",
+  "publications": [
+    {
+      "key": "profile",
+      "title": "ELIA Institutional Profile 2026",
+      "type": "Profile",
+      "year": 2026,
+      "access": "public",
+      "summary": "Ethiopia, land of origin: the country's leather, Ethiopian Highland Leather, ELIA and the All Africa Leather Fair, and the opportunities for buyers and investors.",
+      "file": "ELIA-Institutional-Profile-2026.pdf"
+    },
+    {
+      "key": "ehl-brochure",
+      "title": "Ethiopian Highland Leather Brochure",
+      "type": "Brochure",
+      "year": 2026,
+      "access": "public",
+      "summary": "The national brand of Ethiopian sheep leather: where it comes from, what makes it different, and its certified producers."
+    },
+    {
+      "key": "african-leather-journal",
+      "title": "African Leather Journal",
+      "type": "Journal",
+      "year": 2026,
+      "access": "public",
+      "summary": "A publication on current research in the leather sector."
+    },
+    {
+      "key": "aalf-guide",
+      "title": "AALF 2026 Exhibitor and Sponsorship Guide",
+      "type": "Guide",
+      "year": 2026,
+      "access": "public",
+      "summary": "How to exhibit at or sponsor the All Africa Leather Fair, 12 to 15 November 2026, Addis International Convention Center."
+    },
+    {
+      "key": "ehl-guidebook",
+      "title": "EHL Certification Guidebook",
+      "type": "Guide",
+      "year": 2026,
+      "access": "members",
+      "summary": "The requirements and steps for Ethiopian Highland Leather certification."
+    },
+    {
+      "key": "market-briefs",
+      "title": "Member Market Briefs",
+      "type": "Report",
+      "year": 2026,
+      "access": "members",
+      "summary": "Market intelligence for ELIA members."
+    }
+  ]
+}

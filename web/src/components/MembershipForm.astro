@@ -1,0 +1,113 @@
+---
+/* The membership application (the content document's "Apply for Membership"), on the Membership page and in the
+   Contact page's forms. Sent to /api/forms/membership with the trade licence; the server checks every field again. */
+import { CATEGORIES, CATEGORY_NOTES, SIZES, REGIONS } from '../../../shared/options'
+
+interface Props {
+  /** the id of the form's heading, for its accessible name */
+  labelledby?: string
+  /** an id prefix, when the page holds more than one form with these field names */
+  id?: string
+}
+const { labelledby, id = 'ma' } = Astro.props
+const year = new Date().getFullYear()
+const arrow = 'M4 12h15m-6-6 6 6-6 6'
+const PARTS = ['Company', 'Contact person', 'Location and products', 'Trade licence and message']
+const roman = ['I', 'II', 'III', 'IV']
+---
+
+<form class="form mform" action="/api/forms/membership" method="post" enctype="multipart/form-data" data-form="membership"
+  data-ok="Thank you. Your application has reached the ELIA Secretariat, who will contact you within ten working days."
+  aria-labelledby={labelledby} novalidate>
+
+  <fieldset class="mform__part full" id={`${id}-company`}>
+    <legend class="mform__legend"><span class="mform__n">{roman[0]}</span>{PARTS[0]}</legend>
+    <label class="field full"><span>Company name</span><input name="companyName" autocomplete="organization" required maxlength="200" /></label>
+    <fieldset class="chips field full">
+      <legend>Membership category</legend>
+      {Object.entries(CATEGORIES).map(([k, v]) => (
+        <label class="chip" title={CATEGORY_NOTES[k as keyof typeof CATEGORY_NOTES]}><input type="radio" name="category" value={k} required /><span>{v}</span></label>
+      ))}
+    </fieldset>
+    <fieldset class="chips field">
+      <legend>Company size</legend>
+      {Object.entries(SIZES).map(([k, v]) => (
+        <label class="chip"><input type="radio" name="size" value={k} required /><span>{v}</span></label>
+      ))}
+    </fieldset>
+    <label class="field"><span>Year established</span><input name="yearEstablished" type="number" inputmode="numeric" min="1900" max={year} step="1" required placeholder="YYYY" /></label>
+    <label class="field"><span>Number of employees <b>(optional)</b></span><input name="employees" type="number" inputmode="numeric" min="0" max="1000000" step="1" /></label>
+  </fieldset>
+
+  <fieldset class="mform__part full" id={`${id}-contact`}>
+    <legend class="mform__legend"><span class="mform__n">{roman[1]}</span>{PARTS[1]}</legend>
+    <label class="field"><span>Contact person</span><input name="contactName" autocomplete="name" required maxlength="120" autocapitalize="words" /></label>
+    <label class="field"><span>Position <b>(optional)</b></span><input name="position" autocomplete="organization-title" maxlength="120" /></label>
+    <label class="field"><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required maxlength="40" placeholder="+251" /></label>
+    <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" spellcheck="false" /></label>
+  </fieldset>
+
+  <fieldset class="mform__part full" id={`${id}-place`}>
+    <legend class="mform__legend"><span class="mform__n">{roman[2]}</span>{PARTS[2]}</legend>
+    <label class="field">
+      <span>Region</span>
+      <select name="region" required autocomplete="address-level1">
+        <option value="">Choose…</option>
+        {Object.entries(REGIONS).map(([k, v]) => <option value={k}>{v}</option>)}
+      </select>
+    </label>
+    <label class="field"><span>Address</span><input name="address" autocomplete="street-address" required maxlength="240" placeholder="City, sub-city, wereda, street" /></label>
+    <label class="field full"><span>Main products</span><textarea name="products" required maxlength="600" rows="3" placeholder="e.g. finished sheepskin, men’s shoes, leather bags"></textarea></label>
+    <label class="field full"><span>Export markets <b>(if any)</b></span><input name="exportMarkets" maxlength="400" placeholder="Countries you sell to" /></label>
+  </fieldset>
+
+  <fieldset class="mform__part full" id={`${id}-licence`}>
+    <legend class="mform__legend"><span class="mform__n">{roman[3]}</span>{PARTS[3]}</legend>
+    <label class="field full mform__file">
+      <span>Trade licence</span>
+      <input name="licence" type="file" required data-max-mb="8" accept="application/pdf,image/png,image/jpeg,image/webp,.pdf,.png,.jpg,.jpeg,.webp" aria-describedby={`${id}-licence-hint`} />
+    </label>
+    <p class="hint mform__hint full" id={`${id}-licence-hint`} aria-live="polite" data-file-hint>A PDF, or a photo of it (PNG, JPG or WebP), up to 8 MB.</p>
+    <label class="field full"><span>Message <b>(optional)</b></span><textarea name="message" maxlength="5000" rows="4"></textarea></label>
+    <label class="check full">
+      <input type="checkbox" name="consent" value="true" required />
+      <span>I accept, as a member of the association, the annual General Assembly’s decisions and the annual membership fee and related fees. The information given here is correct.</span>
+    </label>
+  </fieldset>
+
+  <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  <div class="form__end full">
+    <button class="btn btn--dark" type="submit">Submit Application <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+    <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+  </div>
+</form>
+
+<style>
+  .mform { row-gap: clamp(14px, 1.6vw, 22px); }
+  .mform__part {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; min-width: 0; margin: 0;
+    padding: clamp(24px, 3vw, 40px); border: 0; border-radius: 10px; background: rgb(255 255 255 / 0.5);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, inset 0 0 0 1px var(--line-dark), 0 30px 60px -44px rgb(60 30 22 / 0.4);
+    scroll-margin-top: calc(var(--header-h) + 20px);
+  }
+  /* a floated legend sits inside the panel as the first row of its grid */
+  .mform__legend {
+    float: left; grid-column: 1 / -1; width: 100%; padding: 0 0 4px; margin: 0; display: flex; align-items: baseline; gap: 14px;
+    font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.5rem); line-height: 1.1; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .mform__n { min-width: 2.1em; font-weight: 600; font-size: 11.5px; letter-spacing: 0.1em; color: var(--taupe); }
+  .mform .chips { margin-top: 2px; }
+  .mform .field > span:first-child b { color: var(--ink); font-weight: 600; }
+  .mform__hint { margin-top: -10px; font-size: 13.5px; color: var(--brown-80); }
+  .mform :global(.hint--bad) { color: #a33d27; font-weight: 500; }
+  .mform .check:has([aria-invalid='true']) { color: #a33d27; }
+  .mform .check input:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .mform__file input[type='file'] { min-height: 64px; padding: 12px; cursor: pointer; color: var(--ink); font-size: 14.5px; }
+  .mform__file input[type='file']::file-selector-button {
+    margin-right: 16px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; cursor: pointer;
+    font: 600 14px/1 var(--f-text); color: var(--cream); background: var(--ink); transition: background 0.3s;
+  }
+  .mform__file input[type='file']:hover::file-selector-button { background: var(--ink-3); }
+  @media (max-width: 720px) { .mform__part { grid-template-columns: 1fr; } }
+  @media (max-width: 420px) { .mform__part { padding: 22px 18px; } }
+</style>

@@ -1,0 +1,38 @@
+---
+/* Titled points in a grid (what ELIA does, its values, the policy points, the benefits of membership…): each one a
+   numbered panel, on the dark sections and on the paper ones alike. */
+interface Props {
+  items: { title: string; text: string }[]
+  cols?: 2 | 3 | 4
+  numbered?: boolean
+  class?: string
+}
+const { items, cols = 3, numbered = true, class: cls } = Astro.props
+const pad = (n: number) => String(n).padStart(2, '0')
+---
+
+<ol class:list={['ig', `ig--${cols}`, cls]} role="list">
+  {items.map((it, i) => (
+    <li class="ig__item card" data-reveal style={`--d:${(i % cols) * 0.06}s`}>
+      {numbered && <span class="ig__n figure-num" aria-hidden="true">{pad(i + 1)}</span>}
+      <h3 class="ig__t">{it.title}</h3>
+      <p class="ig__p">{it.text}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  :where(.ig) { margin: 0; }
+  .ig { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .ig--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ig--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ig--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ig__item { display: grid; align-content: start; gap: 10px; padding: clamp(20px, 2.2vw, 30px); min-height: 100%; }
+  .ig__n { font-size: 15px; color: var(--amber); letter-spacing: 0.02em; }
+  :global(.sec--paper) .ig__n { color: var(--taupe); }
+  .ig__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem); line-height: 1.12; letter-spacing: -0.02em; }
+  .ig__p { color: var(--bone); font-size: 15.5px; line-height: 1.55; }
+  :global(.sec--paper) .ig__p { color: var(--brown-80); }
+  @media (max-width: 1000px) { .ig--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ig--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .ig--2, .ig--3, .ig--4 { grid-template-columns: 1fr; } }
+</style>

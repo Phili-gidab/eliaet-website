@@ -1,0 +1,8 @@
+---
+import App from '../../layouts/App.astro'
+import { Forgot } from '../../app/Auth'
+---
+
+<App title="Forgot your password?" heading="Forgot your password?" width="narrow">
+  <div class="auth auth--one"><div class="auth__card"><Forgot client:only="preact"><p slot="fallback" class="loading">Loading…</p></Forgot></div></div>
+</App>

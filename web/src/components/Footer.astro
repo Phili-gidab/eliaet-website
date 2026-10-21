@@ -1,28 +1,34 @@
 ---
 import { ORG, CONTACT, SOCIAL, FOOTER_LINKS, EXTERNAL } from '../copy/site'
 import { SUBSCRIBE } from '../copy/home'
+interface Props { newsletter?: boolean }
+const { newsletter = true } = Astro.props
 const social = SOCIAL.filter((s) => s.href)
 const year = new Date().getFullYear()
 ---
 
 <footer class="ftr sheet lit" data-footer>
   <div class="wrap">
-    <div class="ftr__news">
-      <div>
-        <p class="label"><b>ዜና</b> Newsletter</p>
-        <h2 class="h3 mt-s">{SUBSCRIBE.title}<em>.</em></h2>
-        <p class="ftr__note">{SUBSCRIBE.text}</p>
-      </div>
-      <form class="ftr__form" action="/api/subscribe" method="post" data-form="subscribe" novalidate>
-        <label class="sr-only" for="ftr-email">E-mail address</label>
-        <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
-        <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <button class="btn" type="submit">Subscribe <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
-        <p class="ftr__msg" role="status" aria-live="polite" data-form-msg></p>
-      </form>
-    </div>
+    {newsletter && (
+      <>
+        <div class="ftr__news">
+          <div>
+            <p class="label"><b>ዜና</b> Newsletter</p>
+            <h2 class="h3 mt-s">{SUBSCRIBE.title}<em>.</em></h2>
+            <p class="ftr__note">{SUBSCRIBE.text}</p>
+          </div>
+          <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" novalidate>
+            <label class="sr-only" for="ftr-email">E-mail address</label>
+            <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <button class="btn" type="submit">Subscribe <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+            <p class="ftr__msg" role="status" aria-live="polite" data-form-msg></p>
+          </form>
+        </div>
 
-    <div class="stitch ftr__stitch" aria-hidden="true"></div>
+        <div class="stitch ftr__stitch" aria-hidden="true"></div>
+      </>
+    )}
 
     <!-- the full lockup from the brand guide: the logo with the association's name in Amharic and English -->
     <a href="/" class="ftr__lockup">
@@ -43,7 +49,6 @@ const year = new Date().getFullYear()
         <p class="label"><b>02</b> Contact</p>
         <ul role="list">
           {CONTACT.phones.map((p) => <li><a href={p.href}><span class="ftr__k">{p.label}</span>{p.value}</a></li>)}
-          <li><span class="ftr__k">Fax</span>{CONTACT.fax}</li>
           {CONTACT.emails.map((e) => <li><a href={`mailto:${e.value}`}><span class="ftr__k">{e.label}</span>{e.value}</a></li>)}
         </ul>
       </div>

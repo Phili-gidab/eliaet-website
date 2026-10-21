@@ -1,4 +1,17 @@
 /* ELIA · the script every page loads (small, no libraries): header state, the menu, reveals, counters, forms. */
+import { ready, solvePow } from '../lib/pow'
+
+/* ── signed in: "Member login" becomes "My account" (the server's small elia_in cookie: m member, s Secretariat) ── */
+{
+  const who = /(?:^|;\s*)elia_in=([ms])/.exec(document.cookie)?.[1]
+  if (who) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-account]').forEach((a) => {
+      a.href = who === 's' ? '/admin' : '/members/dashboard'
+      const l = a.querySelector('[data-account-label]')
+      if (l) l.textContent = who === 's' ? 'Back office' : 'My account'
+    })
+  }
+}
 
 const root = document.documentElement
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -106,13 +119,45 @@ if (reduce) {
   }
 }
 
-/* ── forms: <form data-form="contact" action="/api/contact"> posts to the API, shows the answer in [data-form-msg] ── */
+/* ── forms: <form data-form="general" action="/api/forms/general"> posts to the API, shows the answer in
+   [data-form-msg]. The spam check's puzzle starts as soon as someone begins to fill a form in. ── */
 {
   const forms = document.querySelectorAll<HTMLFormElement>('form[data-form]')
   forms.forEach((form) => {
+    form.addEventListener('focusin', () => ready(), { once: true })
     const msg = form.querySelector<HTMLElement>('[data-form-msg]')
     const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]')
     const say = (text: string, ok = false) => { if (msg) { msg.textContent = text; msg.dataset.ok = ok ? '1' : '0' } }
+
+    // a field marked invalid is cleared as soon as it is put right
+    form.addEventListener('input', (ev) => {
+      const el = ev.target as HTMLInputElement
+      if (!el.matches?.('input, select, textarea') || !el.checkValidity()) return
+      const group = el.type === 'radio' || el.type === 'checkbox' ? form.querySelectorAll(`[name="${CSS.escape(el.name)}"]`) : [el]
+      group.forEach((g) => { g.removeAttribute('aria-invalid'); g.closest('label, .field')?.querySelector('.err')?.remove() })
+    })
+
+    // a file field says what was picked, and keeps a file of the wrong kind or size from being sent
+    form.querySelectorAll<HTMLInputElement>('input[type="file"][data-max-mb]').forEach((input) => {
+      const hint = document.getElementById(input.getAttribute('aria-describedby') ?? '')
+      const note = hint?.textContent ?? ''
+      const max = Number(input.dataset.maxMb) * 1048576
+      const types = input.accept.split(',').map((t) => t.trim()).filter((t) => t.includes('/'))
+      const check = () => {
+        const f = input.files?.[0]
+        let bad = ''
+        if (f && types.length && !types.includes(f.type)) bad = 'This kind of file is not accepted. ' + note
+        else if (f && f.size > max) bad = `This file is ${(f.size / 1048576).toFixed(1)} MB; the limit is ${input.dataset.maxMb} MB.`
+        input.setCustomValidity(bad)
+        const size = f && (f.size < 1048576 ? `${Math.max(1, Math.round(f.size / 1024))} kB` : `${(f.size / 1048576).toFixed(1)} MB`)
+        if (hint) {
+          hint.textContent = bad || (f ? `${f.name}, ${size}.` : note)
+          hint.classList.toggle('hint--bad', !!bad)
+        }
+      }
+      input.addEventListener('change', check)
+      form.addEventListener('reset', () => setTimeout(check))
+    })
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault()
       form.querySelectorAll('[aria-invalid]').forEach((f) => f.removeAttribute('aria-invalid'))
@@ -124,12 +169,19 @@ if (reduce) {
         return
       }
       const multipart = form.enctype === 'multipart/form-data'
-      const fd = new FormData(form)
-      const body = multipart ? fd : JSON.stringify(Object.fromEntries(fd.entries()))
       btn?.setAttribute('disabled', '')
       form.classList.add('sending')
       say('Sending…')
       try {
+        const fd = new FormData(form)
+        fd.set('pow', await solvePow())
+        // several boxes of one name (interests) go as a list
+        const obj: Record<string, unknown> = {}
+        for (const [k, v] of fd.entries()) {
+          if (typeof v !== 'string') continue
+          obj[k] = k in obj ? [obj[k]].flat().concat(v) : form.querySelectorAll(`input[type="checkbox"][name="${k}"]`).length > 1 ? [v] : v
+        }
+        const body = multipart ? fd : JSON.stringify(obj)
         const res = await fetch(form.action, {
           method: 'POST', body,
           headers: multipart ? { Accept: 'application/json' } : { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -138,7 +190,7 @@ if (reduce) {
         if (res.ok) {
           form.reset()
           form.classList.add('sent')
-          say(form.dataset.ok || 'Thank you. We have received it.', true)
+          say((form.dataset.ok || 'Thank you. We have received it.') + (data.ref ? ` Your reference: ${data.ref}.` : ''), true)
         } else {
           say(data.error || 'Something went wrong. Please try again.')
           for (const [name, text] of Object.entries<string>(data.fields || {})) {
@@ -160,7 +212,6 @@ if (reduce) {
   })
 }
 
-export {} // a module, so its top-level names stay its own
 
 /* ── cards: the light follows the pointer ── */
 if (matchMedia('(hover: hover) and (pointer: fine)').matches && !reduce) {

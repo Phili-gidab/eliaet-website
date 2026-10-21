@@ -1,0 +1,35 @@
+{
+  "_note": "The events the database starts with (the content document's calendar). Managed in the back office afterwards.",
+  "events": [
+    {
+      "slug": "all-africa-leather-fair-2026",
+      "title": "All Africa Leather Fair 2026",
+      "starts_on": "2026-11-12",
+      "ends_on": "2026-11-15",
+      "venue": "Addis International Convention Center",
+      "address": "Addis Ababa, Ethiopia",
+      "summary": "The 15th All Africa Leather Fair, held with Africa Sourcing and Fashion Week (ASFW Addis 2026): leather, finished products, inputs, chemicals and machinery, B2B meetings, a leather fashion zone and panel discussions.",
+      "body": "The All Africa Leather Fair brings together tanners, footwear and leather goods manufacturers, buyers, investors, designers, machinery and chemical suppliers, training institutions and government representatives from Africa and beyond. ELIA organizes it with Messe Frankfurt, alongside Africa Sourcing and Fashion Week (ASFW Addis 2026).\n\n## What the fair includes\n\n- **Exhibition:** leather, finished products, inputs, chemicals and machinery.\n- **B2B meetings:** structured matchmaking between producers, buyers and suppliers.\n- **Leather fashion zone and fashion show:** designers present their latest collections.\n- **Innovation zone:** selected innovators show new products and solutions.\n- **Panel discussions:** experts and policymakers address the sector's key issues.\n- **African Leather Journal:** a publication on current research in the leather sector.\n\nThe closing event is the ELIA Award and Gala Night, 15 November 2026, at the Sheraton Addis.",
+      "register_url": "https://www.asfw-addis.com",
+      "image_url": "/media/fair/lounge-wide.webp",
+      "status": "published"
+    },
+    {
+      "slug": "elia-award-and-gala-night-2026",
+      "title": "ELIA Award and Gala Night",
+      "starts_on": "2026-11-15",
+      "venue": "Sheraton Addis",
+      "address": "Addis Ababa, Ethiopia",
+      "summary": "The closing event of the All Africa Leather Fair 2026.",
+      "body": "The closing event of the All Africa Leather Fair 2026.",
+      "status": "published"
+    },
+    {
+      "slug": "elia-general-assembly",
+      "title": "ELIA General Assembly",
+      "summary": "The annual General Assembly of ELIA's members.",
+      "body": "",
+      "status": "draft"
+    }
+  ]
+}

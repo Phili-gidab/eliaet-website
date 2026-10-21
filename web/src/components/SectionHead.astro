@@ -8,13 +8,15 @@ interface Props {
   intro?: string
   align?: 'split' | 'stack'
   class?: string
+  /** the title's id, for the section's aria-labelledby */
+  id?: string
 }
-const { index, eyebrow, amharic, title, intro, align = 'split', class: cls } = Astro.props
+const { index, eyebrow, amharic, title, intro, align = 'split', class: cls, id } = Astro.props
 ---
 
 <header class:list={['sh', `sh--${align}`, cls]}>
   <p class="label label--rule" data-reveal="fade">{index && <b>{index}</b>} {eyebrow}{amharic && <span class="geez" lang="am">{amharic}</span>}</p>
-  <h2 class="h2 sh__title" data-reveal set:html={title} />
+  <h2 class="h2 sh__title" id={id} data-reveal set:html={title} />
   {intro && <p class="body sh__intro" data-reveal style="--d:.12s">{intro}</p>}
   <slot />
 </header>

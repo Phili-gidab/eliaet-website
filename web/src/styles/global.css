@@ -314,7 +314,7 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inse
 .sec--paper .rule { background: var(--line-dark); }
 
 /* utility */
-.mt-s { margin-top: 18px; } .mt-m { margin-top: 32px; } .mt-l { margin-top: 56px; }
+.mt-s { margin-top: 18px; } .mt-m { margin-top: 32px; } .mt-l { margin-top: 56px; } .mt-xl { margin-top: clamp(44px, 5.4vw, 84px); }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .nowrap { white-space: nowrap; }
 

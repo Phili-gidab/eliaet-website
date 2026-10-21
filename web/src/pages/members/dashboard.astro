@@ -1,0 +1,8 @@
+---
+import App from '../../layouts/App.astro'
+import { Dashboard } from '../../app/Dashboard'
+---
+
+<App title="Member dashboard" heading="Member dashboard" eyebrow="Members’ area">
+  <Dashboard client:only="preact"><p slot="fallback" class="loading">Loading…</p></Dashboard>
+</App>

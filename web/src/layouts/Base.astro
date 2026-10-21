@@ -5,6 +5,7 @@ import '@fontsource-variable/roboto/wdth-italic.css'
 import '../styles/fonts.css'
 import '../styles/global.css'
 import '../styles/forms.css'
+import '../styles/cms.css'
 import textUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-normal.woff2?url'
 import italicUrl from '@fontsource-variable/roboto/files/roboto-latin-wdth-italic.woff2?url'
 import Header from '../components/Header.astro'
@@ -18,6 +19,16 @@ interface Props {
   image?: string
   overHero?: boolean
   bodyClass?: string
+  /** the page's address, when it is not the file's own (a template the server fills: '/news/@@slug@@') */
+  canonicalPath?: string
+  /** the link preview's picture exactly as given (a template's '@@image@@', which the server fills with a full URL) */
+  imageRaw?: string
+  /** pages for signed-in people and the back office: kept out of search engines */
+  noindex?: boolean
+  /** the header link that is current, when the address alone does not say (a news post: '/news') */
+  section?: string
+  /** the footer's newsletter sign-up (off on pages with a newsletter section of their own) */
+  newsletter?: boolean
 }
 const {
   title,
@@ -25,12 +36,18 @@ const {
   image = '/media/og/elia-og.jpg',
   overHero = false,
   bodyClass = '',
+  canonicalPath,
+  imageRaw,
+  noindex = false,
+  section,
+  newsletter = true,
 } = Astro.props
 // pages are built as files (about.html) but served at clean addresses (/about), which is what search engines should see
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/$/, '') || '/'
 const fullTitle = title ? `${title} · ELIA` : `${ORG.name} · ELIA`
-const canonical = new URL(path, Astro.site).toString()
-const ogImage = new URL(image, Astro.site).toString()
+const site = String(Astro.site).replace(/\/+$/, '')
+const canonical = canonicalPath ? site + canonicalPath : new URL(path, Astro.site).toString()
+const ogImage = imageRaw ?? new URL(image, Astro.site).toString()
 ---
 
 <!doctype html>
@@ -40,7 +57,8 @@ const ogImage = new URL(image, Astro.site).toString()
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    {path !== '/404' && <link rel="canonical" href={canonical} />}
+    {path !== '/404' && !noindex && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#3c1e16" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={textUrl} as="font" type="font/woff2" crossorigin />
@@ -61,11 +79,11 @@ const ogImage = new URL(image, Astro.site).toString()
   <body class={bodyClass}>
     <Loader />
     <a class="skip" href="#main">Skip to content</a>
-    <Header path={path} overHero={overHero} />
+    <Header path={section ?? path} overHero={overHero} />
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer newsletter={newsletter && !noindex} />
     <script>
       import '../scripts/site'
     </script>

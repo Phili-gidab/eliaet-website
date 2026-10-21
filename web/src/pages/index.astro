@@ -3,7 +3,6 @@ import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import Story from '../components/Story.astro'
 import SectionHead from '../components/SectionHead.astro'
-import NewsCard from '../components/NewsCard.astro'
 import Appointment from '../components/Appointment.astro'
 import Stage3D from '../components/Stage3D.astro'
 import { PIECES } from '../copy/stage'
@@ -12,12 +11,10 @@ import { AALF_2026 } from '../copy/aalf'
 import { PARTNERS, BRANDS } from '../copy/impact'
 import { SECTORS, SECTOR_TOTALS, type SectorKey } from '../copy/members'
 import { ORG } from '../copy/site'
-import { loadNews } from '../data/load'
+import { posts, html } from '../data/cms'
 
-const news = loadNews()
-  .slice()
-  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
-  .slice(0, 3)
+/* the latest three posts as built; the server puts the current three in their place on every visit */
+const news = html.posts(posts({ limit: 3 }))
 const sectorKeys = Object.keys(SECTORS) as SectorKey[]
 const logos = [...BRANDS, ...PARTNERS].filter((p) => p.logo)
 const swatch: Record<string, string> = { raw: 'raw', wetblue: 'wetblue', crust: 'crust', finished: 'finished' }
@@ -65,7 +62,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
       <ul class="sectors" role="list">
         {sectorKeys.map((k, i) => (
           <li data-reveal style={`--d:${i * 0.08}s`}>
-            <a class="sector card" href={`/members?sector=${k}`}>
+            <a class="sector card" href="/members#at-a-glance">
               <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true">→</span></span>
               <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span>
               <span class="sector__name">{SECTORS[k].plural} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
@@ -143,6 +140,10 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
             </li>
           ))}
         </ol>
+        <div class="row mt-l" data-reveal>
+          <a class="btn btn--dark" href="/invest">Invest and Source in Ethiopia <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+          <a class="btn btn--ghost" href="/industry">The industry in figures</a>
+        </div>
       </div>
       <div class="why__stage" data-reveal style="--d:.12s">
         <Stage3D pieces={PIECES} />
@@ -154,7 +155,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   <section class="sec sec--saddle sheet aalf-band">
     <div class="wrap aalf-band__in">
       <div>
-        <p class="label label--rule" data-reveal="fade"><b>06</b> {AALF_2026.edition} · All African Leather Fair {fairYear}</p>
+        <p class="label label--rule" data-reveal="fade"><b>06</b> {AALF_2026.edition} · All Africa Leather Fair {fairYear}</p>
         <h2 class="h1 mt-m aalf-band__title" data-reveal>{fairDays} <em>{fairMonth}</em></h2>
         <p class="lede mt-m" data-reveal style="--d:.1s">{AALF_2026.venue}, {AALF_2026.city}. {AALF_2026.cobrand}.</p>
         <div class="row mt-l" data-reveal style="--d:.18s">
@@ -177,8 +178,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
   <section class="sec sheet lit news">
     <div class="wrap">
       <SectionHead index="07" eyebrow="News · Events" amharic="ዜና" title="From the <em>sector</em>." />
-      <div class="news__grid">
-        {news.map((p, i) => <NewsCard post={p} index={i} />)}
+      <div class="news-grid news__grid">
+        <template data-cms="home-news"></template><Fragment set:html={news} /><template data-cms-end="home-news"></template>
       </div>
       <a class="link mt-l news__all" href="/news">All news <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
     </div>

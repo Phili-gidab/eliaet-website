@@ -54,7 +54,7 @@ export const PINS: { id: string; label: string; n?: string }[] = [
 /* legacy: the four slides of the current home-page carousel (the fair's slide brought up to its 2026 edition) */
 export const HIGHLIGHTS = [
   {
-    title: `${AALF_2026.edition.replace(' edition', '')} All African Leather Fair`,
+    title: `${AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair`,
     text: `${AALF_2026.dates}, at the ${AALF_2026.venue}: brings together leather goods manufacturers and technology suppliers, chemical and inputs suppliers, training institutions, trade promotion organizations, etc. from all over the world.`,
     to: '/aalf',
     image: '/media/studio/aalf-boot.webp',
@@ -74,7 +74,7 @@ export const HIGHLIGHTS = [
   {
     title: 'Styles you have to see',
     text: 'A modern classic style that lasts a lifetime.',
-    to: '/members?sector=leather-goods',
+    to: '/invest#buyers',
     image: '/media/studio/goods-styles.webp',
     /** the card is wider than the picture on large screens: keep the handles in */
     focus: '58% 28%',
@@ -179,5 +179,5 @@ export const APPOINTMENT = {
 /* legacy: the "Subscribe for New Updates" band */
 export const SUBSCRIBE = {
   title: 'Subscribe for new updates',
-  text: 'News from Ethiopia’s leather sector, the All African Leather Fair and ELIA’s programs, now and then. No noise.',
+  text: 'News from Ethiopia’s leather sector, the All Africa Leather Fair and ELIA’s programs, now and then. No noise.',
 }

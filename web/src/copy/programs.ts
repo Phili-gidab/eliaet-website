@@ -1,88 +1,76 @@
-/* The six initiatives from the "What We Do / Visit Our Latest Projects And Our Innovative Works" tabs on the
-   current home and about pages. Text is legacy, word for word (typos corrected). */
+/* Projects and Programs. From ELIA's website content document (October 2026). */
 
-export type Program = {
-  slug: string
-  short: string
-  name: string
-  title: string
-  text: string
-  points: string[]
-  image: string
-  to?: string
-  href?: string
-  cta: string
+export const PROGRAMS_HEAD = {
+  title: 'Projects and Programs',
+  subtitle: 'ELIA’s initiatives to grow markets, build capability and add value to Ethiopian leather.',
 }
 
-export const PROGRAMS_INTRO = {
-  eyebrow: 'What we do',
-  title: 'Our latest projects and innovative works.',
+/** the page's own menu */
+export const PROGRAM_MENU = [
+  { id: 'aalf', label: 'All Africa Leather Fair', short: 'AALF' },
+  { id: 'ehl', label: 'Ethiopian Highland Leather', short: 'EHL' },
+  { id: 'eldsc', label: 'ELDSC', short: 'ELDSC' },
+  { id: 'market-development', label: 'Market Development', short: 'Markets' },
+  { id: 'capacity-building', label: 'Capacity Building', short: 'Skills' },
+  { id: 'sustainability', label: 'Sustainability', short: 'Green' },
+]
+
+export const AALF_PROGRAM = {
+  title: 'Africa’s Leather Trade Show, Organized by ELIA Since 2008',
+  text: 'The All Africa Leather Fair brings together tanners, footwear and leather goods manufacturers, buyers, investors, designers, machinery and chemical suppliers, training institutions and government representatives from Africa and beyond. ELIA owns the AALF brand, which is registered in Ethiopia, and organizes the fair through a Central Organizing Committee.',
+  glance: [
+    { k: 'Dates', v: '12 to 15 November 2026' },
+    { k: 'Venue', v: 'Addis International Convention Center, Addis Ababa' },
+    { k: 'Organizer', v: 'Ethiopian Leather Industries Association (ELIA)' },
+    { k: 'Partner', v: 'Messe Frankfurt, held alongside Africa Sourcing and Fashion Week (ASFW Addis 2026)' },
+    { k: 'Closing Event', v: 'ELIA Award and Gala Night, 15 November 2026, Sheraton Addis' },
+  ],
+  includes: [
+    { title: 'Exhibition', text: 'Leather, finished products, inputs, chemicals and machinery.' },
+    { title: 'B2B Meetings', text: 'Structured matchmaking between producers, buyers and suppliers.' },
+    { title: 'Leather Fashion Zone and Fashion Show', text: 'Designers present their latest collections.' },
+    { title: 'Innovation Zone', text: 'Selected innovators show new products and solutions.' },
+    { title: 'Panel Discussions', text: 'Experts and policymakers address the sector’s key issues.' },
+    { title: 'African Leather Journal', text: 'A publication on current research in the leather sector.' },
+  ],
+  recent: 'AALF 2025 was held at Millennium Hall from 23 to 25 May 2025, with more than 70 exhibitors and participants supported by ALLPI from nine African countries.',
 }
 
-export const PROGRAMS: Program[] = [
-  {
-    slug: 'ehl',
-    short: 'EHL',
-    name: 'Ethiopian Highland Leather',
-    title: 'Opening new possibilities of leather.',
-    text: 'The Ethiopian Highland Leather Project is an industrial project to promote exports from Ethiopia by adding value to Ethiopian sheep leather. The world’s highest quality sheep leather, from the mystical highlands of Ethiopia: made from a special type of hair sheep bred in the Ethiopian highlands, and neatly finished by the experienced craftsmanship of Ethiopian tanners.',
-    points: ['Light, thin and soft leather', 'Strong and durable leather', 'Superior quality leather'],
-    image: '/media/home/ehl.webp',
-    to: '/ehl',
-    cta: 'Discover EHL',
-  },
-  {
-    slug: 'aalf',
-    short: 'AALF',
-    name: 'All African Leather Fair',
-    title: 'Africa’s biggest and most important international leather exhibition.',
-    text: 'The trade show organised by the Ethiopian Leather Industries Association (ELIA) since its first edition in 2008. AALF brings together tanners, footwear and other leather goods manufacturers, in addition to equipment and technology suppliers, chemical and inputs suppliers, manpower training institutions, trade promotion organizations, etc. from all over the world.',
-    points: ['Your gateway to introduce your products', 'Meet international industry players', 'Build long-term partnerships'],
-    image: '/media/fair/hall.webp',
-    to: '/aalf',
-    cta: 'About the fair',
-  },
-  {
-    slug: 'eldsc',
-    short: 'ELDSC',
-    name: 'Ethiopian Leather Development S.C.',
-    title: 'A significant player in the Ethiopian leather industry.',
-    text: 'ELDSC aims to enhance the Ethiopian leather industry by building up the leather industrial sector with the highest manufacturing capability in Africa. Its vision is to create a diversified, globally competitive, environmentally friendly industry capable of significantly improving the living standards of the Ethiopian people by the year 2025.',
-    points: ['Eco-friendly practices', 'Resource management', 'Collaboration and awareness'],
-    image: '/media/home/eldsc.webp',
-    to: '/eldsc',
-    cta: 'About ELDSC',
-  },
-  {
-    slug: 'afcfta',
-    short: 'AfCFTA',
-    name: 'African Continental Free Trade Area',
-    title: 'The world’s largest free trade area, and a change for African economies.',
-    text: 'In January 2012, Ethiopia adopted the decision to establish an African Continental Free Trade Area and the Action Plan for Boosting Intra-African Trade as key initiatives whose implementation would promote socio-economic growth and development, bring transformative change and tremendous opportunity to African economies.',
-    points: ['Increase employment', 'Increase incomes', 'Expand opportunities'],
-    image: '/media/home/acfta.webp',
-    cta: 'AfCFTA',
-  },
-  {
-    slug: 'shop',
-    short: 'Shop',
-    name: 'Shopping Ethiopian leather products',
-    title: 'Buy quality products here.',
-    text: 'Building up the leather industrial sector with the highest manufacturing capability in Africa, which is diversified, globally competitive, environmentally friendly, and capable of significantly improving the living standards of the Ethiopian people. We’ve come a long way, so we know exactly which direction to take when supplying you with high quality yet budget-friendly products. We offer all of this while providing excellent customer service and friendly support.',
-    points: ['Selling authentic leather products', 'Own quality handmade leather goods', 'The premier e-commerce destination'],
-    image: '/media/home/leather1.webp',
-    href: 'https://leathersofethiopia.com/',
-    cta: 'Buy products',
-  },
-  {
-    slug: 'members',
-    short: '194',
-    name: 'ELIA members',
-    title: '194 leather manufacturing companies.',
-    text: 'Ethiopian Leather Industries Association (ELIA) is a nonprofit trade association of the leather industries businesses. ELIA works to enhance and improve the leather industries business climate by promoting export of leather, shoes and leather goods and garment, protecting the rights of members, and assisting businesses to improve.',
-    points: ['Natural qualities of clarity', 'Flexibility & strength', 'Thickness & compact texture'],
-    image: '/media/studio/goods-sectors.webp',
-    to: '/members',
-    cta: 'Members directory',
-  },
+export const EHL_PROGRAM = {
+  title: 'A National Brand of Premium Sheepskin',
+  text: [
+    'Ethiopian Highland Leather is the national brand of Ethiopian sheep leather, produced from sheep raised in the Ethiopian highlands. Developed in 2015 with support from the Ethiopia Industrial Promotion Project, the brand is owned and managed by ELIA and is registered in Ethiopia, the United States, Japan, the European Union and the United Kingdom.',
+    'Research by the national leather institute confirms that Ethiopian highland sheepskin is light, thin and soft, yet strong and durable. EHL leather is inspected by an internationally accredited national laboratory.',
+  ],
+  producers: ['Davimpex Bahir Dar Tannery', 'Ethio-Leather Industry PLC (ELICO)', 'New Wing Shoe Manufacturer', 'Pitards Ethiopia Tannery'],
+  why: [
+    { title: 'By-Product', text: 'A 100% by-product of the Ethiopian food culture.' },
+    { title: 'Environment', text: 'Produced with extra care for the environment.' },
+    { title: 'Jobs', text: 'Employment for many women and young people.' },
+    { title: 'Fair Value', text: 'A premium price that helps reduce inequality in international trade.' },
+  ],
+}
+
+export const ELDSC_PROGRAM = {
+  title: 'Building Africa’s Most Capable Leather Manufacturing Sector',
+  text: 'ELDSC works with ELIA to strengthen manufacturing capability and add value to Ethiopian leather. Its focus areas are the Ethiopian Highland Leather project, positioning the industry to benefit from the AfCFTA, supporting the Modjo leather industrial cluster, and promoting cleaner production, efficient resource use and waste reduction.',
+}
+
+export const MARKET_DEVELOPMENT = [
+  { title: 'International Trade Fairs', text: 'Coordinating Ethiopian participation at international leather and fashion fairs, including the CBI “Leather Products from Ethiopia” program in Europe.' },
+  { title: 'Made in Ethiopia', text: 'Presenting member companies to international buyers with partners such as GIZ and the Ministry of Industry.' },
+  { title: 'Buyer Missions', text: 'Arranging factory visits and meetings for visiting buyers.' },
+]
+
+export const CAPACITY_BUILDING = [
+  { title: 'Training', text: 'Workshops on production technology, quality management, design and export readiness.' },
+  { title: 'Technical Assistance', text: 'Expert support with partners including UNIDO and ALLPI.' },
+  { title: 'Policy Dialogue', text: 'Workshops such as the 2023 AfCFTA forum with UNECA and ECCSA.' },
+]
+
+export const SUSTAINABILITY = [
+  { title: 'Cleaner Production', text: 'Promoting effluent treatment, water efficiency and reduced chemical use.' },
+  { title: 'Certification Support', text: 'Guiding members toward Leather Working Group and ISO 14001 certification.' },
+  { title: 'By-Product Value', text: 'Encouraging use of leather waste in products such as gelatin.' },
+  { title: 'Industrial Clustering', text: 'Supporting relocation to serviced industrial parks with shared treatment plants.' },
 ]

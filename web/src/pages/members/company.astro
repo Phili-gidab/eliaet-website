@@ -1,0 +1,9 @@
+---
+/* One page for every member's profile: the server sends it for /members/company/<slug> (server/src/index.ts). */
+import App from '../../layouts/App.astro'
+import { Company } from '../../app/Company'
+---
+
+<App title="Member profile">
+  <Company client:only="preact"><p slot="fallback" class="loading">Loading…</p></Company>
+</App>

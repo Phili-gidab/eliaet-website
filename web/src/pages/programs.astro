@@ -2,149 +2,182 @@
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import PageHead from '../components/PageHead.astro'
-import Stage3D from '../components/Stage3D.astro'
-import { PIECES } from '../copy/stage'
-import { PROGRAMS_INTRO, PROGRAMS } from '../copy/programs'
+import ItemGrid from '../components/ItemGrid.astro'
+import FactTable from '../components/FactTable.astro'
+import {
+  PROGRAMS_HEAD, PROGRAM_MENU, AALF_PROGRAM, EHL_PROGRAM, ELDSC_PROGRAM, MARKET_DEVELOPMENT, CAPACITY_BUILDING, SUSTAINABILITY,
+} from '../copy/programs'
+import { AALF_2026 } from '../copy/aalf'
 
 const pad = (n: number) => String(n).padStart(2, '0')
-
-/* What each photo shows, for screen readers. */
-const ALT: Record<string, string> = {
-  ehl: 'Three women in white shawls seated on hides, one holding a round leather shield',
-  aalf: 'An exhibition hall seen from above, with rows of stands',
-  eldsc: 'Leather hides dyed blue, brown, red, pink and yellow, laid side by side',
-  afcfta: 'A young woman at a sewing machine on a factory floor',
-  members: 'Rolls of finished leather behind a chestnut leather tote and a pair of brown leather boots: the three sectors, tanneries, shoe makers and leather goods makers',
-}
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 const out = 'M7 17 17 7M9 7h8v8'
+const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
+const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>`
 ---
 
-<Base title="Programs" description={`${PROGRAMS_INTRO.title} ${PROGRAMS.map((p) => p.name).join(', ')}.`}>
+<Base title={PROGRAMS_HEAD.title} description={`${PROGRAMS_HEAD.subtitle} ${PROGRAM_MENU.map((m) => m.label).join(', ')}.`}>
   <PageHead
     index="01"
-    eyebrow={PROGRAMS_INTRO.eyebrow}
+    eyebrow={PROGRAMS_HEAD.title}
     amharic="ፕሮግራሞች"
-    title={['Our latest projects', 'and innovative', 'works<em>.</em>']}
+    title={['Projects', 'and <em>programs</em>.']}
+    lede={PROGRAMS_HEAD.subtitle}
     image="/media/studio/goods-head.webp"
-    imageAlt="A chestnut leather tote and a pair of brown leather lace-up boots on a dark brown studio floor"
+    imageAlt="A chestnut leather tote and a pair of brown leather boots on a warm brown studio backdrop"
   >
-    <ol class="toc" role="list" aria-label="The programs on this page" data-reveal style="--d:.3s">
-      {PROGRAMS.map((p, i) => (
-        <li>
-          <a href={`#${p.slug}`}>
-            <span class="toc__n">{pad(i + 2)}</span>
-            <span class="toc__code">{p.short}</span>
-            <span class="toc__name">{p.name}</span>
-          </a>
-        </li>
+    <ol class="toc" role="list" aria-label="On this page" data-reveal style="--d:.3s">
+      {PROGRAM_MENU.map((m, i) => (
+        <li><a href={`#${m.id}`}><span class="toc__n">{pad(i + 2)}</span><span class="toc__name">{m.label}</span></a></li>
       ))}
     </ol>
   </PageHead>
 
-  {PROGRAMS.map((p, i) => {
-    const dark = i % 2 === 1
-    const href = p.to ?? p.href
-    const external = !p.to && !!p.href
-    return (
-      <section
-        class:list={['pg', dark ? 'pg--dark grain' : 'sec--paper', { 'pg--flip': dark }]}
-        id={p.slug}
-        aria-labelledby={`${p.slug}-h`}
-      >
-        <div class="wrap pg__in">
-          <div class="pg__media">
-            {p.slug === 'shop' ? (
-              <div class="pg__stage" data-reveal="fade"><Stage3D pieces={PIECES} sizes="(max-width: 760px) 92vw, 520px" /></div>
-            ) : (
-              <div class="frame pg__frame" data-reveal="fade">
-                <img src={p.image} alt={ALT[p.slug] ?? ''} loading="lazy" decoding="async" width="500" height="700" {...responsive(p.image, '(max-width: 900px) 92vw, 620px')} />
-              </div>
-            )}
-          </div>
-          <div class="pg__text">
-            <p class="label label--rule" data-reveal="fade"><b>{pad(i + 2)}</b> {p.name}</p>
-            {p.short === '194' ? (
-              <p class="pg__code figure-num" aria-hidden="true"><span data-count="194">194</span></p>
-            ) : (
-              <p class="pg__code figure-num" aria-hidden="true" data-reveal="fade">{p.short}</p>
-            )}
-            <h2 class="h2 pg__title" id={`${p.slug}-h`} data-reveal>{p.title}</h2>
-            <p class="body pg__body" data-reveal style="--d:.08s">{p.text}</p>
-            <ul class="pg__points" role="list" data-reveal style="--d:.14s">
-              {p.points.map((pt) => <li>{pt}</li>)}
-            </ul>
-            {href && (
-              <p class="pg__cta" data-reveal style="--d:.2s">
-                <a
-                  class:list={['btn', { 'btn--dark': !dark }]}
-                  href={href}
-                  target={external ? '_blank' : undefined}
-                  rel={external ? 'noopener' : undefined}
-                >
-                  {p.cta}
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={external ? out : arrow} fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-                  {external && <span class="sr-only">(opens {new URL(p.href!).host} in a new tab)</span>}
-                </a>
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-    )
-  })}
+  <!-- 02 · AALF -->
+  <section class="sec sec--saddle grain pg" id="aalf" aria-labelledby="aalf-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>02</b> All Africa Leather Fair</p>
+        <h2 class="h2 pg__title" id="aalf-h" data-reveal>Africa’s leather trade show, organized by ELIA <em>since 2008</em>.</h2>
+        <p class="body" data-reveal style="--d:.08s">{AALF_PROGRAM.text}</p>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/profile/fair-hall.webp" alt="The All Africa Leather Fair's exhibition hall from above: rows of stands and a seating area" loading="lazy" decoding="async" {...responsive('/media/profile/fair-hall.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+    </div>
+    <div class="wrap pg__more">
+      <div>
+        <h3 class="label pg__sub" data-reveal="fade">AALF 2026 at a glance</h3>
+        <FactTable rows={AALF_PROGRAM.glance.map((g) => ({ k: g.k, v: g.v }))} caption="AALF 2026 at a glance" />
+      </div>
+      <div>
+        <h3 class="label pg__sub" data-reveal="fade">What the fair includes</h3>
+        <ItemGrid items={AALF_PROGRAM.includes} cols={2} numbered={false} />
+      </div>
+    </div>
+    <div class="wrap pg__foot">
+      <p class="pg__recent" data-reveal><span class="stamp"><i></i>Recent edition</span> {AALF_PROGRAM.recent}</p>
+      <div class="row pg__cta" data-reveal style="--d:.08s">
+        <a class="btn" href="/contact?form=aalf&interest=Exhibit#forms">Register to Exhibit <Fragment set:html={svg(arrow)} /></a>
+        <a class="btn btn--ghost" href="/contact?form=aalf&interest=Sponsor#forms">Sponsorship Opportunities <Fragment set:html={svg(arrow)} /></a>
+        <a class="btn btn--ghost" href={AALF_2026.register} target="_blank" rel="noopener">Visitor Registration <Fragment set:html={svg(out)} /><span class="sr-only"> (opens {new URL(AALF_2026.register).host} in a new tab)</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · EHL -->
+  <section class="sec sec--paper sheet pg pg--flip" id="ehl" aria-labelledby="ehl-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>03</b> Ethiopian Highland Leather</p>
+        <h2 class="h2 pg__title" id="ehl-h" data-reveal>A national brand of premium <em>sheepskin</em>.</h2>
+        <div class="body" data-reveal style="--d:.08s">{EHL_PROGRAM.text.map((t) => <p>{t}</p>)}</div>
+        <h3 class="label pg__sub mt-l" data-reveal="fade">Certified producers</h3>
+        <ul class="producers" role="list" data-reveal>{EHL_PROGRAM.producers.map((p) => <li><span class="producers__mark" aria-hidden="true">EHL</span>{p}</li>)}</ul>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/home/ehl.webp" alt="Three women in white shawls seated on hides, one holding a round leather shield" loading="lazy" decoding="async" {...responsive('/media/home/ehl.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+    </div>
+    <div class="wrap pg__more pg__more--one">
+      <h3 class="label pg__sub" data-reveal="fade">Why EHL</h3>
+      <ItemGrid items={EHL_PROGRAM.why} cols={4} />
+      <div class="row pg__cta mt-l" data-reveal>
+        <a class="btn btn--dark" href="/downloads/ehl-brochure">Download the EHL Brochure <Fragment set:html={svg(down)} /></a>
+        <a class="btn btn--ghost" href="/contact?form=general&subject=EHL%20certification#forms">Apply for EHL Certification <Fragment set:html={svg(arrow)} /></a>
+        <a class="link" href="/ehl">More about EHL <Fragment set:html={svg(arrow)} /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · ELDSC -->
+  <section class="sec grain pg pg--ink" id="eldsc" aria-labelledby="eldsc-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>04</b> Ethiopian Leather Development S.C.</p>
+        <h2 class="h2 pg__title" id="eldsc-h" data-reveal>Building Africa’s most capable leather <em>manufacturing</em> sector.</h2>
+        <p class="body" data-reveal style="--d:.08s">{ELDSC_PROGRAM.text}</p>
+        <p class="mt-l" data-reveal style="--d:.12s"><a class="btn" href="/eldsc">About ELDSC <Fragment set:html={svg(arrow)} /></a></p>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/home/eldsc.webp" alt="Leather hides dyed blue, brown, red, pink and yellow, laid side by side" loading="lazy" decoding="async" {...responsive('/media/home/eldsc.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+    </div>
+  </section>
+
+  <!-- 05 · market development -->
+  <section class="sec sec--paper sheet pg pg--flip" id="market-development" aria-labelledby="md-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>05</b> Market development</p>
+        <h2 class="h2 pg__title" id="md-h" data-reveal>Opening <em>markets</em> for members.</h2>
+        <div class="pg__list"><ItemGrid items={MARKET_DEVELOPMENT} cols={2} numbered={false} /></div>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/profile/fair-stand.webp" alt="Visitors at a fair stand looking at leather bags with the exhibitor" loading="lazy" decoding="async" {...responsive('/media/profile/fair-stand.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+    </div>
+  </section>
+
+  <!-- 06 · capacity building -->
+  <section class="sec sec--hide pg" id="capacity-building" aria-labelledby="cb-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>06</b> Capacity building</p>
+        <h2 class="h2 pg__title" id="cb-h" data-reveal>Skills, technology and <em>dialogue</em>.</h2>
+        <div class="pg__list"><ItemGrid items={CAPACITY_BUILDING} cols={2} numbered={false} /></div>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/home/acfta.webp" alt="A young woman at a sewing machine on a factory floor" loading="lazy" decoding="async" {...responsive('/media/home/acfta.webp', '(max-width: 900px) 92vw, 620px')} />
+      </figure>
+    </div>
+  </section>
+
+  <!-- 07 · sustainability -->
+  <section class="sec sec--paper sheet pg pg--flip" id="sustainability" aria-labelledby="su-h">
+    <div class="wrap pg__in">
+      <div class="pg__text">
+        <p class="label label--rule" data-reveal="fade"><b>07</b> Sustainability</p>
+        <h2 class="h2 pg__title" id="su-h" data-reveal>Cleaner production, <em>shared</em> plants.</h2>
+        <div class="pg__list"><ItemGrid items={SUSTAINABILITY} cols={2} numbered={false} /></div>
+      </div>
+      <figure class="frame pg__pic" data-reveal="mask">
+        <img src="/media/profile/industrial-park.webp" alt="An industrial park seen from the air: long factory sheds, roads and lawns" loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
 </Base>
 
 <style>
-  /* the hero contents: one line per program, the short code stamped in mono */
   .toc { list-style: none; margin: clamp(32px, 4vw, 52px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; max-width: 640px; }
-  .toc a {
-    display: grid; grid-template-columns: 2.2em 4.6em minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 11px 0;
-    border-bottom: 1px solid var(--line); font-size: 14.5px; line-height: 1.35; color: var(--bone); transition: color 0.25s, padding 0.45s var(--ease);
-  }
+  .toc a { display: grid; grid-template-columns: 2.4em minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); color: var(--bone); transition: color 0.25s, padding 0.35s var(--ease); }
   .toc a:hover { color: var(--cream); padding-left: 6px; }
-  .toc__n { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; color: var(--amber); }
-  .toc__code { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; color: var(--gold); }
+  .toc__n { font-family: var(--f-mono); font-size: 12px; color: var(--amber); }
+  .toc__name { font-size: 15px; }
 
-  /* one section per program; paper and dark alternate and the picture swaps sides */
-  .pg { position: relative; padding-block: clamp(72px, 9vw, 150px); }
-  .pg--dark { background: var(--ink); }
-  .pg__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: center; }
-  .pg__media { grid-column: 1 / span 5; }
-  .pg__text { grid-column: 7 / span 6; }
-  .pg--flip .pg__media { grid-column: 8 / span 5; grid-row: 1; }
-  .pg--flip .pg__text { grid-column: 1 / span 6; grid-row: 1; }
-  .pg__frame { aspect-ratio: 5 / 7; max-height: min(78vh, 760px); width: 100%; }
-  .pg__stage { width: 100%; max-width: 560px; }
-  /* this photo has a flat brown band along its foot; push it out of the frame */
-  #eldsc .pg__frame img { transform: scale(1.16); transform-origin: 50% 0; }
+  .pg { scroll-margin-top: 80px; }
+  .pg--ink { background: var(--ink); }
+  .pg__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 96px); align-items: center; }
+  .pg--flip .pg__in { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .pg--flip .pg__pic { order: -1; }
+  .pg__title { max-width: 20ch; margin-block: 18px 22px; }
+  .pg__pic { margin: 0; aspect-ratio: 5 / 6; max-height: min(78vh, 720px); width: 100%; }
+  .pg__sub { margin-bottom: 18px; }
+  .pg__list { margin-top: 26px; }
+  .pg__more { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4vw, 72px); margin-top: clamp(56px, 7vw, 110px); align-items: start; }
+  .pg__more--one { grid-template-columns: 1fr; gap: 0; }
+  .pg__foot { margin-top: clamp(40px, 5vw, 72px); display: grid; gap: 26px; }
+  .pg__recent { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; color: var(--bone); max-width: 80ch; }
+  .pg__cta { gap: 12px; flex-wrap: wrap; align-items: center; }
 
-  .pg__code {
-    margin-top: clamp(18px, 2.4vw, 30px); font-size: clamp(3.4rem, 1.6rem + 6.4vw, 8.4rem); font-weight: 250; line-height: 0.82;
-    color: var(--taupe); letter-spacing: -0.06em;
-  }
-  .pg--dark .pg__code { color: var(--gold); }
-  .pg__title { margin-top: clamp(22px, 2.6vw, 34px); max-width: 17ch; }
-  .pg__body { margin-top: 22px; max-width: 56ch; }
-  .pg__points { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 10px; }
-  .pg__points li { position: relative; padding-left: 34px; font-weight: 500; color: var(--ink); }
-  .pg--dark .pg__points li { color: var(--cream); }
-  .pg__points li::before {
-    content: ''; position: absolute; left: 0; top: 0.8em; width: 20px; height: 1.6px;
-    background: linear-gradient(90deg, var(--amber) 0 7px, transparent 7px 13px, var(--amber) 13px 20px);
-  }
-  .pg--dark .pg__points li::before { background: linear-gradient(90deg, var(--gold) 0 7px, transparent 7px 13px, var(--gold) 13px 20px); }
-  .pg__cta { margin-top: clamp(30px, 3.4vw, 44px); }
+  .producers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .producers li { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-s); background: #fff; box-shadow: inset 0 0 0 1px var(--line-dark); font-weight: 600; color: var(--ink); }
+  .producers__mark { flex: none; font: 700 10.5px/1 var(--f-text); letter-spacing: 0.12em; color: var(--paper); background: var(--ink); padding: 6px 7px; border-radius: 4px; }
 
   @media (max-width: 960px) {
-    .pg__media, .pg--flip .pg__media { grid-column: 1 / span 5; grid-row: auto; }
-    .pg__text, .pg--flip .pg__text { grid-column: 6 / -1; grid-row: auto; }
-    .pg__in { align-items: start; }
+    .pg__in, .pg--flip .pg__in, .pg__more { grid-template-columns: 1fr; }
+    .pg--flip .pg__pic { order: 0; }
+    .pg__pic { aspect-ratio: 4 / 3; max-height: none; }
   }
-  @media (max-width: 760px) {
-    .toc { grid-template-columns: 1fr; }
-    .pg__media, .pg--flip .pg__media, .pg__text, .pg--flip .pg__text { grid-column: 1 / -1; }
-    .pg__frame { aspect-ratio: 4 / 3; max-height: none; }
-    .pg__code { font-size: clamp(3.2rem, 2rem + 8vw, 5rem); }
-  }
+  @media (max-width: 560px) { .toc, .producers { grid-template-columns: 1fr; } }
 </style>
