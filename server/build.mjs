@@ -1,5 +1,7 @@
-// Bundles the server into dist/index.mjs and dist/cli.mjs: everything it needs in two files, so the host needs no
-// npm install (node:sqlite is part of Node). The node_modules folder is only for building and development.
+// Bundles the server into dist/index.mjs and dist/cli.mjs (and the code they share, in dist/chunks/): everything it
+// needs, so the host needs no npm install (node:sqlite is part of Node). node_modules is only for building and
+// development. Whitespace is taken out (names are kept, so errors in the log still say where they come from); the
+// source maps stay here for reading those errors, and are not sent to the server.
 import fs from 'node:fs'
 import { build } from 'esbuild'
 
@@ -9,10 +11,14 @@ await build({
   entryPoints: { index: 'src/index.ts', cli: 'src/cli.ts' },
   outdir: 'dist',
   outExtension: { '.js': '.mjs' },
+  chunkNames: 'chunks/[name]-[hash]',
   bundle: true,
+  splitting: true,
   platform: 'node',
   format: 'esm',
   target: 'node22',
+  minifyWhitespace: true,
+  minifySyntax: true,
   sourcemap: 'linked',
   legalComments: 'none',
   logLevel: 'warning',

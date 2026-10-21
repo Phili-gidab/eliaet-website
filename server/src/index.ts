@@ -19,7 +19,7 @@ import { member } from './routes/member.js'
 import { admin } from './routes/admin.js'
 import { publicApi } from './routes/public.js'
 import { pages } from './pages.js'
-import { HttpError } from './util.js'
+import { HttpError, ipOf } from './util.js'
 
 /** The pages' few small inline scripts are allowed by their hashes (found in the build), not by 'unsafe-inline'. */
 function inlineScriptHashes(dir: string): string[] {
@@ -81,7 +81,8 @@ const api = express.Router()
 api.use(express.json({ limit: '200kb' }))
 api.use(express.urlencoded({ extended: false, limit: '200kb' }))
 api.use(loadSession, sameOrigin)
-api.get('/health', (_req, res) => void res.json({ ok: true, time: new Date().toISOString() }))
+// the address the rate limits see for this visitor (after a deploy: it should be the visitor's own, not the server's)
+api.get('/health', (req, res) => void res.json({ ok: true, time: new Date().toISOString(), client: ipOf(req) }))
 api.use('/auth', auth)
 api.use('/member', member)
 api.use('/admin', admin)

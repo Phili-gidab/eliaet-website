@@ -6,9 +6,13 @@ import crypto from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-/** server/ — the same whether running from src/ (tsx) or dist/ (the bundle). */
-export const ROOT = path.resolve(here, '..')
+/** server/: the folder above src/ (running with tsx) or dist/ (the bundle, whose shared code is in dist/chunks/) */
+function serverRoot(): string {
+  let dir = path.dirname(fileURLToPath(import.meta.url))
+  while (!['src', 'dist'].includes(path.basename(dir)) && path.dirname(dir) !== dir) dir = path.dirname(dir)
+  return path.resolve(dir, '..')
+}
+export const ROOT = serverRoot()
 dotenv.config({ path: path.join(ROOT, '.env'), quiet: true })
 
 const isProd = process.env.NODE_ENV === 'production'

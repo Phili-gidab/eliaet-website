@@ -98,6 +98,12 @@ export function parseCsv(text: string): Record<string, string>[] {
 }
 
 /** The client's address, as a short one-way code (kept for rate limits, never the address itself). */
+/** The visitor's address, for the rate limits. Behind cPanel's Apache and Passenger the connection itself may come
+    from this machine (or a local socket): then the address the nearest proxy added to X-Forwarded-For is the one
+    (the earlier entries are the visitor's own word, so they are not trusted). */
 export function ipOf(req: Request): string {
-  return String(req.ip ?? req.socket.remoteAddress ?? '')
+  const direct = String(req.ip ?? req.socket.remoteAddress ?? '')
+  if (direct && !/^(::1$|127\.|::ffff:127\.)/.test(direct)) return direct
+  const fwd = String(req.headers['x-forwarded-for'] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+  return fwd[fwd.length - 1] || String(req.headers['x-real-ip'] ?? '').trim() || direct || 'unknown'
 }

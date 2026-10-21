@@ -68,6 +68,7 @@ async function main() {
       for (const t of ['companies', 'users', 'access_requests', 'applications', 'profile_changes', 'posts', 'events', 'publications', 'notices', 'opportunities', 'inquiries', 'subscribers']) {
         console.log(`${t.padEnd(16)} ${one<{ n: number }>(`SELECT COUNT(*) AS n FROM ${t}`)?.n}`)
       }
+      console.log(`${'secretariat'.padEnd(16)} ${one<{ n: number }>(`SELECT COUNT(*) AS n FROM users WHERE role = 'secretariat' AND status = 'active'`)?.n}`)
       break
     }
     default:
