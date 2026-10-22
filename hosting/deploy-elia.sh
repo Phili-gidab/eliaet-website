@@ -125,7 +125,8 @@ APPROOT='${APPROOT}'
 DOCROOT='${DOCROOT}'
 DATA='${DATA}'
 UP='${HOME_DIR}/elia-upload.tar.gz'
-W="\$(mktemp -d)"
+# in the home folder, not /tmp: on CloudLinux /tmp is a mount of its own, and the films are hard-linked from the app
+W="\$(mktemp -d -p '${HOME_DIR}' .elia-install.XXXXXX)"
 trap 'rm -rf "\$W"; rm -f "\$UP"' EXIT
 tar xzf "\$UP" -C "\$W" --no-same-owner --no-same-permissions
 NEW="\$W/app"

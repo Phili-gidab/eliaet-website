@@ -40,7 +40,9 @@ if (!onGitHub) {
 }
 
 const run = (args, env = {}) => {
-  const r = spawnSync('npm', args, { cwd: repo, stdio: 'inherit', env: { ...process.env, ...env } })
+  // on Windows npm is npm.cmd, which Node starts only through a shell
+  const r = spawnSync('npm', args, { cwd: repo, stdio: 'inherit', env: { ...process.env, ...env }, shell: process.platform === 'win32' })
+  if (r.error) console.error(`!! npm ${args.join(' ')}: ${r.error.message}`)
   if (r.status !== 0) process.exit(r.status ?? 1)
 }
 
@@ -85,7 +87,8 @@ try {
   fs.mkdirSync(OUT, { recursive: true })
   for (const old of fs.readdirSync(OUT).filter((f) => /^elia-(site|app)-.*\.tar\.gz$/.test(f))) fs.rmSync(path.join(OUT, old))
   const file = path.join(OUT, `elia-app-${commit.slice(0, 7)}.tar.gz`)
-  execFileSync('tar', ['czf', file, '-C', stage, '.'])
+  // relative paths: Git for Windows' tar reads the "C:" of an absolute archive name as a remote host
+  execFileSync('tar', ['czf', path.basename(file), '-C', path.relative(OUT, stage), '.'], { cwd: OUT })
   fs.copyFileSync(path.join(repo, 'hosting', 'deploy-elia.sh'), path.join(OUT, 'deploy-elia.sh'))
   fs.chmodSync(path.join(OUT, 'deploy-elia.sh'), 0o755)
   console.log(`bundle: ${path.relative(repo, file)} (${Math.round(fs.statSync(file).size / 1024)} kB), commit ${commit.slice(0, 7)}`)
