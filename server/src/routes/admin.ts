@@ -131,12 +131,19 @@ admin.post('/access/:id/approve', wrap(async (req, res) => {
     throw new HttpError(422, `${c.name} already has ${count} people signed up (the limit is ${config.usersPerCompany}). Disable one of them first.`)
   }
   const userId = tx(() => {
-    const u = one<{ id: number; role: string }>('SELECT id, role FROM users WHERE email = ?', r.email)
+    const u = one<{ id: number; role: string; status: string; company_id: number | null; company: string | null }>(
+      'SELECT u.id, u.role, u.status, u.company_id, c.name AS company FROM users u LEFT JOIN companies c ON c.id = u.company_id WHERE u.email = ?', r.email)
     let uid: number
     if (u) {
       if (u.role === 'secretariat') throw new HttpError(422, 'That address belongs to a Secretariat account.')
-      run(`UPDATE users SET company_id = ?, status = 'active', name = ?, position = ?, phone = ?, updated_at = ? WHERE id = ?`,
+      // an account of another company is not moved by an access request: that is done on purpose, in People and accounts
+      if (u.company_id && u.company_id !== c.id) {
+        throw new HttpError(422, `That address already has an account with ${u.company ?? 'another company'}. If it should move to ${c.name}, change it in People and accounts.`)
+      }
+      // a disabled account comes back without its old password: the person sets a new one from the e-mailed link
+      run(`UPDATE users SET company_id = ?, status = 'active', name = ?, position = ?, phone = ?, updated_at = ?${u.status !== 'active' ? ', password_hash = NULL' : ''} WHERE id = ?`,
         c.id, r.name, r.position, r.phone, now(), u.id)
+      if (u.status !== 'active') endAllSessions(u.id)
       uid = u.id
     } else {
       uid = run(`INSERT INTO users (email, name, position, phone, role, company_id, status, created_at, updated_at)
@@ -270,11 +277,20 @@ admin.get('/companies/export.csv', wrap((_req, res) => {
   res.send(csv(rows, COMPANY_COLUMNS))
 }))
 
+/** "eliaet.com", "https://www.eliaet.com/" -> an http(s) address, or null for anything else (javascript:, data:, …) */
+function webAddress(v: string): string | null {
+  const t = v.trim()
+  try {
+    const u = new URL(/^[a-z][a-z0-9+.-]*:/i.test(t) ? t : `https://${t}`)
+    return (u.protocol === 'https:' || u.protocol === 'http:') && u.hostname.includes('.') ? u.toString().slice(0, 400) : null
+  } catch { return null }
+}
+
 /** "Tannery", "tanneries", "Shoe manufacturer", "Leather products"... -> the category's key */
 function categoryOf(v: string): string | null {
   const s = v.trim().toLowerCase()
   if (!s) return null
-  if (s in CATEGORIES) return s
+  if (Object.hasOwn(CATEGORIES, s)) return s
   if (/tann/.test(s)) return 'tannery'
   if (/shoe|foot/.test(s)) return 'footwear'
   if (/leather ?(goods|product)|garment|bag|glove|other leather/.test(s)) return 'leather_goods'
@@ -320,7 +336,13 @@ admin.post('/companies/import', upload.single('file'), wrap((req, res) => {
       set('size', norm(SIZES as Record<string, string>, r.size ?? '') ?? undefined)
       set('region', norm(REGIONS as Record<string, string>, r.region ?? '') ?? undefined)
       set('export_status', norm(EXPORT_STATUS as Record<string, string>, r.export_status ?? r.export ?? '') ?? undefined)
-      for (const k of ['city', 'address', 'products', 'leather_types', 'capacity', 'export_markets', 'contact_name', 'contact_position', 'phone', 'website', 'about', 'dues_note']) set(k, r[k])
+      for (const k of ['city', 'address', 'products', 'leather_types', 'capacity', 'export_markets', 'contact_name', 'contact_position', 'phone', 'about', 'dues_note']) set(k, r[k])
+      // a web address only if it is one (http or https); anything else is left out and reported
+      if (r.website?.trim()) {
+        const w = webAddress(r.website)
+        if (w) set('website', w)
+        else out.skipped.push(`line ${line}: ${name}: the website "${r.website.trim().slice(0, 60)}" is not a web address (left out)`)
+      }
       if (r.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) set('email', r.email.toLowerCase())
       for (const k of ['year_established', 'employees', 'member_since']) if (r[k] && /^\d+$/.test(r[k])) fields[k] = Number(r[k])
       if (r.dues_paid_until && /^\d{4}-\d{2}-\d{2}$/.test(r.dues_paid_until)) fields.dues_paid_until = r.dues_paid_until

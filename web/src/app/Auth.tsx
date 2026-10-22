@@ -91,7 +91,8 @@ export function Forgot() {
 
 /** The e-mailed link: /members/password?token=… (a new account's first password, or a reset) */
 export function SetPassword() {
-  const token = new URLSearchParams(location.search).get('token') ?? ''
+  // read once: the address bar loses the token right after (below), and every later render must still have it
+  const [token] = useState(() => new URLSearchParams(location.search).get('token') ?? '')
   const [info, setInfo] = useState<{ ok: boolean; kind?: string; name?: string; email?: string; error?: string } | null>(null)
   const [pw, setPw] = useState('')
   const [mismatch, setMismatch] = useState(false)

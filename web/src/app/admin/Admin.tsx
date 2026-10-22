@@ -86,7 +86,7 @@ export function Admin() {
         </div>
       </aside>
       <button class="anav__toggle btn btn--ghost btn--sm" type="button" aria-expanded={navOpen} onClick={() => setNavOpen(!navOpen)}>{navOpen ? 'Close the menu' : 'Menu'}</button>
-      <main class="amain" id="amain">
+      <div class="amain" id="amain">
         {!opts && ov.loading && <Loading />}
         {ov.error && <Msg kind="err">{ov.error}</Msg>}
         {opts && (
@@ -102,7 +102,7 @@ export function Admin() {
             {s === 'subscribers' && <Subscribers />}
           </>
         )}
-      </main>
+      </div>
     </div>
   )
 }

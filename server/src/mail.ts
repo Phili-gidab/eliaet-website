@@ -13,6 +13,8 @@ export interface Mail {
   text: string
   replyTo?: string
   attachments?: Attachment[]
+  /** the address that takes the person off a list (the newsletter): a List-Unsubscribe header, for mail programs */
+  unsubscribe?: string
 }
 
 let transport: Transporter | null | undefined
@@ -36,7 +38,10 @@ const SIGN = '\n\n—\nEthiopian Leather Industries Association (ELIA)\nAddis Ab
 
 /** Sends one e-mail; resolves false (and logs) when it could not go. Never throws. */
 export async function send(m: Mail): Promise<boolean> {
-  const msg = { from: config.mail.from, to: m.to, subject: m.subject, text: m.text + SIGN, replyTo: m.replyTo, attachments: m.attachments }
+  const msg = {
+    from: config.mail.from, to: m.to, subject: m.subject, text: m.text + SIGN, replyTo: m.replyTo, attachments: m.attachments,
+    ...(m.unsubscribe ? { list: { unsubscribe: m.unsubscribe } } : {}),
+  }
   const t = getTransport()
   if (!t) {
     try {
@@ -44,6 +49,7 @@ export async function send(m: Mail): Promise<boolean> {
       fs.mkdirSync(dir, { recursive: true, mode: 0o700 })
       const name = `${new Date().toISOString().replace(/[:.]/g, '-')}-${Math.random().toString(36).slice(2, 7)}.txt`
       const head = [`To: ${[m.to].flat().join(', ')}`, `Subject: ${m.subject}`, m.replyTo ? `Reply-To: ${m.replyTo}` : '',
+        m.unsubscribe ? `List-Unsubscribe: <${m.unsubscribe}>` : '',
         (m.attachments ?? []).length ? `Attachments: ${(m.attachments ?? []).map((a) => a.filename).join(', ')}` : ''].filter(Boolean)
       fs.writeFileSync(path.join(dir, name), head.join('\n') + '\n\n' + msg.text + '\n', { mode: 0o600 })
     } catch (e) {

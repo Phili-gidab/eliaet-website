@@ -100,19 +100,27 @@ export function fileRef(id: number | null | undefined): FileRef | null {
 }
 export const fileUrl = (id: number | null | undefined) => fileRef(id)?.url ?? null
 
-/** multer, keeping uploads in memory (they are checked before anything is written) */
-export const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 26 * 1024 * 1024, files: 8, fields: 80 } })
+/** multer, keeping uploads in memory (they are checked before anything is written). This one is for the back office
+    (documents up to 25 MB, a news post's text); the public form and the members' area have tighter ones of their own. */
+export const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 26 * 1024 * 1024, files: 8, fields: 60, fieldSize: 256 * 1024 } })
 
 /* ---- serving ---- */
 
 export const files = Router()
 
-files.get('/:key/:name', wrap((req: Request, res) => {
+/** Members-only files are for the Secretariat and the people of a member company whose membership is active (as
+    the directory is), and for whoever uploaded the file. */
+function memberMaySee(u: { id: number; role: string; company_id: number | null }, ownerId: number | null): boolean {
+  if (u.role === 'secretariat' || u.id === ownerId) return true
+  return !!u.company_id && one<{ status: string }>('SELECT status FROM companies WHERE id = ?', u.company_id)?.status === 'active'
+}
+
+files.get('/:key/:name', wrap((req: Request, res, next) => {
   const f = one('SELECT * FROM files WHERE key = ?', String(req.params.key))
   if (!f) throw notFound()
   const u = req.session?.user
   const allowed = f.access === 'public'
-    || (f.access === 'members' && !!u)
+    || (f.access === 'members' && !!u && memberMaySee(u, f.owner_user_id))
     || (f.access === 'private' && !!u && (u.role === 'secretariat' || u.id === f.owner_user_id))
   if (!allowed) {
     if (!u) {
@@ -122,12 +130,21 @@ files.get('/:key/:name', wrap((req: Request, res) => {
     throw new HttpError(403, 'You do not have access to this file.')
   }
   const p = pathOf(f.key)
-  if (!fs.existsSync(p)) throw notFound()
+  if (!fs.statSync(p, { throwIfNoEntry: false })?.isFile()) throw notFound()
   const inline = /^image\/|^application\/pdf$/.test(f.mime)
   res.setHeader('Content-Type', f.mime)
   res.setHeader('Content-Length', String(f.size))
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('Content-Disposition', `${inline ? 'inline' : 'attachment'}; filename="${f.name.replace(/"/g, '')}"`)
   res.setHeader('Cache-Control', f.access === 'public' ? 'public, max-age=86400' : 'private, no-store')
-  fs.createReadStream(p).pipe(res)
+  // a file that cannot be read after all (removed a moment ago, the disk): a 404, or a cut connection if it was
+  // already on its way; never an error nobody catches, which would stop the whole server
+  const stream = fs.createReadStream(p)
+  stream.once('error', (e) => {
+    console.error('[files] could not read', f.key, (e as Error).message)
+    if (res.headersSent) return void res.destroy()
+    for (const h of ['Content-Type', 'Content-Length', 'Content-Disposition', 'Cache-Control']) res.removeHeader(h)
+    next(notFound())
+  })
+  stream.pipe(res)
 }))

@@ -2,14 +2,16 @@
    application). Each one: the hidden field bots fill, the browser's solved spam puzzle, a rate limit per visitor;
    then it is kept in the database (the Secretariat's inbox), e-mailed to the team it is for (the content document's
    "Sent to"), and the sender gets a confirmation with a reference. */
-import { Router, type Request } from 'express'
+import { Router, type Request, type Response, type NextFunction } from 'express'
+import multer from 'multer'
 import { z } from 'zod'
 import { config, type Team } from '../config.js'
 import { run, now, toJson, one } from '../db.js'
 import { send, lines, link } from '../mail.js'
-import { powChallenge, powCheck, limit, ipKey, randomToken } from '../security.js'
-import { upload, store } from '../files.js'
-import { HttpError, parse, wrap, req, opt, email, day, intOrNull, ipOf } from '../util.js'
+import { powChallenge, powCheck, limit, allow, randomToken, sha256, visitor, siteAllows } from '../security.js'
+import { store } from '../files.js'
+import { HttpError, parse, wrap, req, opt, email, day, intOrNull } from '../util.js'
+import { esc } from '../../../shared/markdown.js'
 import { CATEGORIES, SIZES, REGIONS, INQUIRIES, INTERESTS, TEAMS, type InquiryKind } from '../../../shared/options.js'
 
 export const forms = Router()
@@ -21,14 +23,29 @@ forms.get('/pow', (_req, res) => {
   res.json(powChallenge())
 })
 
+const SPAM_CHECK = 'The form’s spam check did not finish. Please wait a moment and send it again.'
+
+/** The limits a form is sent under: a few an hour from one visitor, and a ceiling for the whole site (so the inbox
+    cannot be flooded even by someone who looks like many visitors). */
+function limits(req: Request, form: string, perHour: number) {
+  const v = visitor(req)
+  limit(`form:${form}:${v.key}`, perHour * v.times, 3600, `Too many sends from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
+  limit(`form:${form}:site`, 100, 3600, `The form is very busy at the moment. Please try again in an hour, or e-mail ${config.contactEmail}.`)
+}
+
 /** The checks every public form starts with. A filled honeypot gets a normal-looking answer and is dropped. */
 function guard(req: Request, form: string, perHour = 8): boolean {
   if (String(req.body?.website_url ?? '').trim()) return false
-  limit(`form:${form}:${ipKey(ipOf(req))}`, perHour, 3600, `Too many sends from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
-  if (!powCheck(req.body?.pow)) {
-    throw new HttpError(400, 'The form’s spam check did not finish. Please wait a moment and send it again.', { form: 'spam-check' })
-  }
+  limits(req, form, perHour)
+  if (!powCheck(req.body?.pow)) throw new HttpError(400, SPAM_CHECK, { form: 'spam-check' })
   return true
+}
+
+/** The confirmation to the sender: only a fixed text and the reference, nothing that was typed in (the forms must not
+    carry someone else's words to a stranger's inbox), at most three a day to one address and 120 an hour in all. */
+async function confirm(to: string, subject: string, text: string) {
+  if (!siteAllows('autoreply', 120, 3600) || !allow(`autoreply:${sha256(to)}`, 3, 86400)) return
+  await send({ to, subject, text: `Hello,\n\n${text}\n\nIf you did not write to ELIA through its website, please ignore this e-mail.` })
 }
 
 const refCode = () => 'ELIA-' + randomToken(6).replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6).padEnd(6, 'X')
@@ -85,20 +102,40 @@ forms.post('/forms/subscribe', wrap(async (req, res) => {
     run('INSERT INTO subscribers (email, interests, token, created_at) VALUES (?, ?, ?, ?)', d.email, toJson(d.interests), randomToken(18), now())
   }
   const s = one<{ token: string }>('SELECT token FROM subscribers WHERE email = ?', d.email)!
-  if (!had || had.unsubscribed_at) {
+  if ((!had || had.unsubscribed_at) && siteAllows('autoreply', 120, 3600) && allow(`autoreply:${sha256(d.email)}`, 3, 86400)) {
+    const out = link('/api/forms/unsubscribe?t=' + s.token)
     await send({
       to: d.email,
       subject: 'You are subscribed to ELIA’s updates',
-      text: `Thank you for subscribing. You will receive news, events and opportunities from the Ethiopian Leather Industries Association now and then.\n\nTo stop them at any time: ${link('/api/forms/unsubscribe?t=' + s.token)}`,
+      text: `Thank you for subscribing. You will receive news, events and opportunities from the Ethiopian Leather Industries Association now and then.\n\nTo stop them at any time: ${out}\n\nIf you did not subscribe on the ELIA website, open that link to be taken off the list.`,
+      unsubscribe: out,
     })
   }
   res.status(201).json({ ok: true })
 }))
 
+/* Unsubscribing: the e-mailed link opens a page with one button, and only pressing it unsubscribes (mail scanners
+   that open every link in a message would otherwise unsubscribe people as soon as the e-mail arrives). */
 forms.get('/forms/unsubscribe', wrap((req, res) => {
-  const t = String(req.query.t ?? '')
+  const t = String(req.query.t ?? '').slice(0, 64)
+  const sub = t ? one<{ email: string; unsubscribed_at: string | null }>('SELECT email, unsubscribed_at FROM subscribers WHERE token = ?', t) : null
+  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('X-Robots-Tag', 'noindex')
+  if (!sub || sub.unsubscribed_at) return void res.redirect(302, '/news?unsubscribed=1')
+  res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unsubscribe · ELIA</title><meta name="robots" content="noindex"><style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#3c1e16;color:#fffcf5;font:17px/1.5 system-ui,sans-serif}
+main{max-width:30rem;padding:2rem}h1{font-size:1.6rem;margin:0 0 .5rem}p{color:#e9e1d6}
+button{margin-top:1rem;font:inherit;font-weight:600;padding:.8rem 1.4rem;border:0;border-radius:999px;background:#e2a025;color:#3c1e16;cursor:pointer}
+a{color:#e2a025}</style></head><body><main><h1>Unsubscribe from ELIA’s updates?</h1>
+<p>${esc(sub.email)} will no longer receive news, events and opportunities from the Ethiopian Leather Industries Association.</p>
+<form method="post" action="/api/forms/unsubscribe"><input type="hidden" name="t" value="${esc(t)}"><button type="submit">Yes, unsubscribe</button></form>
+<p><a href="/">Back to the website</a></p></main></body></html>`)
+}))
+forms.post('/forms/unsubscribe', wrap((req, res) => {
+  const t = String(req.body?.t ?? '').slice(0, 64)
   if (t) run('UPDATE subscribers SET unsubscribed_at = ? WHERE token = ? AND unsubscribed_at IS NULL', now(), t)
-  res.redirect(302, '/news?unsubscribed=1')
+  res.redirect(303, '/news?unsubscribed=1')
 }))
 
 /* ---- the membership application ---- */
@@ -121,11 +158,32 @@ const application = z.object({
   consent: z.literal('true', { error: 'Please confirm' }),
 })
 
-forms.post('/forms/membership', upload.single('licence'), wrap(async (req, res) => {
-  if (!guard(req, 'membership', 6)) return void res.status(201).json({ ok: true, ref: refCode() })
+/* The application carries a file, so everything that can be checked is checked before the upload is read: its size
+   (from the request's length), the limits, and the spam check, which the page sends as a header (X-Pow) for this
+   form. The upload itself is held to one file of 8 MB and a few short fields. */
+const LICENCE_MB = 8
+const applicationUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: LICENCE_MB * 1024 * 1024, files: 1, fields: 30, fieldSize: 16 * 1024, parts: 31 },
+})
+function beforeUpload(req: Request, _res: Response, next: NextFunction) {
+  try {
+    const length = Number(req.headers['content-length'])
+    if (!Number.isFinite(length) || length <= 0) throw new HttpError(411, 'The application could not be read. Please send it again.')
+    if (length > (LICENCE_MB + 1) * 1024 * 1024) throw new HttpError(413, `The trade licence must be under ${LICENCE_MB} MB.`, { licence: `Max ${LICENCE_MB} MB` })
+    limits(req, 'membership', 6)
+    if (!powCheck(req.headers['x-pow'])) throw new HttpError(400, SPAM_CHECK, { form: 'spam-check' })
+    next()
+  } catch (e) { next(e) }
+}
+
+forms.post('/forms/membership', beforeUpload, applicationUpload.single('licence'), wrap(async (req, res) => {
+  if (String(req.body?.website_url ?? '').trim()) return void res.status(201).json({ ok: true, ref: refCode() })
   const d = parse(application, req.body)
   if (d.yearEstablished == null) throw new HttpError(422, 'Please check the highlighted fields.', { yearEstablished: 'Enter a year' })
   if (!req.file) throw new HttpError(422, 'Please attach the company’s trade licence.', { licence: 'Attach the trade licence (PDF or a photo of it)' })
+  // a ceiling on what the whole site keeps in a day, so the disk cannot be filled by someone posing as many applicants
+  if (!siteAllows('licences', 60, 86400)) throw new HttpError(429, `Too many applications today. Please try again tomorrow, or e-mail ${config.contactEmail}.`)
   const licence = store(req.file, 'licence', 'private', null, 'licence')
   const ref = refCode()
   const { consent: _c, ...data } = d
@@ -144,11 +202,8 @@ forms.post('/forms/membership', upload.single('licence'), wrap(async (req, res) 
     text: `A membership application, for Member Services.\n\n${body}\n\nReview it in the back office: ${link('/admin#applications/' + id)}`,
     replyTo: d.email,
   })
-  await send({
-    to: d.email,
-    subject: `Your ELIA membership application (${ref})`,
-    text: `Dear ${d.contactName},\n\nThank you for applying to join the Ethiopian Leather Industries Association. The Secretariat will contact you within ten working days.\n\nYour reference: ${ref}\n\nWhat you sent:\n${body}`,
-  })
+  await confirm(d.email, `Your ELIA membership application (${ref})`,
+    `Thank you for applying to join the Ethiopian Leather Industries Association. The Secretariat will contact you within ten working days.\n\nYour reference: ${ref}`)
   res.status(201).json({ ok: true, ref })
 }))
 
@@ -156,7 +211,7 @@ forms.post('/forms/membership', upload.single('licence'), wrap(async (req, res) 
 
 forms.post('/forms/:kind', wrap(async (req, res) => {
   const kind = String(req.params.kind) as InquiryKind
-  if (!(kind in SCHEMAS)) throw new HttpError(404, 'Not found')
+  if (!Object.hasOwn(SCHEMAS, kind)) throw new HttpError(404, 'Not found')
   if (!guard(req, kind)) return void res.status(201).json({ ok: true, ref: refCode() })
   const d = parse(SCHEMAS[kind], req.body) as Record<string, string | null>
   const team = INQUIRIES[kind].team as Team
@@ -173,10 +228,6 @@ forms.post('/forms/:kind', wrap(async (req, res) => {
     text: `${INQUIRIES[kind].label}, for ${TEAMS[team]}.\n\n${body}\n\nReference ${ref}. Reply to this e-mail to answer them directly.\nIn the back office: ${link('/admin#inquiries')}`,
     replyTo: d.email ?? undefined,
   })
-  await send({
-    to: d.email!,
-    subject: `We have received your message (${ref})`,
-    text: `Dear ${d.name},\n\n${ACK}\n\nYour reference: ${ref}\n\nWhat you sent:\n${body}`,
-  })
+  await confirm(d.email!, `We have received your message (${ref})`, `${ACK}\n\nYour reference: ${ref}`)
   res.status(201).json({ ok: true, ref })
 }))

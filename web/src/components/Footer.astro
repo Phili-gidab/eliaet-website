@@ -17,7 +17,7 @@ const year = new Date().getFullYear()
             <h2 class="h3 mt-s">{SUBSCRIBE.title}<em>.</em></h2>
             <p class="ftr__note">{SUBSCRIBE.text}</p>
           </div>
-          <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" novalidate>
+          <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" data-ok="Thank you. You are subscribed; a confirmation is on its way to your inbox." novalidate>
             <label class="sr-only" for="ftr-email">E-mail address</label>
             <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
             <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />

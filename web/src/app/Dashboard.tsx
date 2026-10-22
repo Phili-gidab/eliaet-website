@@ -57,7 +57,9 @@ export function Dashboard() {
       <nav class="dtabs" aria-label="Dashboard">
         {TABS.map(([k, l]) => <a href={`#${k}`} aria-current={tab === k ? 'page' : undefined}>{l}</a>)}
       </nav>
-      <section class="dash__panel" aria-label={TABS.find(([k]) => k === tab)?.[1]}>
+      <section class="dash__panel" aria-labelledby="dash-h">
+        {/* the tab's name heads its panel (for screen readers, which also find the items' headings under it) */}
+        <h2 class="sr-only" id="dash-h">{TABS.find(([k]) => k === tab)?.[1]}</h2>
         {tab === 'profile' && <MyProfile />}
         {tab === 'notices' && <Notices />}
         {tab === 'documents' && <Documents />}

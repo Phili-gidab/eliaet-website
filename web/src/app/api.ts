@@ -33,9 +33,17 @@ export const setCsrf = (t: string | null) => { csrf = t }
 /** Where a signed-out visitor goes to sign in, coming back here afterwards. */
 export const loginUrl = (back = location.pathname + location.search + location.hash) => `/members/login?next=${encodeURIComponent(back)}`
 
-/** Only an address on this site is a place to go back to after signing in. */
+/** Only an address on this site is a place to go back to after signing in. Read the way the browser would read it
+    (which drops tabs and line breaks and turns a backslash into a slash), so a crafted one cannot lead elsewhere. */
 export function safeNext(v: string | null | undefined, fallback: string): string {
-  return v && /^\/(?![/\\])/.test(v) && !v.startsWith('/api/') ? v : fallback
+  if (!v || !v.startsWith('/') || /[\u0000-\u001f\u007f\\]/.test(v)) return fallback
+  try {
+    const u = new URL(v, location.origin)
+    if (u.origin !== location.origin || u.pathname.startsWith('/api/')) return fallback
+    return u.pathname + u.search + u.hash
+  } catch {
+    return fallback
+  }
 }
 
 export async function api<T = Record<string, unknown>>(

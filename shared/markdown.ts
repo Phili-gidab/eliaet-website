@@ -62,6 +62,17 @@ export function markdown(src: string): string {
 }
 
 /** The text of some Markdown, for a summary or a meta description. */
+/** A page's description for search results and link previews, which show about 160 characters: a longer one is cut
+    after the last whole sentence that fits, or else at a word. */
+export function brief(s: string, max = 160): string {
+  s = String(s ?? '').replace(/\s+/g, ' ').trim()
+  if (s.length <= max) return s
+  let out = ''
+  for (const x of s.match(/[^.!?]+[.!?]+(?:\s+|$)/g) ?? []) { if ((out + x).trim().length > max) break; out += x }
+  if (out.trim().length >= 70) return out.trim()
+  return s.slice(0, max - 1).replace(/\s+\S*$/, '').replace(/[,;:\s]+$/, '') + '…'
+}
+
 export function plain(src: string, max = 200): string {
   const s = String(src ?? '')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')

@@ -14,6 +14,7 @@ import Loader from '../components/Loader.astro'
 import Footer from '../components/Footer.astro'
 import LeatherDefs from '../components/LeatherDefs.astro'
 import { ORG } from '../copy/site'
+import { brief } from '../../../shared/markdown'
 
 interface Props {
   title?: string
@@ -50,6 +51,8 @@ const fullTitle = title ? `${title} · ELIA` : `${ORG.name} · ELIA`
 const site = String(Astro.site).replace(/\/+$/, '')
 const canonical = canonicalPath ? site + canonicalPath : new URL(path, Astro.site).toString()
 const ogImage = imageRaw ?? new URL(image, Astro.site).toString()
+// a search result shows about 160 characters (a template's '@@description@@' is cut the same way by the server)
+const metaDescription = description.includes('@@') ? description : brief(description)
 ---
 
 <!doctype html>
@@ -58,17 +61,19 @@ const ogImage = imageRaw ?? new URL(image, Astro.site).toString()
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     {path !== '/404' && !noindex && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#3c1e16" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href={textUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={italicUrl} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ELIA" />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />

@@ -33,8 +33,8 @@ export function Subscribers() {
             ['E-mail', (s) => <a href={`mailto:${s.email}`}>{s.email}</a>],
             ['Interested as', (s) => s.interests.join(', ') || '–'],
             ['Since', (s) => when(s.created_at)],
-            ['', (s) => (s.unsubscribed_at ? <Badge v="withdrawn" label="Unsubscribed" /> : null)],
-            ['', (s) => <Btn small kind="plain" onClick={() => remove(s)}>Remove</Btn>],
+            ['[Unsubscribed]', (s) => (s.unsubscribed_at ? <Badge v="withdrawn" label="Unsubscribed" /> : null)],
+            ['[Remove]', (s) => <Btn small kind="plain" onClick={() => remove(s)}>Remove</Btn>],
           ]} />
       )}
     </div>

@@ -8,9 +8,9 @@ import { z } from 'zod'
 import { config } from '../config.js'
 import { one, run, now, tx } from '../db.js'
 import { send, link } from '../mail.js'
-import { hashPassword, verifyPassword, passwordProblem, randomToken, sha256, limit, ipKey, powCheck } from '../security.js'
+import { hashPassword, verifyPassword, passwordProblem, randomToken, sha256, limit, powCheck, bump, unbump, forget, visitor, siteAllows } from '../security.js'
 import { startSession, endSession, endAllSessions, requireUser, me } from '../session.js'
-import { HttpError, parse, wrap, req as required, opt, email, ipOf, slugify } from '../util.js'
+import { HttpError, parse, wrap, req as required, opt, email, slugify } from '../util.js'
 
 export const auth = Router()
 
@@ -37,26 +37,31 @@ auth.get('/session', (req, res) => {
 
 auth.post('/login', wrap(async (req, res) => {
   const d = parse(z.object({ email, password: z.string().min(1, 'Required').max(200) }), req.body)
-  const ip = ipKey(ipOf(req))
-  limit(`login:ip:${ip}`, 30, 900, 'Too many attempts from this connection. Please wait fifteen minutes and try again.')
-  limit(`login:em:${sha256(d.email)}`, 12, 900, 'Too many attempts for this address. Please wait fifteen minutes, or reset your password.')
-  const u = one('SELECT id, email, password_hash, status, failed_logins, locked_until FROM users WHERE email = ?', d.email)
-  if (u?.locked_until && u.locked_until > now()) {
-    const min = Math.max(1, Math.ceil((Date.parse(u.locked_until) - Date.now()) / 60000))
-    throw new HttpError(429, `Too many wrong passwords. Please try again in ${min} minute${min === 1 ? '' : 's'}, or reset your password.`)
+  // Each go is counted before the password is checked and taken back when it is right, so only wrong ones add up,
+  // and many at the same moment cannot slip past the count. Five wrong ones for an address (whether or not it has an
+  // account: the answer must not tell) stop that address for the rest of the quarter hour; a reset ends that.
+  const v = visitor(req)
+  const ipKeyName = `login:ip:${v.key}`, emKeyName = loginFailKey(d.email)
+  if (bump(ipKeyName, 900) > 30 * v.times) {
+    unbump(ipKeyName, 900)
+    throw new HttpError(429, 'Too many attempts from this connection. Please wait fifteen minutes and try again.')
   }
+  if (bump(emKeyName, 900) > LOCK_AFTER) {
+    unbump(emKeyName, 900)
+    throw new HttpError(429, `Too many wrong passwords for this address. Please try again in ${LOCK_MIN} minutes, or reset your password.`)
+  }
+  const u = one('SELECT id, email, password_hash, status FROM users WHERE email = ?', d.email)
   const ok = await verifyPassword(d.password, u?.password_hash)
   if (!u || !ok || u.status !== 'active') {
-    if (u) {
-      const n = Number(u.failed_logins) + 1
-      const lock = n >= LOCK_AFTER ? new Date(Date.now() + LOCK_MIN * 60000).toISOString() : null
-      run('UPDATE users SET failed_logins = ?, locked_until = ? WHERE id = ?', lock ? 0 : n, lock, u.id)
-    }
     throw new HttpError(401, 'That e-mail address and password do not match an active account.', { password: 'Check it and try again' })
   }
+  unbump(ipKeyName, 900)
+  forget(emKeyName)
   const s = startSession(req, res, u.id)
   res.json({ user: sessionInfo(u.id), csrf: s.csrf })
 }))
+
+const loginFailKey = (address: string) => `login:fail:${sha256(address.toLowerCase())}`
 
 auth.post('/logout', (req, res) => {
   endSession(req, res)
@@ -100,7 +105,8 @@ auth.get('/token', wrap((req, res) => {
 
 auth.post('/password', wrap(async (req, res) => {
   const d = parse(z.object({ token: z.string().min(10).max(100), password: z.string().max(200) }), req.body)
-  limit(`pw:ip:${ipKey(ipOf(req))}`, 20, 3600, 'Too many attempts. Please try again later.')
+  const v = visitor(req)
+  limit(`pw:ip:${v.key}`, 20 * v.times, 3600, 'Too many attempts. Please try again later.')
   const row = one(`SELECT t.id, t.user_id, t.expires_at, t.used_at, u.email, u.status FROM tokens t JOIN users u ON u.id = t.user_id WHERE t.id = ?`, sha256(d.token))
   if (!row || row.used_at || row.expires_at < now() || row.status !== 'active') {
     throw new HttpError(400, 'This link has expired or has already been used. Ask for a new one.')
@@ -108,6 +114,7 @@ auth.post('/password', wrap(async (req, res) => {
   const problem = passwordProblem(d.password, row.email)
   if (problem) throw new HttpError(422, problem, { password: problem })
   const hash = await hashPassword(d.password)
+  forget(loginFailKey(row.email))
   tx(() => {
     run('UPDATE users SET password_hash = ?, failed_logins = 0, locked_until = NULL, updated_at = ? WHERE id = ?', hash, now(), row.user_id)
     run('UPDATE tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL', now(), row.user_id)
@@ -120,12 +127,14 @@ auth.post('/password', wrap(async (req, res) => {
 auth.post('/forgot', wrap(async (req, res) => {
   const d = parse(z.object({ email }), req.body)
   if (!powCheck(req.body?.pow)) throw new HttpError(400, 'The form’s spam check did not finish. Please wait a moment and send it again.')
-  limit(`forgot:ip:${ipKey(ipOf(req))}`, 6, 3600, 'Too many requests from this connection. Please try again in an hour.')
+  const v = visitor(req)
+  limit(`forgot:ip:${v.key}`, 6 * v.times, 3600, 'Too many requests from this connection. Please try again in an hour.')
   const u = one('SELECT id, name, email, status FROM users WHERE email = ?', d.email)
-  // at most three links an hour to one address, and the same answer either way
+  // at most three links an hour to one address, and the same answer either way, as fast either way (the e-mail goes
+  // on its own, after the answer)
   if (u && u.status === 'active' && limitQuiet(`forgot:em:${sha256(d.email)}`, 3, 3600)) {
     const url = issueLink(u.id, 'reset_password')
-    await send({
+    void send({
       to: u.email,
       subject: 'Reset your ELIA password',
       text: `Dear ${u.name},\n\nSomeone (we hope you) asked to reset the password of your ELIA account.\n\nChoose a new password here (the link works for one hour and only once):\n${url}\n\nIf it was not you, ignore this e-mail: your password stays as it is.`,
@@ -159,7 +168,9 @@ auth.post('/request-access', wrap(async (req, res) => {
     companyName: required(200), name: required(120), position: opt(120), email, phone: opt(40), message: opt(2000),
   }), req.body)
   if (!powCheck(req.body?.pow)) throw new HttpError(400, 'The form’s spam check did not finish. Please wait a moment and send it again.')
-  limit(`access:ip:${ipKey(ipOf(req))}`, 5, 3600, `Too many requests from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
+  const v = visitor(req)
+  limit(`access:ip:${v.key}`, 5 * v.times, 3600, `Too many requests from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
+  limit('access:site', 60, 86400, `Too many requests today. Please try again tomorrow, or e-mail ${config.contactEmail}.`)
   const company = one<{ id: number; name: string }>(
     `SELECT id, name FROM companies WHERE status <> 'archived' AND (name = ? COLLATE NOCASE OR slug = ?)`,
     d.companyName, slugify(d.companyName))
@@ -176,10 +187,13 @@ auth.post('/request-access', wrap(async (req, res) => {
       `${existing ? 'Note: this e-mail address already has an account.\n' : ''}\nE-mail: ${d.email}\nPhone: ${d.phone || '-'}\n${d.message ? `\n${d.message}\n` : ''}\nApprove or decline it in the back office: ${link('/admin#access/' + id)}`,
     replyTo: d.email,
   })
-  await send({
-    to: d.email,
-    subject: 'Your request for access to the ELIA members’ area',
-    text: `Dear ${d.name},\n\nThank you. The ELIA Secretariat will check your request for access for ${d.companyName} and e-mail you a link to set your password once it is approved.`,
-  })
+  // the confirmation repeats nothing that was typed in (the form must not carry someone else's words to an inbox)
+  if (siteAllows('autoreply', 120, 3600) && limitQuiet(`autoreply:${sha256(d.email)}`, 3, 86400)) {
+    await send({
+      to: d.email,
+      subject: 'Your request for access to the ELIA members’ area',
+      text: 'Hello,\n\nThank you. The ELIA Secretariat will check your request for access to the members’ area and e-mail you a link to set your password once it is approved.\n\nIf you did not ask for access on the ELIA website, please ignore this e-mail.',
+    })
+  }
   res.status(201).json({ ok: true })
 }))

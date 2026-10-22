@@ -1,13 +1,13 @@
 /* Read-only JSON for anything outside the pages that wants ELIA's news, events and publications (an app, a feed). */
 import { Router } from 'express'
 import { posts, events, publications } from '../content.js'
-import { wrap } from '../util.js'
+import { wrap, pageNumber } from '../util.js'
 
 export const publicApi = Router()
 
 publicApi.get('/news', wrap((req, res) => {
   const limit = Math.min(Math.max(Number(req.query.limit ?? 9) || 9, 1), 50)
-  const page = Math.max(1, Number(req.query.page ?? 1) || 1)
+  const page = pageNumber(req.query.page)
   const cat = typeof req.query.category === 'string' ? req.query.category : undefined
   const r = posts({ category: cat, limit, offset: (page - 1) * limit })
   res.setHeader('Cache-Control', 'public, max-age=300')

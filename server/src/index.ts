@@ -19,7 +19,7 @@ import { member } from './routes/member.js'
 import { admin } from './routes/admin.js'
 import { publicApi } from './routes/public.js'
 import { pages } from './pages.js'
-import { HttpError, ipOf } from './util.js'
+import { HttpError, ipOf, sameSitePath } from './util.js'
 
 /** The pages' few small inline scripts are allowed by their hashes (found in the build), not by 'unsafe-inline'. */
 function inlineScriptHashes(dir: string): string[] {
@@ -46,7 +46,7 @@ setInterval(() => { try { sweep() } catch { /* next time */ } }, 3600 * 1000).un
 
 const app = express()
 app.disable('x-powered-by')
-app.set('trust proxy', 1)          // behind cPanel's Apache (Passenger): the rate limits need the visitor's address
+app.set('trust proxy', 1)          // behind cPanel's web server: https as the visitor sees it (the visitor's address: util.ts ipOf)
 
 app.use(
   helmet({
@@ -81,8 +81,12 @@ const api = express.Router()
 api.use(express.json({ limit: '200kb' }))
 api.use(express.urlencoded({ extended: false, limit: '200kb' }))
 api.use(loadSession, sameOrigin)
-// the address the rate limits see for this visitor (after a deploy: it should be the visitor's own, not the server's)
-api.get('/health', (req, res) => void res.json({ ok: true, time: new Date().toISOString(), client: ipOf(req) }))
+// the address the rate limits see for this visitor: the deploy script checks it is the visitor's own (not one for
+// everybody, and not one the visitor can make up in a header)
+api.get('/health', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.json({ ok: true, time: new Date().toISOString(), client: ipOf(req) })
+})
 api.use('/auth', auth)
 api.use('/member', member)
 api.use('/admin', admin)
@@ -103,15 +107,20 @@ const LEGACY: Record<string, string> = {
   '/members-list.html': '/members', '/ehl.html': '/ehl', '/aalf.html': '/aalf', '/eldsc.html': '/eldsc', '/blog.html': '/news',
   '/contact.html': '/contact', '/apply-for-membership.html': '/members#apply',
   // pages of the first redesign that the content document folded into others
-  '/services': '/about#what-we-do', '/membership': '/members#apply',
+  '/services': '/about#what-we-do', '/membership': '/members#apply', '/membership.html': '/members#apply',
 }
 app.use((req, res, next) => {
   const to = LEGACY[req.path.toLowerCase()]
   if (to) return res.redirect(301, to)
-  const img = /^\/img\/(.+)\.(jpe?g|png)$/i.exec(req.path)
-  if (img) return res.redirect(301, `/media/${img[1]}.webp`)
-  if ((req.method === 'GET' || req.method === 'HEAD') && req.path.length > 1 && req.path.endsWith('/')) {
-    return res.redirect(301, req.path.replace(/\/+$/, '') + req.originalUrl.slice(req.path.length))
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+  const img = /^\/img\/([\w./-]+)\.(jpe?g|png)$/i.exec(req.path)
+  if (img && !img[1].includes('..')) return res.redirect(301, sameSitePath(`/media/${img[1]}.webp`))
+  const query = req.originalUrl.slice(req.path.length)
+  // one address for each page: /about, not /about/ or /about.html (and never a path that a browser would read as
+  // another site's address, like //example.com/)
+  if (req.path.length > 1 && req.path.endsWith('/')) return res.redirect(301, sameSitePath(req.path.replace(/\/+$/, '')) + query)
+  if (/\.html$/i.test(req.path) && !req.path.startsWith('/templates/') && req.path !== '/404.html') {
+    return res.redirect(301, sameSitePath(req.path.replace(/\.html$/i, '').replace(/\/index$/i, '/')) + query)
   }
   next()
 })
@@ -178,7 +187,12 @@ app.use((err: Error & { code?: string; status?: number; type?: string }, req: Re
   else if (err.code?.startsWith('LIMIT_')) { status = 400; body = { error: 'Too many files or fields.' } }
   else if (err.type === 'entity.too.large') { status = 413; body = { error: 'That is too much to send at once.' } }
   else if (err.type === 'entity.parse.failed') { status = 400; body = { error: 'The request could not be read.' } }
-  else console.error('[server]', req.method, req.originalUrl, err)
+  else if (typeof err.status === 'number' && err.status >= 400 && err.status < 500) {
+    // the request's own fault (an address that cannot be decoded, …): its answer, and one line in the log
+    status = err.status; body = { error: status === 404 ? 'Not found' : 'The request could not be read.' }
+    console.warn('[server]', status, req.method, req.originalUrl.slice(0, 200), err.message)
+  } else console.error('[server]', req.method, req.originalUrl, err)
+  if (status === 404 && !req.path.startsWith('/api') && !res.headersSent) return notFoundPage(req, res)
   if (res.headersSent) return
   res.status(status)
   if (req.path.startsWith('/api') || req.headers.accept?.includes('application/json')) return void res.json(body)

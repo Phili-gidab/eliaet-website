@@ -15,8 +15,8 @@ const expect = (cond, msg, extra) => (cond ? ok(msg) : fail(msg, extra))
 
 class Client {
   constructor() { this.cookie = ''; this.csrf = '' }
-  async req(method, p, body, { origin = ORIGIN, csrf = true, form = false } = {}) {
-    const h = { Accept: 'application/json' }
+  async req(method, p, body, { origin = ORIGIN, csrf = true, form = false, headers = {} } = {}) {
+    const h = { Accept: 'application/json', ...headers }
     if (origin) h.Origin = origin
     if (this.cookie) h.Cookie = this.cookie
     if (csrf && this.csrf) h['X-CSRF'] = this.csrf
@@ -59,7 +59,7 @@ const lastLink = (to) => {
 const anon = new Client()
 
 // ---- forms
-let r = await anon.req('POST', '/api/forms/general', { name: 'Abebe Test', email: 'abebe@example.com', subject: 'Hello', message: 'A question.', pow: await pow() })
+let r = await anon.req('POST', '/api/forms/general', { name: 'Abebe Test', email: 'abebe@example.com', subject: 'Hello', message: 'A question about http://phish.example', pow: await pow() })
 expect(r.status === 201 && /^ELIA-/.test(r.json?.ref), 'general inquiry accepted with a reference', r.json)
 r = await anon.req('POST', '/api/forms/general', { name: 'X', email: 'x@example.com', subject: 'S', message: 'M' })
 expect(r.status === 400, 'a form without the solved puzzle is refused', r.json)
@@ -91,12 +91,20 @@ for (const [k, v] of Object.entries({ companyName: 'Habesha Hides PLC', contactN
   category: 'tannery', size: 'medium', region: 'oromia', address: 'Modjo', products: 'Crust and finished sheep leather', yearEstablished: '2012', employees: '120', exportMarkets: 'Italy, China', consent: 'true', pow: await pow() })) fd.append(k, v)
 fd.append('licence', new Blob([Buffer.from('%PDF-1.4\n% test licence\n')], { type: 'application/pdf' }), 'licence.pdf')
 r = await anon.req('POST', '/api/forms/membership', fd, { form: true })
+expect(r.status === 400, 'an application without the spam check in its header is not read', r.json)
+r = await anon.req('POST', '/api/forms/membership', fd, { form: true, headers: { 'X-Pow': await pow() } })
 expect(r.status === 201, 'membership application with a licence', r.json)
+{
+  const mine = outbox().filter((t) => t.startsWith('To: abebe@example.com'))
+  expect(mine.length === 1 && !mine[0].includes('phish.example') && !mine[0].includes('Abebe'), 'the confirmation repeats nothing that was typed in', mine[0])
+}
 const fd2 = new FormData()
 for (const [k, v] of Object.entries({ companyName: 'Bad File PLC', contactName: 'X', phone: '1', email: 'x@bad.example', category: 'tannery', size: 'small', region: 'oromia', address: 'A', products: 'P', yearEstablished: '2010', consent: 'true', pow: await pow() })) fd2.append(k, v)
 fd2.append('licence', new Blob([Buffer.from('<html><script>alert(1)</script>')], { type: 'application/pdf' }), 'licence.pdf')
-r = await anon.req('POST', '/api/forms/membership', fd2, { form: true })
+r = await anon.req('POST', '/api/forms/membership', fd2, { form: true, headers: { 'X-Pow': await pow() } })
 expect(r.status === 422 && r.json?.fields?.licence, 'a disguised HTML "PDF" is refused', r.json)
+r = await anon.req('POST', '/api/forms/constructor', { pow: await pow() })
+expect(r.status === 404, 'a form name that is not a form is a 404 (not an error)', r.json)
 
 // ---- access request (matches a seeded member)
 r = await anon.req('POST', '/api/auth/request-access', { companyName: 'Kinaff Leather', name: 'Hana Tadesse', position: 'Export manager', email: 'hana@kinaff.example', phone: '0911', pow: await pow() })
@@ -245,12 +253,35 @@ pg = await page('/members')
 expect(pg.status === 200 && pg.text.includes('Members directory'), 'the Members page (beside its folder)')
 pg = await page('/membership')
 expect(pg.status === 301 && /\/members#apply$/.test(pg.to ?? ''), 'the old membership page leads to the application')
+pg = await page('/news.html?tab=events')
+expect(pg.status === 301 && pg.to === '/news?tab=events', 'an address with .html leads to the clean one', pg.to)
+pg = await page('//evil.example/')
+expect(pg.status === 301 && pg.to === '/evil.example', 'a doubled slash never leads to another site', pg.to)
+pg = await page('/%5Cevil.example/')
+expect(pg.status === 301 && !/^\/[\\/]/.test(pg.to ?? ''), 'nor does a backslash', pg.to)
+pg = await page('/news?page=1e400')
+expect(pg.status === 200, 'a page number too large still shows the news', pg.status)
+pg = await page('/news/%E0%A4%A')
+expect(pg.status === 400 || pg.status === 404, 'an address that cannot be read is a 4xx', pg.status)
+pg = await page('/sitemap.xml')
+expect(pg.status === 200 && pg.text.includes('/news/') && pg.text.includes('/events/'), 'the sitemap lists the posts and events')
+{
+  const sub = outbox().reverse().find((t) => t.startsWith('To: news@example.com'))
+  const t = sub && /unsubscribe\?t=([\w-]+)/.exec(sub)?.[1]
+  pg = await page('/api/forms/unsubscribe?t=' + t)
+  expect(pg.status === 200 && pg.text.includes('Yes, unsubscribe'), 'the unsubscribe link asks first (a mail scanner opening it changes nothing)')
+  const u = await anon.req('POST', '/api/forms/unsubscribe', new URLSearchParams({ t }), { form: true })
+  expect(u.status === 303, 'pressing the button unsubscribes', u.status)
+}
 
 // ---- sign-in, lockout, sign-out
 const other = new Client()
 for (let i = 0; i < 5; i++) r = await other.req('POST', '/api/auth/login', { email: 'hana@kinaff.example', password: 'wrong-password-' + i })
 r = await other.req('POST', '/api/auth/login', { email: 'hana@kinaff.example', password: 'Kinaff-Sheepskin-77' })
 expect(r.status === 429, 'five wrong passwords lock the account for a while', r.json)
+for (let i = 0; i < 5; i++) r = await other.req('POST', '/api/auth/login', { email: 'nobody@nowhere.example', password: 'wrong-password-' + i })
+r = await other.req('POST', '/api/auth/login', { email: 'nobody@nowhere.example', password: 'another-guess' })
+expect(r.status === 429, 'an address with no account is stopped the same way (the answer does not tell)', r.json)
 r = await other.req('POST', '/api/auth/login', { email: 'admin@eliaet.example', password: 'Leather-Highlands-2026' })
 expect(r.status === 200, 'the Secretariat signs in with its password')
 r = await sec.req('POST', '/api/auth/logout', {})

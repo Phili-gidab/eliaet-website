@@ -9,29 +9,48 @@ import crypto from 'node:crypto'
 import { promisify } from 'node:util'
 import { config } from './config.js'
 import { one, run, q } from './db.js'
-import { HttpError } from './util.js'
+import type { Request } from 'express'
+import { HttpError, ipOf, SHARED } from './util.js'
 
 const scrypt = promisify(crypto.scrypt) as (pw: string, salt: Buffer, len: number, opts: crypto.ScryptOptions) => Promise<Buffer>
 const N = 1 << 15, R = 8, P = 1, LEN = 32
 
+/* Each password check takes 32 MB and about a tenth of a second: at most two run at once, the next few wait their
+   turn, and a crowd beyond that is asked to try again, so a flood of guesses cannot use up the server's memory. */
+const AT_ONCE = 2, QUEUE = 40
+let running = 0
+const queue: (() => void)[] = []
+async function inTurn<T>(fn: () => Promise<T>): Promise<T> {
+  if (running < AT_ONCE) running++
+  else {
+    if (queue.length >= QUEUE) throw new HttpError(503, 'The server is busy. Please try again in a minute.')
+    await new Promise<void>((go) => queue.push(go))       // the check that finishes hands its turn over
+  }
+  try { return await fn() } finally {
+    const next = queue.shift()
+    if (next) next()
+    else running--
+  }
+}
+
 export async function hashPassword(pw: string): Promise<string> {
   const salt = crypto.randomBytes(16)
-  const key = await scrypt(pw.normalize('NFKC'), salt, LEN, { N, r: R, p: P, maxmem: 64 * 1024 * 1024 })
+  const key = await inTurn(() => scrypt(pw.normalize('NFKC'), salt, LEN, { N, r: R, p: P, maxmem: 64 * 1024 * 1024 }))
   return `scrypt$${N}$${R}$${P}$${salt.toString('base64url')}$${key.toString('base64url')}`
 }
 
 export async function verifyPassword(pw: string, stored: string | null | undefined): Promise<boolean> {
   if (!stored) {
     // as long as a real check, so the answer's timing does not say whether the account exists
-    await scrypt(pw, crypto.randomBytes(16), LEN, { N, r: R, p: P, maxmem: 64 * 1024 * 1024 })
+    await inTurn(() => scrypt(pw, crypto.randomBytes(16), LEN, { N, r: R, p: P, maxmem: 64 * 1024 * 1024 }))
     return false
   }
   const [alg, n, r, p, salt, key] = stored.split('$')
   if (alg !== 'scrypt' || !salt || !key) return false
   const want = Buffer.from(key, 'base64url')
-  const got = await scrypt(pw.normalize('NFKC'), Buffer.from(salt, 'base64url'), want.length, {
+  const got = await inTurn(() => scrypt(pw.normalize('NFKC'), Buffer.from(salt, 'base64url'), want.length, {
     N: Number(n), r: Number(r), p: Number(p), maxmem: 64 * 1024 * 1024,
-  })
+  }))
   return got.length === want.length && crypto.timingSafeEqual(got, want)
 }
 
@@ -77,6 +96,31 @@ export function used(key: string, windowSec: number): number {
 export function limit(key: string, max: number, windowSec: number, message: string) {
   if (!allow(key, max, windowSec)) throw new HttpError(429, message)
 }
+/** Counts one go at `key` in one step, and says how many there have been in this window, this one included (two
+    requests at the same moment can never both read the old count). */
+export function bump(key: string, windowSec: number): number {
+  return one<{ count: number }>(
+    'INSERT INTO throttle (key, window, count) VALUES (?, ?, 1) ON CONFLICT (key, window) DO UPDATE SET count = count + 1 RETURNING count',
+    key, windowStart(windowSec))?.count ?? 1
+}
+/** Takes one go back (it turned out to be a right one). */
+export function unbump(key: string, windowSec: number) {
+  run('UPDATE throttle SET count = MAX(count - 1, 0) WHERE key = ? AND window = ?', key, windowStart(windowSec))
+}
+/** Forgets every go at `key` (a password was just reset: the wrong ones before it no longer count). */
+export function forget(key: string) {
+  run('DELETE FROM throttle WHERE key = ?', key)
+}
+
+/** A visitor's key for the limits, and their size: where the server cannot tell visitors apart (all of them are
+    SHARED, util.ts), a limit made for one person is made for a crowd. */
+export function visitor(req: Request): { key: string; times: number } {
+  const ip = ipOf(req)
+  return { key: ipKey(ip), times: ip === SHARED ? 30 : 1 }
+}
+/** Counts one go of the whole site at something (auto-replies, stored uploads); false when the day's or hour's
+    share is used up. */
+export const siteAllows = (what: string, max: number, windowSec: number) => allow(`site:${what}`, max, windowSec)
 
 /* ---- the forms' spam check (proof of work) ---------------------------------------------------------------------------- */
 

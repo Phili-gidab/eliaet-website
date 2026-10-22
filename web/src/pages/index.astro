@@ -63,7 +63,7 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
         {sectorKeys.map((k, i) => (
           <li data-reveal style={`--d:${i * 0.08}s`}>
             <a class="sector card" href="/members#at-a-glance">
-              <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true">→</span></span>
+              <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></span></span>
               <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span>
               <span class="sector__name">{SECTORS[k].plural} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
             </a>
@@ -97,8 +97,8 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
       </ol>
       <div class="strip__nav wrap" aria-hidden="true">
         <span class="strip__bar"><i></i></span>
-        <button type="button" class="strip__btn" data-strip-prev tabindex="-1">←</button>
-        <button type="button" class="strip__btn" data-strip-next tabindex="-1">→</button>
+        <button type="button" class="strip__btn" data-strip-prev tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></button>
+        <button type="button" class="strip__btn" data-strip-next tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></button>
       </div>
     </div>
   </section>

@@ -1,5 +1,6 @@
 /* Small helpers shared by the routes: errors that become JSON answers, checking what was sent (zod), names for
    addresses, spreadsheets. */
+import { isIP } from 'node:net'
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import { z } from 'zod'
 
@@ -97,13 +98,34 @@ export function parseCsv(text: string): Record<string, string>[] {
   return body.map((r) => Object.fromEntries(keys.map((k, i) => [k, (r[i] ?? '').trim()])))
 }
 
-/** The client's address, as a short one-way code (kept for rate limits, never the address itself). */
-/** The visitor's address, for the rate limits. Behind cPanel's Apache and Passenger the connection itself may come
-    from this machine (or a local socket): then the address the nearest proxy added to X-Forwarded-For is the one
-    (the earlier entries are the visitor's own word, so they are not trusted). */
+/** Where every visitor counts as one: the web server in front of the app says nothing about who the visitor is. */
+export const SHARED = 'shared'
+let warned = false
+/** The visitor's address, for the rate limits. On cPanel the app sits behind the web server (Apache or LiteSpeed,
+    through Passenger), so the connection itself comes from this machine: then the visitor is the address that web
+    server added at the end of X-Forwarded-For (the entries before it are the visitor's own word and never trusted).
+    The deploy script checks that the host really adds it; where it does not (CLIENT_IP=shared in the data folder's
+    .env), or adds nothing, every visitor counts as one (SHARED) and the limits are set for a crowd (security.ts). */
 export function ipOf(req: Request): string {
-  const direct = String(req.ip ?? req.socket.remoteAddress ?? '')
-  if (direct && !/^(::1$|127\.|::ffff:127\.)/.test(direct)) return direct
+  const peer = req.socket.remoteAddress ?? ''
+  if (peer && !/^(::1$|127\.|::ffff:127\.)/.test(peer)) return peer          // a direct connection
+  if (process.env.CLIENT_IP === 'shared') return SHARED
   const fwd = String(req.headers['x-forwarded-for'] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
-  return fwd[fwd.length - 1] || String(req.headers['x-real-ip'] ?? '').trim() || direct || 'unknown'
+  const last = fwd[fwd.length - 1]
+  if (last && isIP(last)) return last
+  if (!warned && process.env.NODE_ENV === 'production') {
+    warned = true
+    console.warn('[server] the web server sends no visitor address (X-Forwarded-For): the rate limits count all visitors together')
+  }
+  return SHARED
 }
+
+/** A page number from the address: a whole number from 1 to 10 000 (anything else is page 1). */
+export const pageNumber = (v: unknown) => {
+  const n = Math.floor(Number(v))
+  return Number.isSafeInteger(n) && n >= 1 ? Math.min(n, 10_000) : 1
+}
+
+/** A path on this site to send someone to: one leading slash, never two or a backslash (which a browser would
+    read as another site's address). */
+export const sameSitePath = (p: string) => '/' + p.replace(/^[/\\]+/, '')

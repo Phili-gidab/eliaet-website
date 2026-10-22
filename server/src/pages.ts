@@ -6,13 +6,13 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Router, type Response } from 'express'
 import { config } from './config.js'
-import { one } from './db.js'
-import { esc, plain } from '../../shared/markdown.js'
+import { one, all } from './db.js'
+import { esc, plain, brief } from '../../shared/markdown.js'
 import { postCard, eventRow, pubRow, fmtDate, fmtRange, postBody } from '../../shared/render.js'
 import { POST_CATEGORIES } from '../../shared/options.js'
 import { posts, events, publications, postOut, srcset, today } from './content.js'
 import { fileRef } from './files.js'
-import { wrap, notFound } from './util.js'
+import { wrap, notFound, pageNumber } from './util.js'
 
 const cache = new Map<string, { mtime: number; html: string }>()
 function template(rel: string): string | null {
@@ -39,7 +39,7 @@ export function fill(html: string, name: string, inner: string): string {
 }
 
 function tokens(html: string, values: Record<string, string>): string {
-  return html.replace(/@@([a-z_]+)@@/g, (m, k: string) => (k in values ? values[k] : m))
+  return html.replace(/@@([a-z_]+)@@/g, (m, k: string) => (Object.hasOwn(values, k) ? values[k] : m))
 }
 
 function sendHtml(res: Response, html: string, status = 200) {
@@ -65,9 +65,9 @@ pages.get(['/news', '/news.html'], wrap((req, res, next) => {
   let html = template('news.html')
   if (!html) return next()
   const tab = TABS.has(String(req.query.tab)) ? String(req.query.tab) : 'all'
-  const pg = Math.max(1, Number(req.query.page ?? 1) || 1)
+  const pg = pageNumber(req.query.page)
   const asked = String(req.query.cat ?? '')
-  const cat = tab === 'spotlights' ? 'member-spotlights' : asked in POST_CATEGORIES ? asked : undefined
+  const cat = tab === 'spotlights' ? 'member-spotlights' : Object.hasOwn(POST_CATEGORIES, asked) ? asked : undefined
   const list = posts({ category: cat, limit: PER, offset: (pg - 1) * PER })
   const pages = Math.max(1, Math.ceil(list.total / PER))
   const qs = (p: number) => `/news?${new URLSearchParams({ ...(tab !== 'all' ? { tab } : {}), ...(cat && tab !== 'spotlights' ? { cat } : {}), ...(p > 1 ? { page: String(p) } : {}) })}#news`
@@ -102,7 +102,7 @@ pages.get('/news/:slug', wrap((req, res, next) => {
   const more = posts({ limit: 4 }).items.filter((x) => x.slug !== post.slug).slice(0, 3)
   sendHtml(res, fill(fill(tokens(html, {
     title: esc(post.title),
-    description: esc(post.summary || plain(post.body, 180)),
+    description: esc(brief(post.summary || plain(post.body, 400))),
     slug: esc(post.slug),
     category: esc(post.category),
     category_key: esc(post.categoryKey),
@@ -126,7 +126,7 @@ pages.get('/events/:slug', wrap((req, res, next) => {
   const past = !!e.starts_on && (e.ends_on ?? e.starts_on) < today()
   sendHtml(res, fill(tokens(html, {
     title: esc(e.title),
-    description: esc(e.summary || plain(e.body, 180) || `${fmtRange(e.starts_on, e.ends_on)}${e.venue ? ', ' + e.venue : ''}`),
+    description: esc(brief(e.summary || plain(e.body, 400) || `${fmtRange(e.starts_on, e.ends_on)}${e.venue ? ', ' + e.venue : ''}`)),
     slug: esc(e.slug),
     when: esc(fmtRange(e.starts_on, e.ends_on)),
     time: esc(e.time_text ?? ''),
@@ -152,6 +152,17 @@ pages.get('/downloads/:key', wrap((req, res) => {
   res.redirect(302, to || '/news?tab=publications#publications')
 }))
 
+/** A calendar file's long line, folded as the format wants: at most 75 bytes, the rest on lines that start with a space. */
+function fold(line: string): string {
+  const out: string[] = []
+  let cur = ''
+  for (const ch of line) {
+    if (Buffer.byteLength(cur + ch) > 75) { out.push(cur); cur = ' ' + ch } else cur += ch
+  }
+  out.push(cur)
+  return out.join('\r\n')
+}
+
 /** An event as a calendar file ("Add to calendar"): all-day, in the Addis Ababa calendar day. */
 pages.get('/events/:slug.ics', wrap((req, res) => {
   const e = one(`SELECT * FROM events WHERE slug = ? AND status = 'published'`, String(req.params.slug))
@@ -166,10 +177,26 @@ pages.get('/events/:slug.ics', wrap((req, res) => {
     `SUMMARY:${txt(e.title)}`, e.venue ? `LOCATION:${txt([e.venue, e.address].filter(Boolean).join(', '))}` : '',
     `DESCRIPTION:${txt(plain(e.summary || e.body, 600) + (e.time_text ? `\n${e.time_text}` : '') + `\n${config.siteUrl}/events/${e.slug}`)}`,
     `URL:${config.siteUrl}/events/${e.slug}`, 'END:VEVENT', 'END:VCALENDAR',
-  ].filter(Boolean).join('\r\n') + '\r\n'
+  ].filter(Boolean).map(fold).join('\r\n') + '\r\n'
   res.setHeader('Content-Type', 'text/calendar; charset=utf-8')
   res.setHeader('Content-Disposition', `attachment; filename="${e.slug}.ics"`)
   res.send(ics)
+}))
+
+/** The sitemap: the built one (the site's pages) with the published posts and events added, as they are now. */
+pages.get('/sitemap.xml', wrap((_req, res, next) => {
+  const xml = template('sitemap.xml')
+  if (!xml) return next()
+  const entries = [
+    // a post that is only a link to an article elsewhere has no page of its own here
+    ...all(`SELECT slug, updated_at FROM posts WHERE status = 'published' AND (TRIM(body) <> '' OR link_url IS NULL) ORDER BY date DESC`)
+      .map((p) => [`/news/${p.slug}`, p.updated_at]),
+    ...all(`SELECT slug, updated_at FROM events WHERE status = 'published' ORDER BY id DESC`).map((e) => [`/events/${e.slug}`, e.updated_at]),
+  ]
+  const urls = entries.map(([u, at]) => `  <url><loc>${esc(config.siteUrl + u)}</loc><lastmod>${esc(String(at).slice(0, 10))}</lastmod><priority>0.6</priority></url>\n`).join('')
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8')
+  res.setHeader('Cache-Control', 'public, max-age=3600')
+  res.send(xml.replace('</urlset>', urls + '</urlset>'))
 }))
 
 /** the categories as the news page's filter knows them */

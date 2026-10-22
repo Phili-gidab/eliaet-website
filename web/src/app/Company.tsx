@@ -39,7 +39,9 @@ export function Company() {
 export function ProfileView({ c, preview = false }: { c: Profile; preview?: boolean }) {
   const place = [c.city, c.regionLabel].filter((x, i, a) => x && a.indexOf(x) === i).join(', ')
   const mapQuery = c.lat != null && c.lng != null ? `${c.lat},${c.lng}` : [c.address, c.city, c.regionLabel, 'Ethiopia'].filter(Boolean).join(', ')
-  const web = c.website ? c.website.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') : ''
+  // a web address is a link only if it is an http(s) one
+  const site = c.website && /^https?:\/\/[^\s"'<>]+$/i.test(c.website) ? c.website : null
+  const web = site ? site.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') : ''
   const tel = (s: string) => s.replace(/[^\d+]/g, '')
   const rows: [string, ComponentChildren][] = [
     ['Category and size', [c.categoryLabel, c.sizeLabel].filter(Boolean).join(' · ')],
@@ -84,9 +86,9 @@ export function ProfileView({ c, preview = false }: { c: Profile; preview?: bool
             <ul class="cp__lines" role="list">
               {c.phone && c.phone.split(/\s*[·;]\s*|\s*,\s*(?=\+)/).filter(Boolean).map((p) => <li><span>Phone</span><a href={`tel:${tel(p.replace(/^[^+\d]*/, ''))}`}>{p}</a></li>)}
               {c.email && <li><span>E-mail</span><a href={`mailto:${c.email}`}>{c.email}</a></li>}
-              {c.website && <li><span>Website</span><a href={c.website} target="_blank" rel="noopener">{web} {Icon.out}</a></li>}
+              {site && <li><span>Website</span><a href={site} target="_blank" rel="noopener">{web} {Icon.out}</a></li>}
             </ul>
-            {!c.contact_name && !c.phone && !c.email && !c.website && <p class="cp__none">No contact details yet.</p>}
+            {!c.contact_name && !c.phone && !c.email && !site && <p class="cp__none">No contact details yet.</p>}
           </div>
           {mapQuery && (
             <div class="cp__map">

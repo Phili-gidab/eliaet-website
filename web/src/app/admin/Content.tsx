@@ -50,7 +50,7 @@ export const COLLECTIONS: Record<'posts' | 'events' | 'publications' | 'notices'
       STATUS,
     ],
     cols: (o) => [['Title', (r) => r.title], ['Category', (r) => o.postCategories[r.category] ?? r.category], ['Date', (r) => day(r.date)],
-      ['', (r) => (r.featured ? <Badge v="members" label="Featured" /> : null)], ['Status', (r) => <Badge v={r.status} />]],
+      ['[Featured]', (r) => (r.featured ? <Badge v="members" label="Featured" /> : null)], ['Status', (r) => <Badge v={r.status} />]],
     link: (r) => (r.status === 'published' ? `/news/${r.slug}` : null),
     blank: { status: 'draft', category: 'announcements' },
   },

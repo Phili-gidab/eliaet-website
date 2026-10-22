@@ -44,7 +44,7 @@ const today = new Date().toISOString().slice(0, 10)
     <address class="ledger" data-reveal style="--d:.35s">
       <div class="ledger__col">
         <p class="label"><b>Visit</b></p>
-        <p class="ledger__addr">{CONTACT.address.lines.map((l) => <span>{l}</span>)}</p>
+        <p class="ledger__addr">{CONTACT.address.lines.map((l, i) => <Fragment><span>{l}</span>{i < CONTACT.address.lines.length - 1 && ' '}</Fragment>)}</p>
         <dl class="ledger__dl">
           <div><dt>P.O. Box</dt><dd>{CONTACT.poBox}, Addis Ababa</dd></div>
           <div><dt>Office hours</dt><dd>{CONTACT.hours}</dd></div>

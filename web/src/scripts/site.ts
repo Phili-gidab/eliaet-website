@@ -186,7 +186,8 @@ if (reduce) {
       say('Sending…')
       try {
         const fd = new FormData(form)
-        fd.set('pow', await solvePow())
+        const pow = await solvePow()
+        fd.set('pow', pow)
         // several boxes of one name (interests) go as a list
         const obj: Record<string, unknown> = {}
         for (const [k, v] of fd.entries()) {
@@ -196,7 +197,8 @@ if (reduce) {
         const body = multipart ? fd : JSON.stringify(obj)
         const res = await fetch(form.action, {
           method: 'POST', body,
-          headers: multipart ? { Accept: 'application/json' } : { 'Content-Type': 'application/json', Accept: 'application/json' },
+          // with a file, the spam check also goes as a header, so the server can check it before reading the upload
+          headers: multipart ? { Accept: 'application/json', 'X-Pow': pow } : { 'Content-Type': 'application/json', Accept: 'application/json' },
         })
         const data = await res.json().catch(() => ({}))
         if (res.ok) {

@@ -49,6 +49,7 @@ export function Head({ title, sub, children, back }: { title: ComponentChildren;
 /** A list as a table: each row opens its item */
 export function Table<T>({ rows, cols, href, empty = 'Nothing here.' }: {
   rows: T[]
+  /** a label in brackets ('[Featured]') is for screen readers only */
   cols: [label: string, cell: (r: T) => ComponentChildren, cls?: string][]
   href?: (r: T) => string
   empty?: string
@@ -57,7 +58,7 @@ export function Table<T>({ rows, cols, href, empty = 'Nothing here.' }: {
   return (
     <div class="table-wrap">
       <table class="atable">
-        <thead><tr>{cols.map(([l, , c]) => <th scope="col" class={c}>{l}</th>)}</tr></thead>
+        <thead><tr>{cols.map(([l, , c]) => { const sr = /^\[(.*)\]$/.exec(l); return <th scope="col" class={c}>{sr ? <span class="sr-only">{sr[1]}</span> : l}</th> })}</tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr class={href ? 'is-link' : undefined} onClick={href ? (e) => { if (!(e.target as HTMLElement).closest('a, button')) go(href(r)) } : undefined}>

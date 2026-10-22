@@ -28,7 +28,8 @@ const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', film,
     <div class="ph__text">
       <p class="label label--rule" data-reveal="fade"><b>{index}</b> {eyebrow}{amharic && <span class="geez" lang="am">{amharic}</span>}</p>
       <h1 class="h1 lines ph__title">
-        {title.map((t, i) => <span class="ln" style={`--i:${i}`}><span set:html={t} /></span>)}
+        {/* a space between the lines, so the heading reads as words (to search engines, screen readers, a copy) */}
+        {title.map((t, i) => <Fragment><span class="ln" style={`--i:${i}`}><span set:html={t} /></span>{i < title.length - 1 && ' '}</Fragment>)}
       </h1>
       {lede && <p class="lede ph__lede" data-reveal style="--d:.25s">{lede}</p>}
       <slot />

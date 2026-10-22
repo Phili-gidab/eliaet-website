@@ -237,10 +237,34 @@ fi
 
 echo "==> Checking the site"
 sleep 2
-body="$(curl -s --max-time 30 "https://${DOMAIN}/api/health" || true)"
+health() { curl -s --max-time 30 "$@" "https://${DOMAIN}/api/health" || true; }
+client() { printf '%s' "$1" | sed -n 's/.*"client":"\([^"]*\)".*/\1/p'; }
+body="$(health)"
 if printf '%s' "$body" | grep -q '"ok":true'; then
-    echo "    https://${DOMAIN}/ answers. ${body}"
-    echo "    (\"client\" is your connection's address as the site sees it: the forms' limits count by it.)"
+    echo "    https://${DOMAIN}/ answers."
+    # The limits on the forms and on signing in count each visitor by their address, as the web server in front of
+    # the app reports it. Check that it is the visitor's real one: not one a visitor can make up in a header, not the
+    # same for everybody. Where it is not, the site counts all visitors together (CLIENT_IP=shared, with limits made
+    # for a crowd) rather than trusting it.
+    PREV="$(ssh "$REMOTE" "grep -s '^CLIENT_IP=' '${DATA}/.env'" || true)"
+    if [ -n "$PREV" ]; then
+        echo "    The limits count all visitors together (${PREV} in the settings: take that line out and deploy again to check anew)."
+    else
+        here="$(client "$body")"
+        fake="$(client "$(health -H 'X-Forwarded-For: 203.0.113.7' -H 'X-Real-IP: 203.0.113.7')")"
+        there="$(client "$(ssh "$REMOTE" "curl -s --max-time 20 https://${DOMAIN}/api/health" 2>/dev/null || true)")"
+        WHY=""
+        if [ "$fake" = "203.0.113.7" ]; then WHY="a visitor can make up the address it shows"
+        elif [ -z "$here" ] || [ "$here" = "shared" ]; then WHY="the web server does not pass the visitor's address on"
+        elif [ -n "$there" ] && [ "$here" = "$there" ]; then WHY="every visitor shows the same address"
+        fi
+        if [ -n "$WHY" ]; then
+            echo "    The site cannot tell visitors apart here (${WHY}): from now on its limits count all visitors together."
+            ssh "$REMOTE" "printf '\n# set by deploy-elia.sh: this host does not give the app the address of each visitor\nCLIENT_IP=shared\n' >> '${DATA}/.env'; cloudlinux-selector restart --json --interpreter nodejs --app-root '${APP}' >/dev/null 2>&1 || true; mkdir -p '${APPROOT}/tmp' && touch '${APPROOT}/tmp/restart.txt'"
+        else
+            echo "    The site sees each visitor's own address (yours: ${here}), so the limits count each visitor apart."
+        fi
+    fi
 else
     echo "    https://${DOMAIN}/ does not answer yet (${body:-no answer}). The app starts on its first visit and a new"
     echo "    subdomain can take a few minutes for its certificate: try it in the browser in a minute."

@@ -98,14 +98,14 @@ export function directory(o: DirectoryQuery) {
     where.push(`(name LIKE ? ESCAPE '\\' OR products LIKE ? ESCAPE '\\' OR leather_types LIKE ? ESCAPE '\\' OR about LIKE ? ESCAPE '\\' OR city LIKE ? ESCAPE '\\' OR export_markets LIKE ? ESCAPE '\\')`)
     p.push(like, like, like, like, like, like)
   }
-  if (o.category && o.category in CATEGORIES) { where.push('category = ?'); p.push(o.category) }
-  if (o.size && o.size in SIZES) { where.push('size = ?'); p.push(o.size) }
-  if (o.region && o.region in REGION_FILTERS) {
+  if (o.category && Object.hasOwn(CATEGORIES, o.category)) { where.push('category = ?'); p.push(o.category) }
+  if (o.size && Object.hasOwn(SIZES, o.size)) { where.push('size = ?'); p.push(o.size) }
+  if (o.region && Object.hasOwn(REGION_FILTERS, o.region)) {
     if (o.region === 'other') where.push("(region IS NULL OR region NOT IN ('addis_ababa', 'oromia', 'amhara'))")
     else { where.push('region = ?'); p.push(o.region) }
   }
-  if (o.export && o.export in EXPORT_STATUS) { where.push('export_status = ?'); p.push(o.export) }
-  if (o.cert && o.cert in CERTIFICATIONS) { where.push('certifications LIKE ?'); p.push(`%"${o.cert}"%`) }
+  if (o.export && Object.hasOwn(EXPORT_STATUS, o.export)) { where.push('export_status = ?'); p.push(o.export) }
+  if (o.cert && Object.hasOwn(CERTIFICATIONS, o.cert)) { where.push('certifications LIKE ?'); p.push(`%"${o.cert}"%`) }
   const w = where.join(' AND ')
   const total = Number(one(`SELECT COUNT(*) AS n FROM companies WHERE ${w}`, ...p)?.n ?? 0)
   const per = Math.min(Math.max(o.per ?? 20, 1), 100)

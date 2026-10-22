@@ -1,12 +1,13 @@
 /* The members' area: the directory (signed-in members of an active company, and the Secretariat), a member's own
    company profile (changes go to the Secretariat for review), the people of the company, and what ELIA shares with
    members: notices, documents and opportunities. */
-import { Router, type Request } from 'express'
+import { Router, type Request, type Response, type NextFunction } from 'express'
+import multer from 'multer'
 import { z } from 'zod'
 import { config } from '../config.js'
 import { one, all, run, now, toJson, fromJson } from '../db.js'
 import { send, link, lines } from '../mail.js'
-import { upload, store, fileRef, removeFile } from '../files.js'
+import { store, fileRef, removeFile, MAX_MB } from '../files.js'
 import { requireUser, me } from '../session.js'
 import { limit } from '../security.js'
 import { HttpError, notFound, forbidden, parse, wrap, req as required, opt, email } from '../util.js'
@@ -66,11 +67,25 @@ member.get('/me', wrap((req, res) => {
   })
 }))
 
+/** A member's pictures: a logo and up to four photos, 4 MB each, and the profile's short fields. */
+const pictures = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_MB.image * 1024 * 1024, files: 5, fields: 40, fieldSize: 32 * 1024 },
+})
+/** Before the pictures are read: only a member, and not too many changes a day. */
+function mayPropose(req: Request, _res: Response, next: NextFunction) {
+  try {
+    const u = me(req)
+    if (u.role !== 'member' || !u.company_id) throw forbidden()
+    limit(`change:${u.company_id}`, 20, 86400, 'That is a lot of changes for one day. Please try again tomorrow.')
+    next()
+  } catch (e) { next(e) }
+}
+
 /** A member proposes changes to their company's profile (with a new logo and photos, if any). */
-member.post('/me/company', upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'photos', maxCount: 4 }]), wrap(async (req, res) => {
+member.post('/me/company', mayPropose, pictures.fields([{ name: 'logo', maxCount: 1 }, { name: 'photos', maxCount: 4 }]), wrap(async (req, res) => {
   const u = me(req)
   if (u.role !== 'member' || !u.company_id) throw forbidden()
-  limit(`change:${u.company_id}`, 20, 86400, 'That is a lot of changes for one day. Please try again tomorrow.')
   const c = one('SELECT * FROM companies WHERE id = ?', u.company_id)
   if (!c || c.status === 'archived') throw forbidden()
   const d = parse(profileSchema, req.body)
@@ -85,15 +100,19 @@ member.post('/me/company', upload.fields([{ name: 'logo', maxCount: 1 }, { name:
   const current = fromJson<number[]>(c.photos, [])
   const known = new Set([...current, ...((before.photos as number[] | undefined) ?? [])])
   let photos = req.body.keepPhotos === undefined ? [...current] : keep.filter((id, i) => known.has(id) && keep.indexOf(id) === i)
+  // four at most: checked before anything is stored, so no picture is kept that no profile uses
+  if (photos.length + (files.photos?.length ?? 0) > 4) {
+    throw new HttpError(422, 'A profile has up to four photos. Remove one before adding another.', { photos: 'Up to four photos' })
+  }
   for (const f of files.photos ?? []) photos.push(store(f, 'image', 'members', u.id, 'photos'))
-  photos = photos.slice(0, 4)
   if (JSON.stringify(photos) !== JSON.stringify(current)) next.photos = photos
   if (files.logo?.[0]) next.logo_file_id = store(files.logo[0], 'image', 'members', u.id, 'logo')
   else if (req.body.removeLogo === 'true') next.logo_file_id = null
   else if ('logo_file_id' in before) next.logo_file_id = before.logo_file_id
   const changes = diff(c, next as never)
   if (!Object.keys(changes).length) throw new HttpError(422, 'Nothing has changed.')
-  // the newest proposal replaces one still waiting
+  // the newest proposal replaces one still waiting; the pictures that came only with that one go
+  if (waiting) cleanWithdrawnFiles(waiting.data, [...current, c.logo_file_id, ...photos, next.logo_file_id as number].filter((x): x is number => typeof x === 'number'))
   run(`UPDATE profile_changes SET status = 'withdrawn', decided_at = ? WHERE company_id = ? AND status = 'pending'`, now(), c.id)
   const id = run(`INSERT INTO profile_changes (company_id, user_id, data, status, created_at) VALUES (?, ?, ?, 'pending', ?)`,
     c.id, u.id, toJson(changes), now()).id
@@ -108,6 +127,9 @@ member.post('/me/company', upload.fields([{ name: 'logo', maxCount: 1 }, { name:
 member.post('/me/company/withdraw', wrap((req, res) => {
   const u = me(req)
   if (!u.company_id) throw forbidden()
+  const c = one('SELECT logo_file_id, photos FROM companies WHERE id = ?', u.company_id)
+  const keep = [...fromJson<number[]>(c?.photos, []), c?.logo_file_id].filter((x): x is number => typeof x === 'number')
+  for (const w of all(`SELECT data FROM profile_changes WHERE company_id = ? AND status = 'pending'`, u.company_id)) cleanWithdrawnFiles(w.data, keep)
   run(`UPDATE profile_changes SET status = 'withdrawn', decided_at = ? WHERE company_id = ? AND status = 'pending'`, now(), u.company_id)
   res.json({ ok: true })
 }))
