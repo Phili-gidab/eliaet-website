@@ -141,6 +141,15 @@ const mem = new Client()
 r = await mem.req('POST', '/api/auth/password', { token: memberToken, password: 'Kinaff-Sheepskin-77' })
 expect(r.status === 200 && r.json.user.company?.name === 'Kinaff Leather', 'member set a password and is signed in', r.json)
 await mem.session()
+// the same address asks again, for another company: approving it must not move the account
+r = await anon.req('POST', '/api/auth/request-access', { companyName: 'Amour Leather', name: 'Hana Tadesse', email: 'hana@kinaff.example', pow: await pow() })
+r = await sec.req('GET', '/api/admin/access')
+{
+  const again = r.json.items.find((x) => x.email === 'hana@kinaff.example' && x.status === 'pending')
+  r = await sec.req('POST', `/api/admin/access/${again?.id}/approve`, { company_id: again?.company_id })
+  expect(r.status === 422 && /already has an account with Kinaff/.test(r.json?.error ?? ''), 'approving access does not move an account to another company', r.json)
+  await sec.req('POST', `/api/admin/access/${again?.id}/decline`, { note: 'test' })
+}
 
 // ---- the directory
 r = await mem.req('GET', '/api/member/directory')
