@@ -5,68 +5,70 @@ interface Props { newsletter?: boolean }
 const { newsletter = true } = Astro.props
 const social = SOCIAL.filter((s) => s.href)
 const year = new Date().getFullYear()
+const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" /></svg>'
 ---
 
+<!-- the footer, on the brand brown: the newsletter, the association's lockup with the two ways in (join, write), its
+     address and links in four columns, and the brand line set large across the whole width as its signature -->
 <footer class="ftr sheet" data-footer data-tone="dark">
   <div class="wrap">
     {newsletter && (
-      <>
-        <div class="ftr__news">
-          <h2 class="h2 ftr__title">{SUBSCRIBE.title}.</h2>
-          <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" data-ok="Thank you. You are subscribed; a confirmation is on its way to your inbox." novalidate>
-            <p class="ftr__note">{SUBSCRIBE.text}</p>
-            <div class="ftr__field">
-              <label class="sr-only" for="ftr-email">E-mail address</label>
-              <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="Your e-mail address" />
-              <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
-              <button class="btn" type="submit">Subscribe</button>
-            </div>
-            <p class="ftr__msg" role="status" aria-live="polite" data-form-msg></p>
-          </form>
+      <div class="ftr__news">
+        <div>
+          <h2 class="ftr__title">{SUBSCRIBE.title.replace(/ updates$/, '')} <em>updates</em>.</h2>
+          <p class="ftr__note">{SUBSCRIBE.text}</p>
         </div>
-
-        <div class="stitch ftr__stitch" aria-hidden="true"></div>
-      </>
+        <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" data-ok="Thank you. You are subscribed; a confirmation is on its way to your inbox." novalidate>
+          <div class="ftr__field">
+            <label class="sr-only" for="ftr-email">E-mail address</label>
+            <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="Your e-mail address" />
+            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <button class="btn" type="submit">Subscribe <Fragment set:html={arrow} /></button>
+          </div>
+          <p class="ftr__msg" role="status" aria-live="polite" data-form-msg></p>
+        </form>
+      </div>
     )}
 
-    <!-- the full lockup from the brand guide: the logo with the association's name in Amharic and English -->
-    <a href="/" class="ftr__lockup">
-      <img class="ftr__lockup-wide" src="/media/brand/elia-lockup-reverse.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="1244" height="184" loading="lazy" decoding="async" />
-      <img class="ftr__lockup-tall" src="/media/brand/elia-lockup-reverse-stacked.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="640" height="286" loading="lazy" decoding="async" />
-    </a>
+    <div class="ftr__top">
+      <!-- the full lockup from the brand guide: the logo with the association's name in Amharic and English -->
+      <a href="/" class="ftr__lockup">
+        <img class="ftr__lockup-wide" src="/media/brand/elia-lockup-reverse.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="1244" height="184" loading="lazy" decoding="async" />
+        <img class="ftr__lockup-tall" src="/media/brand/elia-lockup-reverse-stacked.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="640" height="286" loading="lazy" decoding="async" />
+      </a>
+      <div class="ftr__cta">
+        <a class="btn" href="/members#apply">Become a member <Fragment set:html={arrow} /></a>
+        <a class="btn btn--ghost" href="/contact">Write to the secretariat</a>
+      </div>
+    </div>
 
     <div class="ftr__main">
       <div class="ftr__col">
-        <p class="label"><b>01</b> Office</p>
+        <p class="ftr__h">Office</p>
         <address>
           {CONTACT.address.lines.map((l) => <span>{l}</span>)}
           <span>P.O. Box {CONTACT.poBox}</span>
         </address>
-        <a class="link small" href={CONTACT.map.link} target="_blank" rel="noopener">Open in Maps</a>
+        <a class="ftr__more" href={CONTACT.map.link} target="_blank" rel="noopener">Open in Maps <Fragment set:html={arrow} /></a>
       </div>
       <div class="ftr__col">
-        <p class="label"><b>02</b> Contact</p>
+        <p class="ftr__h">Contact</p>
         <ul role="list">
-          {CONTACT.phones.map((p) => <li><a href={p.href}><span class="ftr__k">{p.label}</span>{p.value}</a></li>)}
+          {CONTACT.phones.map((p) => <li><a href={p.href}>{p.value}</a></li>)}
           {CONTACT.emails.map((e) => <li><a href={`mailto:${e.value}`}><span class="ftr__k">{e.label}</span>{e.value}</a></li>)}
         </ul>
       </div>
-      {Object.entries(FOOTER_LINKS).map(([title, links], i) => (
+      {Object.entries(FOOTER_LINKS).map(([title, links]) => (
         <div class="ftr__col">
-          <p class="label"><b>{String(i + 3).padStart(2, '0')}</b> {title}</p>
+          <p class="ftr__h">{title}</p>
           <ul role="list">{links.map((l) => <li><a href={l.to}>{l.label}</a></li>)}</ul>
         </div>
       ))}
     </div>
-
   </div>
 
-  <!-- the brand line, pressed into a strap of chestnut hide (styles/leather.css) -->
-  <div class="ftr__strap hide hide--chestnut stitched" aria-hidden="true">
-    <div class="wrap">
-      <p class="ftr__giant"><span class="t-press ftr__g1"></span> <span class="t-press ftr__g2"></span></p>
-    </div>
-  </div>
+  <!-- the brand line, as large as the page is wide: its first half in the grain of tan leather, the second in amber -->
+  <p class="ftr__sign" aria-hidden="true"><span class="ftr__s1">From the highlands,</span> <span class="ftr__s2">to the world.</span></p>
 
   <div class="wrap">
     <div class="ftr__base">
@@ -81,72 +83,95 @@ const year = new Date().getFullYear()
 </footer>
 
 <style>
-  .ftr { background: var(--ink); color: var(--bone); padding-block: clamp(72px, 9vw, 128px) 36px; overflow: hidden; }
+  .ftr { background: var(--ink); color: var(--bone); padding-block: clamp(80px, 9vw, 132px) 30px; overflow: hidden; }
   .ftr.sheet { box-shadow: none; }
-  /* the strap: a band of hide across the whole width, stitched along both edges, the line pressed into it */
-  .ftr__strap {
-    --stitch-in: 14px; margin-top: clamp(56px, 8vw, 120px); padding-block: clamp(44px, 6vw, 84px);
-    --hide-veil: linear-gradient(180deg, rgb(250 239 219 / 0.05), transparent 40%, rgb(60 30 22 / 0.18));
-    box-shadow: inset 0 1px 0 rgb(250 239 219 / 0.08), inset 0 -1px 0 rgb(60 30 22 / 0.4), 0 -1px 0 rgb(60 30 22 / 0.35);
+
+  /* the newsletter: a big line to the left, one long field to write on to the right */
+  .ftr__news {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px clamp(28px, 6vw, 96px); align-items: end;
+    padding-bottom: clamp(48px, 6vw, 84px); margin-bottom: clamp(48px, 6vw, 84px); border-bottom: 1px solid rgb(255 252 245 / 0.14);
   }
-  .ftr__strap::before { inset: var(--stitch-in) -4px; border-inline: 0; }
-  .ftr__giant {
-    font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.03em;
-    word-spacing: 0.04em; line-height: 0.95; font-size: clamp(2.8rem, 7.3vw, 6.5rem); white-space: nowrap;
+  .ftr__title {
+    max-width: 12ch; color: var(--cream); font-family: var(--f-display); font-weight: 760; font-stretch: 80%;
+    font-size: clamp(2.4rem, 1.4rem + 3.2vw, 4.4rem); line-height: 0.95; letter-spacing: -0.035em;
   }
-  /* the line is drawn from the stylesheet (it is the brand line again, pressed into the leather: decoration, out of
-     the reading order like the strap itself) */
-  .ftr__g1::before { content: 'From the highlands,'; }
-  .ftr__g2::before { content: 'to the world.'; }
-  .ftr__g2 { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em; }
-  @media (max-width: 760px) { .ftr__giant { white-space: normal; font-size: clamp(2.8rem, 15vw, 5rem); line-height: 1.02; } }
-  .ftr__news { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px clamp(28px, 6vw, 96px); align-items: end; }
-  .ftr__title { color: var(--cream); max-width: 11ch; }
-  .ftr__note { max-width: 46ch; color: var(--muted); font-size: 15.5px; }
-  .ftr__form { display: grid; gap: 22px; }
-  /* one long line to write on, the button at its end */
+  .ftr__title em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; color: var(--amber); letter-spacing: -0.03em; }
+  .ftr__note { margin-top: 18px; max-width: 44ch; color: rgb(255 252 245 / 0.66); font-size: 15.5px; }
+  .ftr__form { display: grid; gap: 14px; }
   .ftr__field {
     position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px;
-    padding-bottom: 12px; border-bottom: 1px solid rgb(255 252 245 / 0.28); transition: border-color 0.3s;
+    padding: 8px 8px 8px 24px; border-radius: 999px; background: rgb(255 252 245 / 0.06);
+    box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16); transition: box-shadow 0.3s;
   }
-  .ftr__field:focus-within { border-color: var(--amber); }
+  .ftr__field:focus-within { box-shadow: inset 0 0 0 1.5px var(--amber), 0 0 0 4px rgb(226 160 37 / 0.16); }
   .ftr__field input[type='email'] {
-    min-width: 0; height: 58px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--cream);
-    font-family: var(--f-display); font-weight: 500; font-stretch: 90%; font-size: clamp(1.3rem, 1rem + 1.1vw, 2rem); letter-spacing: -0.01em;
+    min-width: 0; height: 48px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--cream);
+    font-size: 17px; letter-spacing: -0.005em;
   }
   .ftr__field input[type='email']:focus { outline: none; }
-  .ftr__field:focus-within:has(input:focus-visible) { box-shadow: 0 2px 0 0 var(--amber); }
-  .ftr__field input::placeholder { color: rgb(255 252 245 / 0.4); }
-  .ftr__field .btn { min-height: 52px; }
-  .ftr__msg { min-height: 1.4em; font-size: 14px; color: var(--amber); }
+  .ftr__field input::placeholder { color: rgb(255 252 245 / 0.42); }
+  .ftr__field .btn { min-height: 48px; }
+  .ftr__field .btn :global(svg), .ftr__cta .btn :global(svg) { width: 18px; height: 18px; margin-left: 2px; }
+  .ftr__msg { min-height: 1.4em; padding-left: 24px; font-size: 14px; color: var(--amber); }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-  .ftr__stitch { margin-block: clamp(48px, 7vw, 88px) clamp(40px, 5vw, 64px); }
-  .ftr__lockup { display: block; width: min(100%, 880px); margin-bottom: clamp(44px, 5vw, 72px); }
+
+  /* the lockup, and the two ways in beside it */
+  .ftr__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 28px 40px; margin-bottom: clamp(44px, 5vw, 72px); }
+  .ftr__lockup { display: block; width: min(100%, 640px); }
   .ftr__lockup img { width: 100%; height: auto; }
   .ftr__lockup-tall { display: none; }
-  @media (max-width: 700px) {
-    .ftr__lockup { width: min(100%, 420px); }
-    .ftr__lockup-wide { display: none; }
-    .ftr__lockup-tall { display: block; }
-  }
-  .ftr__main { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 28px; }
-  .ftr__col { font-size: 14.5px; line-height: 1.55; }
-  .ftr__col .label { margin-bottom: 16px; }
-  .ftr__col address { font-style: normal; display: grid; margin-bottom: 12px; }
-  .ftr__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .ftr__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  /* four columns, each under a small amber heading */
+  .ftr__main { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 28px; padding-top: 28px; border-top: 1px solid rgb(255 252 245 / 0.14); }
+  .ftr__col { font-size: 15px; line-height: 1.55; }
+  .ftr__h { margin: 0 0 16px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
+  .ftr__col address { font-style: normal; display: grid; margin-bottom: 14px; color: rgb(255 252 245 / 0.82); }
+  .ftr__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .ftr__col a { color: rgb(255 252 245 / 0.82); transition: color 0.25s; }
   .ftr__col a:hover { color: var(--amber); }
-  .ftr__k { display: block; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-  .ftr__base { margin-top: 26px; padding-top: 0; display: flex; flex-wrap: wrap; gap: 10px 32px; font-size: 13px; color: var(--muted); }
-  .ftr__links { display: flex; flex-wrap: wrap; gap: 18px; margin-left: auto; }
+  .ftr__k { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(255 252 245 / 0.5); }
+  .ftr__more { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--cream) !important; }
+  .ftr__more :global(svg) { width: 16px; height: 16px; transition: transform 0.4s var(--ease); }
+  .ftr__more:hover :global(svg) { transform: translateX(4px); }
+
+  /* the signature: the brand line across the whole width, its first half cut from tan leather */
+  .ftr__sign {
+    margin: clamp(64px, 8vw, 120px) 0 0; padding-inline: 2vw; white-space: nowrap; text-align: center;
+    font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.04em; line-height: 0.9;
+    font-size: 8.1vw; user-select: none;
+  }
+  .ftr__s1 {
+    color: var(--amber); background: url('/media/leather/tan.webp') 30% 40% / 640px auto, var(--amber); background-blend-mode: soft-light;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .ftr__s2 { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em; color: rgb(255 252 245 / 0.92); }
+
+  .ftr__base {
+    display: flex; flex-wrap: wrap; gap: 10px 32px; margin-top: clamp(28px, 3vw, 44px); padding-top: 22px;
+    border-top: 1px solid rgb(255 252 245 / 0.14); font-size: 13px; color: rgb(255 252 245 / 0.6);
+  }
+  .ftr__base p { margin: 0; }
+  .ftr__base .ftr__links { display: flex; flex-wrap: wrap; gap: 18px; margin-left: auto; }
   .ftr__links a:hover { color: var(--amber); }
+
   @media (max-width: 1080px) {
     .ftr__main { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 760px) {
     .ftr__news { grid-template-columns: 1fr; }
-    .ftr__links { margin-left: 0; }
+    .ftr__base .ftr__links { margin-left: 0; }
+    .ftr__sign { white-space: normal; font-size: 15.5vw; line-height: 0.92; text-align: left; padding-inline: var(--gutter); }
+    .ftr__s1, .ftr__s2 { display: block; }
+  }
+  @media (max-width: 700px) {
+    .ftr__lockup { width: min(100%, 360px); }
+    .ftr__lockup-wide { display: none; }
+    .ftr__lockup-tall { display: block; }
   }
   @media (max-width: 480px) {
     .ftr__main { grid-template-columns: 1fr; }
+    .ftr__field { padding-left: 18px; }
+    .ftr__field .btn { padding-inline: 16px; }
   }
 </style>

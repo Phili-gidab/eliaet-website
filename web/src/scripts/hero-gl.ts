@@ -12,7 +12,7 @@ const FRAG = `
 precision highp float;
 uniform sampler2D uTex;
 uniform vec2 uRes, uImg, uCam, uChimney;
-uniform float uTime, uLean, uHorizon;
+uniform float uTime, uLean, uHorizon, uLive;
 varying vec2 vUv;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -28,10 +28,11 @@ float fbm(vec2 p) {
 }
 
 void main() {
-  // the picture covers the canvas (as object-fit: cover), a touch larger so its edges never show when it moves
+  // the picture covers the canvas (as object-fit: cover): at first exactly as the film's last frame showed it, then,
+  // as it comes alive (uLive 0 to 1), a touch larger so its edges never show when it moves
   float rs = uRes.x / uRes.y, ri = uImg.x / uImg.y;
   vec2 s = rs > ri ? vec2(1.0, ri / rs) : vec2(rs / ri, 1.0);
-  vec2 iuv = (vec2(vUv.x, 1.0 - vUv.y) - 0.5) * s * 0.96 + 0.5;          // the picture's own uv, y down
+  vec2 iuv = (vec2(vUv.x, 1.0 - vUv.y) - 0.5) * s * mix(1.0, 0.96, uLive) + 0.5;   // the picture's own uv, y down
 
   // depth: the sky and far hills stay, the yard below moves most
   float depth = smoothstep(uHorizon - 0.06, 1.0, iuv.y);
@@ -42,9 +43,9 @@ void main() {
   // cloud shadows drifting slowly over the land
   float land = smoothstep(uHorizon - 0.12, uHorizon + 0.04, iuv.y);
   float cl = fbm(q * vec2(2.2, 3.6) + vec2(uTime * 0.014, uTime * 0.005));
-  col *= 1.0 - land * smoothstep(0.5, 0.78, cl) * 0.2;
+  col *= 1.0 - land * smoothstep(0.5, 0.78, cl) * 0.2 * uLive;
   // and a soft, slow light across the hills
-  col *= 1.0 + 0.05 * (1.0 - land) * sin(uTime * 0.12 + q.x * 3.0);
+  col *= 1.0 + 0.05 * uLive * (1.0 - land) * sin(uTime * 0.12 + q.x * 3.0);
 
   // the chimney's smoke: a plume from its top, rising and leaning with the wind, torn by noise
   vec2 d = q - uChimney;
@@ -57,7 +58,7 @@ void main() {
     float n = fbm(vec2(d.x * 10.0 + uTime * 0.1, up * 8.0 - uTime * 0.6));
     float body = exp(-dx * dx * 1.1) * smoothstep(0.0, 0.04, up) * (1.0 - smoothstep(0.1, 0.36, up));
     float smoke = body * smoothstep(0.32, 0.72, n + 0.18 - up * 0.6);
-    col = mix(col, vec3(0.914, 0.902, 0.898), clamp(smoke * 0.7, 0.0, 0.7));   // taupe's palest tint
+    col = mix(col, vec3(0.914, 0.902, 0.898), clamp(smoke * 0.7 * uLive, 0.0, 0.7));   // taupe's palest tint
   }
   gl_FragColor = vec4(col, 1.0);
 }`
@@ -92,7 +93,7 @@ export function mountHeroGL(
   gl.enableVertexAttribArray(loc)
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
   const u = (n: string) => gl.getUniformLocation(prog, n)
-  const U = { tex: u('uTex'), res: u('uRes'), img: u('uImg'), cam: u('uCam'), chimney: u('uChimney'), time: u('uTime'), lean: u('uLean'), horizon: u('uHorizon') }
+  const U = { tex: u('uTex'), res: u('uRes'), img: u('uImg'), cam: u('uCam'), chimney: u('uChimney'), time: u('uTime'), lean: u('uLean'), horizon: u('uHorizon'), live: u('uLive') }
   // where the chimney's top is in each frame (the wide one, and the tall one for phones), and how the smoke leans
   const shot = portrait ? { chimney: [0.952, 0.452], lean: -2.3, horizon: 0.3 } : { chimney: [0.6956, 0.4385], lean: -1.45, horizon: 0.3 }
   gl.uniform2f(U.chimney, shot.chimney[0], shot.chimney[1])
@@ -124,12 +125,15 @@ export function mountHeroGL(
       const frame = (now: number) => {
         const t = (now - t0) / 1000
         const p = pointer()
-        // the camera: the pointer's pull, and a slow breath of its own
-        const cx = -p.x * 0.011 + Math.sin(t * 0.09) * 0.0035
-        const cy = -p.y * 0.007 + Math.cos(t * 0.07) * 0.0025
+        // coming alive: from the film's last frame exactly (no zoom, no pull, no shadows) to the living one, gently
+        const k = Math.min(1, t / 3.2), live = k * k * (3 - 2 * k)
+        // the camera: the pointer's pull, and a slow breath of its own (sin(0) and 1 - cos(0) are 0: no step at the start)
+        const cx = (-p.x * 0.011 + Math.sin(t * 0.09) * 0.0035) * live
+        const cy = (-p.y * 0.007 + (1 - Math.cos(t * 0.07)) * 0.0025) * live
         size()
         gl.uniform2f(U.cam, cx, cy)
         gl.uniform1f(U.time, t)
+        gl.uniform1f(U.live, live)
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
         raf = requestAnimationFrame(frame)
       }

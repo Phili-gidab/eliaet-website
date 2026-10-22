@@ -141,13 +141,15 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .story__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; color: var(--cream); isolation: isolate; }
   .story__view { position: absolute; inset: 0; z-index: 0; }
   .story :global(.story__film) { position: absolute; inset: 0; z-index: 0; }
-  .story__end { position: absolute; inset: -3%; z-index: 1; opacity: 0; transition: opacity 1.2s var(--ease); }
+  /* the last frame as a still: exactly the film's last frame (the same picture, the same framing), so the film hands
+     over to it without a seam; whatever moves in it afterwards starts from stillness and grows in */
+  .story__end { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: 0; transition: opacity 0.6s linear; }
   .story__end img { width: 100%; height: 100%; object-fit: cover; }
   .story.is-end .story__end { opacity: 1; }
   .story__smoke { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s var(--ease); }
   .story.is-end .story__smoke.is-on { opacity: 1; }
-  /* once the living frame is drawn, the picture under it rests */
-  .story__view:has(.story__smoke.is-on) .story__end img { animation: none; }
+  /* once the living frame is drawn over it (and has faded in), the picture under it is not drawn */
+  .story__view:has(.story__smoke.is-on) .story__end { visibility: hidden; transition: opacity 0.6s linear, visibility 0s linear 2.2s; }
   /* where the words sit, a neutral shadow (the film's own colours elsewhere) */
   .story__shade {
     position: absolute; inset: 0; z-index: 3; pointer-events: none;
@@ -159,13 +161,13 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
 
   /* the final frame never stands still: a slow drift, and (story.ts) it follows the pointer, and the chimney smokes */
   @media (prefers-reduced-motion: no-preference) {
-    .story.is-end .story__end img { animation: story-drift 28s ease-in-out infinite alternate; }
-    .story__end { transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px), 0); }
-    .story.is-end .story__copy { transform: translate3d(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 5px), 0); }
+    /* (where the living frame cannot be drawn) the still drifts, starting from exactly where the film stopped */
+    .story.is-end .story__end img { animation: story-drift 30s cubic-bezier(0.45, 0, 0.4, 1) 0.8s infinite alternate both; }
+    .story.is-end .story__copy { transform: translate3d(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 5px), 0); transition: transform 1.6s var(--ease); }
   }
   @keyframes story-drift {
-    from { transform: scale(1.02) translate3d(0, 0, 0); }
-    to { transform: scale(1.09) translate3d(-1.2%, -1.4%, 0); }
+    from { transform: none; }
+    to { transform: scale(1.07) translate3d(-1.2%, -1.4%, 0); }
   }
 
   /* the door: a canvas the size of the stage (the page colour until it first draws), and the outline over it */

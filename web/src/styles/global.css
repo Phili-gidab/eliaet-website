@@ -390,8 +390,8 @@ html.lenis, html.lenis body { height: auto; }
 .window__cut { z-index: 2; }
 .window__pic img, .window__cut img {
   width: 100%; height: 100%; object-fit: cover; object-position: var(--focus); will-change: transform;
-  /* the same grade on both, so the subject and its photograph stay one picture */
-  filter: saturate(1.12) contrast(1.05) sepia(0.05);
+  /* the same grade on both (the site's one grade), so the subject and its photograph stay one picture */
+  filter: var(--grade);
 }
 /* the pictures load as their page comes near (site.ts adds .is-near); fixed, they would all load with the page */
 .js .window:not(.is-near) :is(.window__pic, .window__cut) img { display: none; }
@@ -508,3 +508,34 @@ html.lenis, html.lenis body { height: auto; }
   }
 }
 
+
+/* ── between pages: the next page comes up over the last like another sheet on the pile (the last one sinks back
+   and darkens a little), the header staying where it is. Browsers without cross-document view transitions simply
+   load the page; less motion, a plain cut ── */
+@view-transition { navigation: auto; }
+.hdr { view-transition-name: site-header; }
+::view-transition-group(root) { animation-duration: 0.75s; }
+::view-transition-old(root) { animation: vt-sink 0.75s cubic-bezier(0.65, 0, 0.25, 1) both; }
+::view-transition-new(root) { animation: vt-rise 0.75s cubic-bezier(0.65, 0, 0.25, 1) both; }
+::view-transition-old(site-header), ::view-transition-new(site-header) { animation-duration: 0.3s; }
+@keyframes vt-rise { from { transform: translateY(100vh); clip-path: inset(0 round 40px 40px 0 0); } to { transform: none; clip-path: inset(0 round 0); } }
+@keyframes vt-sink { to { transform: scale(0.94); filter: brightness(0.45); } }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
+/* ── one grade for every photograph and film: a touch warm, a touch muted, so the fair, the studio and the
+   highlands read as one shoot (logos, drawings and the members' own pictures keep their colours) ── */
+:root { --grade: sepia(0.07) saturate(0.94) contrast(1.03); }
+:where(main) :where(img, video):not([src$='.svg'], .plogo img, .roster img, .mem img, .sketch img) { filter: var(--grade); }
+
+/* ── the thread (scripts/stitch.ts, the home page): saddle stitching down the sheets' left edge, sewn as they pass
+   (its own class names: .seam and .stitch are the cards' and rules' stitched edges) ── */
+.thread { position: absolute; z-index: 5; top: 0; left: clamp(8px, 1.5vw, 28px); width: 24px; pointer-events: none; overflow: visible; }
+.thread path { fill: none; stroke-linecap: round; }
+.thread__reveal { stroke: #fff; stroke-width: 30; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.thread__line { stroke: var(--thread, var(--amber)); stroke-width: 2; stroke-dasharray: 9 7; }
+.thread__hole { stroke: rgb(60 30 22 / 0.3); stroke-width: 2.2; stroke-dasharray: 9 7; transform: translate(0.9px, 1.1px); }
+.thread__needle { fill: var(--thread, var(--amber)); opacity: 0; transition: opacity 0.3s; }
+.sec--amber .thread { --thread: var(--ink); }
+.sec--brown .thread .thread__hole { stroke: transparent; }

@@ -153,17 +153,22 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     words={['_to the_', 'world.']} kicker="The fair" note="Every year the All Africa Leather Fair brings buyers from around the world to Ethiopian makers."
     place="--hx:4vw;--hy:13vh;--hs:clamp(4.6rem,1rem + 15vw,18rem)" focus="50% 30%" focusM="50% 30%" />
 
-  <!-- the fair, on amber -->
+  <!-- the fair, on amber: an event poster. Its name and city on a rule, the dates as large as the column allows on one
+       line, and under a second rule what a visitor needs: how long until it opens, where, and the way in -->
   <section class="sec sec--amber fair" data-tone="light" data-tab="AALF 2026" aria-labelledby="fair-title">
     <div class="wrap fair__in">
-      <p class="fair__kicker" data-reveal="fade">The {AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair</p>
-      <h2 class="fair__date" id="fair-title">
-        <span class="fair__days" data-reveal>{fairDays}</span>
-        <span class="fair__month" data-reveal style="--d:.08s">{fairMonth} {fairYear}</span>
-      </h2>
-      <div class="fair__side">
+      <div class="fair__top" data-reveal="fade">
+        <span class="fair__badge">AALF {fairYear}</span>
+        <h2 class="fair__name" id="fair-title">The {AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair</h2>
+        <p class="fair__city">{AALF_2026.city}</p>
+      </div>
+      <p class="fair__date" data-reveal>
+        <time class="fair__days" datetime={AALF_2026.start.slice(0, 10)}>{fairDays.split('–')[0]}<span class="fair__dash" aria-hidden="true">–</span><span class="sr-only"> to </span>{fairDays.split('–')[1]}</time>
+        <span class="fair__month"><span>{fairMonth}</span><span>{fairYear}</span></span>
+      </p>
+      <div class="fair__base">
         <div class="fair__count" data-countdown={AALF_2026.start} hidden>
-          <p class="fair__opens">The fair opens in</p>
+          <p class="fair__k">The fair opens in</p>
           <div class="fair__units">
             <span><b class="figure-num" data-unit="d">–</b><i>days</i></span>
             <span><b class="figure-num" data-unit="h">–</b><i>hours</i></span>
@@ -171,10 +176,13 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
             <span><b class="figure-num" data-unit="s">–</b><i>seconds</i></span>
           </div>
         </div>
-        <p class="fair__where" data-reveal>{AALF_2026.venue}, {AALF_2026.city}. {AALF_2026.cobrand}.</p>
-        <div class="row" data-reveal style="--d:.12s">
-          <a class="btn btn--dark" href={AALF_2026.register} target="_blank" rel="noopener">Register for the fair</a>
-          <a class="btn btn--line" href="/aalf">About the fair</a>
+        <div class="fair__where" data-reveal style="--d:.06s">
+          <p class="fair__k">Where</p>
+          <p>{AALF_2026.venue}, {AALF_2026.city.split(',')[0]}. {AALF_2026.cobrand}.</p>
+        </div>
+        <div class="fair__go" data-reveal style="--d:.12s">
+          <a class="btn btn--dark" href={AALF_2026.register} target="_blank" rel="noopener">Register for the fair <Fragment set:html={arrow} /><span class="sr-only"> (opens {new URL(AALF_2026.register).host} in a new tab)</span></a>
+          <a class="btn btn--ghost" href="/aalf">About the fair</a>
         </div>
       </div>
     </div>
@@ -316,29 +324,62 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   @media (max-width: 960px) { .why__in { grid-template-columns: 1fr; } .why__stage { position: static; max-width: 560px; } }
   @media (max-width: 480px) { .why__points li { grid-template-columns: 1fr; gap: 8px; } }
 
-  /* the fair: amber, the date as big as the page allows */
-  .fair { padding-bottom: clamp(56px, 7vw, 96px); overflow: hidden; }
-  .fair__in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 24px clamp(32px, 5vw, 80px); align-items: end; }
-  .fair__kicker { grid-column: 1 / -1; font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.4rem); font-weight: 600; letter-spacing: -0.01em; }
-  .fair__date { display: grid; font-family: var(--f-display); letter-spacing: -0.05em; color: var(--ink); }
-  .fair__days { font-weight: 800; font-stretch: 75%; line-height: 0.8; font-size: clamp(6rem, 1rem + 17vw, 19rem); }
-  .fair__month { font-weight: 300; font-style: italic; font-stretch: 88%; line-height: 1; font-size: clamp(2.4rem, 1rem + 4.6vw, 5.6rem); letter-spacing: -0.035em; margin-top: 0.1em; }
-  .fair__side { display: grid; gap: 28px; padding-bottom: 0.6em; }
-  .fair__opens { font-size: 14.5px; font-weight: 600; margin-bottom: 12px; }
-  .fair__units { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1.5px solid var(--ink); }
-  .fair__units span { display: grid; gap: 6px; padding-top: 14px; }
+  /* the fair: amber, an event poster. The dates set on one line as wide as the column (sized from the column's width,
+     container units), the month and year stacked beside them in the light italic; rules above and below */
+  .fair { padding-block: clamp(84px, 8vw, 124px) clamp(56px, 7vw, 96px); overflow: hidden; }
+  .fair__top {
+    position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-bottom: 18px; border-bottom: 1.5px solid var(--ink);
+  }
+  .fair__badge {
+    display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--ink); color: var(--amber);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+  }
+  .fair__name { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.5rem); letter-spacing: -0.012em; color: var(--ink); }
+  .fair__city { margin-left: auto; font-size: 14.5px; font-weight: 560; color: var(--ink); }
+  .fair__date {
+    container-type: inline-size; display: flex; align-items: flex-end; gap: 0 2.6cqi; margin: 0;
+    padding-block: clamp(22px, 3vw, 44px) clamp(18px, 2.4vw, 34px); color: var(--ink);
+  }
+  .fair__days {
+    font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.045em; line-height: 0.76;
+    font-size: 25cqi; font-variant-numeric: lining-nums; white-space: nowrap;
+  }
+  /* the dash between the days, light, so the two dates read as a span */
+  .fair__dash { display: inline-block; font-weight: 300; font-stretch: 75%; margin: 0 0.02em; transform: scaleX(0.72); position: relative; top: -0.04em; }
+  .fair__month {
+    display: grid; padding-bottom: 0.2cqi; font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%;
+    font-size: 7.9cqi; line-height: 0.92; letter-spacing: -0.035em;
+  }
+  .fair__base {
+    display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto; gap: 28px clamp(28px, 4vw, 64px); align-items: end;
+    padding-top: 22px; border-top: 1.5px solid var(--ink);
+  }
+  .fair__k { margin: 0 0 10px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+  .fair__units { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .fair__units span { display: grid; gap: 4px; }
   .fair__units span + span { padding-left: 14px; border-left: 1px solid rgb(60 30 22 / 0.25); }
-  .fair__units b { font-size: clamp(2.4rem, 1.6rem + 2.2vw, 3.8rem); color: var(--ink); display: inline-block; }
+  .fair__units b { font-size: clamp(2.2rem, 1.6rem + 1.8vw, 3.4rem); color: var(--ink); display: inline-block; }
   .fair__units b.tick { animation: fair-tick 0.5s var(--ease); }
   @keyframes fair-tick { from { transform: translateY(-0.28em); opacity: 0.2; } }
-  .fair__units i { font-style: normal; font-size: 13px; font-weight: 560; color: var(--ink); }
-  .fair__where { font-size: 1.06rem; line-height: 1.5; max-width: 36ch; color: var(--ink); }
-  .btn--line { --bg: transparent; --fg: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
-  .btn--line:hover { --bg: rgb(60 30 22 / 0.08); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .fair__units i { font-style: normal; font-size: 12.5px; font-weight: 560; color: var(--ink); }
+  .fair__where p:last-child { margin: 0; max-width: 34ch; font-size: 1.02rem; line-height: 1.5; color: var(--ink); }
+  .fair__go { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; }
+  .fair__go :global(svg) { width: 18px; height: 18px; margin-left: 4px; }
   .fair__reel { margin-top: clamp(48px, 6vw, 88px); mask-image: none; }
   .fair__pic { flex: none; height: clamp(200px, 22vw, 300px); aspect-ratio: var(--r); border-radius: var(--radius-s); overflow: hidden; background: rgb(60 30 22 / 0.15); }
   .fair__pic img { width: 100%; height: 100%; object-fit: cover; }
-  @media (max-width: 860px) { .fair__in { grid-template-columns: 1fr; } .fair__units span + span { padding-left: 10px; } }
+  @media (max-width: 1100px) {
+    .fair__base { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .fair__go { grid-column: 1 / -1; justify-content: flex-start; }
+  }
+  @media (max-width: 700px) {
+    .fair__city { margin-left: 0; width: 100%; }
+    .fair__date { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .fair__days { font-size: 36cqi; }
+    .fair__month { display: flex; gap: 0.25em; font-size: 12cqi; }
+    .fair__base { grid-template-columns: 1fr; }
+    .fair__units span + span { padding-left: 10px; }
+  }
 
   /* news */
   .news .head { margin-bottom: clamp(40px, 5vw, 72px); }
@@ -359,6 +400,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
 
 <script>
   import { reduce } from '../scripts/motion'
+  import '../scripts/stitch'
 
   /* the fair's film in its card: it plays while the card is on screen (and its section is not covered), with less
      motion it stays on its first frame */
