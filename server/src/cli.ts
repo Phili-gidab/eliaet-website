@@ -69,6 +69,9 @@ async function main() {
         console.log(`${t.padEnd(16)} ${one<{ n: number }>(`SELECT COUNT(*) AS n FROM ${t}`)?.n}`)
       }
       console.log(`${'secretariat'.padEnd(16)} ${one<{ n: number }>(`SELECT COUNT(*) AS n FROM users WHERE role = 'secretariat' AND status = 'active'`)?.n}`)
+      const m = config.mail
+      console.log(`${'e-mail'.padEnd(16)} ${m.outboxOnly ? 'written to the data folder\'s outbox, not sent' : m.smtp ? `by SMTP (${m.smtp.host})` : m.sendmail ? `by the server's sendmail (${m.sendmail})` : 'OFF: no SMTP set and no sendmail found'}`)
+      console.log(`${'e-mail from'.padEnd(16)} ${m.from}`)
       break
     }
     default:

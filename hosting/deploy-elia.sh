@@ -213,6 +213,10 @@ sed -i -e :a -e '/^\n*\$/{\$d;N;ba' -e '}' "\$HT"
 printf '\n' >> "\$HT"
 cat "\$W/htaccess-elia.conf" >> "\$HT"
 
+# how the site's e-mail goes out (the forms reach ELIA by it)
+MAILMODE="\$(cd "\$APPROOT" && "\$NODE" server/dist/cli.mjs stats 2>/dev/null | sed -n '/^e-mail from/d; s/^e-mail  *//p' || true)"
+echo "==> E-mail: \${MAILMODE:-unknown}"
+
 # 7. the Secretariat's account, if asked for
 if [ -n ${ADMIN_EMAIL_Q} ]; then
     echo "==> The Secretariat account for ${ADMIN_EMAIL}"

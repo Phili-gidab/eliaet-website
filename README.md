@@ -170,7 +170,8 @@ node server/dist/cli.mjs stats                                           # what 
 
 Build the package for the new address (`node hosting/bundle.mjs https://www.eliaet.com`), set `REMOTE` and
 `HOME_DIR` in `deploy-elia.sh` to the new hosting, and take out the search-engine block: drop `NOINDEX: '1'` in
-`hosting/bundle.mjs`, `NOINDEX=1` from the settings file, and the `X-Robots-Tag` line in `hosting/htaccess-elia.conf`.
+`hosting/bundle.mjs` (it makes robots.txt turn search engines away) and `NOINDEX=1` from the settings file (it adds an
+`X-Robots-Tag: noindex` header to every answer).
 The data can come along: copy the data folder (or a backup) to the new hosting before the first start.
 
 ## To confirm with ELIA before launch
