@@ -20,6 +20,8 @@ varying vec2 vUv;
 const vec3 CREAM = vec3(1.0, 0.988, 0.961);
 const vec3 AMBER = vec3(0.886, 0.627, 0.145);
 const vec3 TAUPE = vec3(0.478, 0.404, 0.384);
+const vec3 BROWN = vec3(0.235, 0.118, 0.086);
+const vec3 AMBER20 = vec3(0.980, 0.937, 0.859);
 const vec2 DOTC = vec2(367.52, 251.05);
 const float DOTR = 10.17;
 const vec2 EC = vec2(311.0, 281.6);
@@ -65,20 +67,22 @@ void main() {
   // the film inside the mark: first in the logo's amber (its light and shade only), then, as the door opens, in its
   // own colours. The amber gives way to it spreading out from the dot.
   float lum = dot(film, vec3(0.299, 0.587, 0.114));
-  vec3 duo = mix(vec3(0.42, 0.25, 0.05), vec3(1.0, 0.86, 0.52), smoothstep(0.04, 0.82, lum));
+  // (the palette's own: brown in the shadows, amber in the middle, amber's palest tint in the light)
+  float tl = smoothstep(0.04, 0.82, lum);
+  vec3 duo = tl < 0.5 ? mix(BROWN, AMBER, tl * 2.0) : mix(AMBER, AMBER20, tl * 2.0 - 1.0);
   vec3 inside = mix(duo, film, uColor);
   float reach = uFilmIn * 190.0;
   float spread = 1.0 - smoothstep(reach - 26.0, reach, length(L - DOTC));
   vec3 fill = mix(AMBER, inside, uFilmIn >= 1.0 ? 1.0 : spread);
 
-  vec3 col = mix(CREAM, mix(CREAM, TAUPE, 0.86), mW);
+  vec3 col = mix(CREAM, TAUPE, mW);
   col = mix(col, fill, mark);
 
   // an amber hairline round the cut while the film is in it
   float edge = max(min(dE, 1e3), dD);
   float rimW = 1.3 / uS;
   float rim = (1.0 - smoothstep(rimW * 0.5, rimW * 1.5, abs(edge))) * uRim * max(swept, step(0.0, uDot) * mD);
-  col = mix(col, vec3(0.62, 0.4, 0.08), rim);
+  col = mix(col, AMBER, rim);
   gl_FragColor = vec4(col, 1.0);
 }`
 

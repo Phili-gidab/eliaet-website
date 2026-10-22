@@ -49,9 +49,10 @@ if (lenis) {
   const main = document.querySelector('main')
   if (main) {
     const kids = [...main.children] as HTMLElement[]
-    const sheets = kids.filter((el) => el.matches('section.sec, section.window, section.ph, section.cover') && !el.matches('.story, .process'))
+    // the home page's story is one too: its film is held while the next section slides over it
+    const sheets = kids.filter((el) => el.matches('section.sec, section.window, section.ph, section.cover, section.story'))
     for (const sec of sheets) {
-      if (sec.matches('.ph, .window, .cover') || sec.querySelector(':scope > .sheet-tab')) continue
+      if (sec.matches('.ph, .window, .cover, .story') || sec.querySelector(':scope > .sheet-tab')) continue
       const named = sec.dataset.tab
       const label = named ? null : sec.querySelector<HTMLElement>(':scope > .wrap .label--rule')
       if (!named && !label) continue
@@ -87,6 +88,15 @@ if (lenis) {
           onUpdate: (st) => sec.style.setProperty('--cover', st.progress.toFixed(3)),
           // while it shrinks it is drawn once and scaled as a picture, so its type does not shimmer
           onToggle: (st) => { sec.style.willChange = st.isActive ? 'transform' : '' },
+        })
+        // once the next one has covered it (and gone a little further), it is not drawn at all, and whatever moves
+        // in it (a film, a 3D piece) is told to rest: a held section stays on screen, under the others, to the end
+        ScrollTrigger.create({
+          trigger: mark, start: 'top -120', end: 'max',
+          onToggle: (st) => {
+            sec.classList.toggle('is-covered', st.isActive)
+            sec.dispatchEvent(new CustomEvent('sheet-covered', { detail: st.isActive }))
+          },
         })
       }
     }
@@ -149,7 +159,8 @@ if (!reduce) {
   /* ── pictures that open as they come in: a clip from the bottom, the picture settling inside it ── */
   gsap.utils.toArray<HTMLElement>('[data-open]').forEach((el) => {
     const img = el.querySelector('img')
-    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 88%', once: true } })
+    // (what sits on the picture, a card's arrow, comes with it: the parent is marked open as it starts)
+    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 88%', once: true }, onStart: () => el.parentElement?.classList.add('is-open') })
     tl.fromTo(el, { clipPath: 'inset(100% 0% 0% 0% round var(--radius))' }, { clipPath: 'inset(0% 0% 0% 0% round var(--radius))', duration: 1.25, ease: 'expo.out', delay: parseFloat(el.dataset.open || '0') })
     if (img) tl.fromTo(img, { scale: 1.3 }, { scale: 1, duration: 1.6, ease: 'expo.out' }, '<')
   })

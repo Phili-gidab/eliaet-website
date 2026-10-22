@@ -6,7 +6,7 @@ import Story from '../components/Story.astro'
 import Appointment from '../components/Appointment.astro'
 import Stage3D from '../components/Stage3D.astro'
 import { PIECES } from '../copy/stage'
-import { HERO, HIGHLIGHTS, PILLARS, ABOUT, PROCESS, WHY } from '../copy/home'
+import { HERO, HIGHLIGHTS, PILLARS, ABOUT, WHY } from '../copy/home'
 import { AALF_2026 } from '../copy/aalf'
 import { PARTNERS, BRANDS } from '../copy/impact'
 import { SECTORS, SECTOR_TOTALS, type SectorKey } from '../copy/members'
@@ -87,33 +87,6 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind"
     words={['_From the_', 'highlands,']} kicker="Where it starts" note="Highland sheepskin is thin and light, yet strong and durable: the start of Ethiopian leather."
     place="--hx:4vw;--hy:12vh;--hs:clamp(4.6rem,1rem + 16vw,19rem)" focus="50% 40%" focusM="66% 40%" />
-
-  <!-- how leather is made: the four colours of a hide's life, one panel each; on a wide screen they slide by as the
-       page scrolls -->
-  <section class="process" data-process data-tone="dark" aria-labelledby="process-title">
-    <div class="process__track" data-process-track>
-      <header class="process__intro">
-        <p class="process__am geez" lang="am">ከጥሬ ቆዳ እስከ ያለቀ ቆዳ</p>
-        <h2 class="process__title" id="process-title">Four stages, one material.</h2>
-        <p class="process__lede">How a by-product of Ethiopia’s food culture becomes a material that the world’s shoe, bag and garment makers buy.</p>
-        <p class="process__hint" aria-hidden="true"><span>From raw hide to finished leather</span><Fragment set:html={arrow} /></p>
-      </header>
-      {PROCESS.map((s, i) => (
-        <article class:list={['process__panel', `process__panel--${s.key}`]} aria-labelledby={`stage-${s.key}`}>
-          <div class="process__pic">
-            <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" data-panel-img {...responsive(`/media/film/stage-${s.key}.webp`, '(max-width: 999px) 92vw, 520px')} />
-          </div>
-          <div class="process__text">
-            <span class="process__n" aria-hidden="true">{pad(i + 1)}</span>
-            <p class="process__name">{s.name} <span class="geez" lang="am">{s.amharic}</span></p>
-            <h3 class="process__h" id={`stage-${s.key}`}>{s.title}</h3>
-            <p class="process__p">{s.text}</p>
-          </div>
-        </article>
-      ))}
-    </div>
-    <div class="process__bar" aria-hidden="true"><i data-process-bar></i></div>
-  </section>
 
   <!-- what we do -->
   <section class="sec sec--paper sec--mist programmes" data-tone="light" data-tab="What we do" aria-labelledby="prog-title">
@@ -287,48 +260,20 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     .sectors li + li { border-left: 0; border-top: 1px solid var(--line-dark); }
   }
 
-  /* how leather is made: the four colours of a hide's life */
-  .process { position: relative; background: var(--brand-taupe); color: var(--cream); }
-  .process__track { display: grid; }
-  .process__intro { display: grid; align-content: center; gap: 28px; padding: clamp(96px, 12vw, 160px) var(--gutter) clamp(64px, 8vw, 110px); background: var(--brand-taupe); }
-  .process__am { font-size: 1.05rem; color: rgb(255 252 245 / 0.97); }
-  .process__title { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.04em; line-height: 0.86; font-size: clamp(3.4rem, 1.4rem + 6.6vw, 8.6rem); max-width: 7.5ch; }
-  .process__lede { max-width: 36ch; font-size: var(--step-1); line-height: 1.45; color: rgb(255 252 245 / 0.92); }
-  .process__hint { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 560; color: rgb(255 252 245 / 0.9); }
-  .process__hint :global(svg) { width: 22px; height: 22px; }
-  .process__panel { --fg: var(--ink); --num: rgb(60 30 22 / 0.7); display: grid; gap: clamp(24px, 3vw, 40px); padding: clamp(56px, 8vw, 96px) var(--gutter); color: var(--fg); }
-  .process__panel--raw { background: var(--raw); }
-  .process__panel--wetblue { background: var(--wetblue-1); }
-  .process__panel--crust { background: var(--crust); }
-  .process__panel--finished { background: var(--finished); --fg: var(--cream); --num: rgb(255 252 245 / 0.55); }
-  .process__pic { position: relative; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 5; width: min(100%, 520px); box-shadow: 0 40px 80px -40px rgb(30 15 10 / 0.6); }
-  .process__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; scale: 1.18; }
-  .process__text { display: grid; gap: 16px; align-content: center; max-width: 34rem; }
-  .process__n { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.05em; line-height: 0.78; font-size: clamp(6rem, 3rem + 9vw, 14rem); color: var(--num); }
-  .process__name { font-size: 15px; font-weight: 600; }
-  .process__name .geez { margin-left: 8px; font-weight: 400; }
-  .process__h { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; letter-spacing: -0.03em; line-height: 0.95; font-size: clamp(2.2rem, 1.4rem + 2.6vw, 4rem); }
-  .process__p { font-size: 1.06rem; line-height: 1.55; max-width: 40ch; }
-  .process__bar { display: none; }
-  /* wide screens: the panels side by side, slid past by the scroll (the page's script pins the section) */
-  .process.is-pinned { height: 100svh; overflow: hidden; }
-  .process.is-pinned .process__track { display: flex; height: 100%; width: max-content; will-change: transform; }
-  .process.is-pinned .process__intro { flex: none; width: min(48vw, 760px); height: 100%; padding: calc(var(--header-h) + 24px) clamp(40px, 5vw, 96px) 64px max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter))); }
-  .process.is-pinned .process__panel { flex: none; width: max(76vw, 980px); height: 100%; grid-template-columns: auto minmax(0, 1fr); align-items: center; padding: calc(var(--header-h) + 24px) clamp(48px, 6vw, 110px) 64px; }
-  .process.is-pinned .process__pic { width: auto; height: min(68svh, 660px); }
-  .process.is-pinned .process__bar { display: block; position: absolute; left: var(--gutter); right: var(--gutter); bottom: 28px; height: 2px; border-radius: 2px; background: rgb(255 252 245 / 0.25); overflow: hidden; }
-  .process.is-pinned .process__bar i { position: absolute; inset: 0; background: var(--cream); transform-origin: left; transform: scaleX(0); }
-
   /* what we do */
   .programmes .head { margin-bottom: clamp(40px, 5vw, 72px); }
   .bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
   .bento__item { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 18px; color: var(--ink); }
   .bento__item--0 { grid-column: span 7; grid-row: span 2; }
   .bento__item--1, .bento__item--2 { grid-column: span 5; }
-  .bento__item--3 { grid-column: span 12; grid-template-columns: 1.3fr 1fr; grid-template-rows: auto; align-items: end; gap: clamp(20px, 3vw, 48px); }
+  /* the last one runs the width as a banner: the picture full bleed, its words on it, bottom left */
+  .bento__item--3 { grid-column: span 12; grid-template-rows: auto; color: var(--cream); isolation: isolate; border-radius: var(--radius); overflow: hidden; }
+  .bento__item--3 .bento__img { grid-area: 1 / 1; min-height: clamp(320px, 34vw, 460px); border-radius: 0; }
+  .bento__item--3 .bento__img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgb(60 30 22 / 0.78) 0%, rgb(60 30 22 / 0.35) 45%, rgb(60 30 22 / 0) 70%); }
+  .bento__item--3 .bento__text { grid-area: 1 / 1; z-index: 1; align-self: end; padding: clamp(24px, 3vw, 44px); max-width: 560px; }
+  .bento__item--3 .bento__text p { color: rgb(255 252 245 / 0.86); }
   .bento__img { position: relative; overflow: hidden; border-radius: var(--radius); min-height: 220px; background: var(--dusk); }
   .bento__item--0 .bento__img { min-height: min(62vh, 620px); }
-  .bento__item--3 .bento__img { min-height: 360px; }
   .bento__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
   .bento__item:hover .bento__img img { transform: scale(1.05); }
   .bento__text { display: grid; gap: 10px; padding-right: 56px; }
@@ -340,10 +285,14 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   }
   .bento__go svg { width: 18px; height: 18px; }
   .bento__item:hover .bento__go { transform: scale(1.1) rotate(45deg); background: var(--amber); }
+  /* with motion, a card's arrow (and the banner's words, which sit on its picture) come in with the picture */
+  :global(.lenis) .bento__item .bento__go, :global(.lenis) .bento__item--3 .bento__text { transition: opacity 0.6s var(--ease) 0.5s, transform 0.45s var(--spring), background 0.3s; }
+  :global(.lenis) .bento__item:not(.is-open) .bento__go { opacity: 0; transform: scale(0.6); }
+  :global(.lenis) .bento__item--3:not(.is-open) .bento__text { opacity: 0; }
   @media (max-width: 960px) {
     .bento__item--0, .bento__item--1, .bento__item--2 { grid-column: span 12; grid-row: auto; }
     .bento__item--0 .bento__img { min-height: 360px; }
-    .bento__item--3 { grid-template-columns: 1fr; }
+    .bento__item--3 .bento__img::after { background: linear-gradient(0deg, rgb(60 30 22 / 0.82) 0%, rgb(60 30 22 / 0.3) 55%, rgb(60 30 22 / 0) 80%); }
   }
 
   /* why */
@@ -400,35 +349,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
 </style>
 
 <script>
-  import { gsap, ScrollTrigger, reduce } from '../scripts/motion'
-
-  /* how leather is made: on a wide screen the section holds still while its panels slide past, each picture
-     drifting inside its frame */
-  const proc = document.querySelector<HTMLElement>('[data-process]')
-  if (proc && !reduce) {
-    const mm = gsap.matchMedia()
-    mm.add('(min-width: 1000px) and (min-height: 600px)', () => {
-      const track = proc.querySelector<HTMLElement>('[data-process-track]')!
-      const bar = proc.querySelector<HTMLElement>('[data-process-bar]')
-      proc.classList.add('is-pinned')
-      const dist = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth)
-      const slide = gsap.to(track, {
-        x: () => -dist(), ease: 'none',
-        scrollTrigger: {
-          trigger: proc, start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
-          onUpdate: (st) => { if (bar) bar.style.transform = `scaleX(${st.progress.toFixed(4)})` },
-        },
-      })
-      proc.querySelectorAll<HTMLElement>('[data-panel-img]').forEach((img) => {
-        gsap.fromTo(img, { xPercent: -7 }, {
-          xPercent: 7, ease: 'none',
-          scrollTrigger: { trigger: img.closest('.process__panel'), containerAnimation: slide, start: 'left right', end: 'right left', scrub: true },
-        })
-      })
-      ScrollTrigger.refresh()
-      return () => { proc.classList.remove('is-pinned'); gsap.set(track, { clearProps: 'transform' }) }
-    })
-  }
+  import { reduce } from '../scripts/motion'
 
   /* the fair's countdown: days, hours, minutes, seconds; hidden without JavaScript and once the fair has opened */
   const box = document.querySelector<HTMLElement>('[data-countdown]')

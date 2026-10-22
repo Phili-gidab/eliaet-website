@@ -57,7 +57,7 @@ void main() {
     float n = fbm(vec2(d.x * 10.0 + uTime * 0.1, up * 8.0 - uTime * 0.6));
     float body = exp(-dx * dx * 1.1) * smoothstep(0.0, 0.04, up) * (1.0 - smoothstep(0.1, 0.36, up));
     float smoke = body * smoothstep(0.32, 0.72, n + 0.18 - up * 0.6);
-    col = mix(col, vec3(0.9, 0.9, 0.88), clamp(smoke * 0.7, 0.0, 0.7));
+    col = mix(col, vec3(0.914, 0.902, 0.898), clamp(smoke * 0.7, 0.0, 0.7));   // taupe's palest tint
   }
   gl_FragColor = vec4(col, 1.0);
 }`

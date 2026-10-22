@@ -13,16 +13,13 @@
   --brand-brown: #3c1e16; --brown-80: #5d443d; --brown-65: #7d6964; --brown-50: #9e8f8b; --brown-35: #beb4b1; --brown-20: #ded9d8;
   --brand-page: #fffcf5;
 
-  /* surfaces: the brand brown, and panels a step lighter (between it and its first tint) */
+  /* surfaces: the brand brown; a panel on it is a veil of the page colour, a hover its first tint. Every colour on
+     the site is one of the palette's, or one of them with some transparency */
   --ink: #3c1e16;
-  --ink-1: #43261e;
-  --ink-2: #462922;
-  --ink-3: #4b2f28;
-  --hide: #43261e;
-  --saddle: #4b2f28;
-  /* leather: colours of the material itself (the stages of the process), not of the interface */
-  --tan: #9a6537;
-  --wetblue: #86a9b2;
+  --ink-1: rgb(255 252 245 / 0.05);
+  --ink-2: #3c1e16;
+  --ink-3: #5d443d;
+  --hide: #3c1e16;
   /* the light */
   --gold: #e2a025;
   --amber: #e2a025;
@@ -42,11 +39,6 @@
   /* the light surfaces between the page colour's sections: taupe's own tints (the guide's main second colour) */
   --mist: #e9e6e5;
   --dusk: #d3cccb;
-  /* the four colours of a hide's life (the process): raw, wet-blue, crust, finished */
-  --raw: #dcc6b4;
-  --wetblue-1: #9db8bf;
-  --crust: #c58e57;
-  --finished: #4d2617;
 
   --f-text: 'Roboto Variable', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --f-display: var(--f-text);
@@ -86,7 +78,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-to
 body {
   margin: 0;
   /* what shows round a sheet as the next one covers it: the pile's shadow, not a colour */
-  background: #1a100c;
+  background: var(--brand-brown);
   color: var(--cream);
   font-family: var(--f-text);
   font-size: var(--step-0);
@@ -127,7 +119,7 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 .sec { position: relative; padding-block: clamp(88px, 11vw, 168px); }
 .sec--tight { padding-block: clamp(56px, 7vw, 104px); }
 .sec--hide { background: var(--brand-taupe); }
-.sec--saddle { background: radial-gradient(120% 90% at 85% 0%, rgb(255 236 200 / 0.16), transparent 55%), var(--brand-taupe); }
+.sec--saddle { background: radial-gradient(120% 90% at 85% 0%, rgb(250 239 219 / 0.16), transparent 55%), var(--brand-taupe); }
 .sec--paper { background: var(--paper); color: var(--ink); color-scheme: light; --sheet-bg: var(--paper); --sheet-fg: var(--ink); }
 .sec--paper ::selection { background: var(--ink); color: var(--paper); }
 /* the brand guide's order: the page colour is the main surface, taupe's tints go between, taupe itself carries one
@@ -143,7 +135,7 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 .sec--amber .label b { color: var(--ink); background: rgb(255 252 245 / 0.32); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.3); }
 .sec--amber :is(.display, .h1, .h2, .h3) em { color: var(--ink); }
 .sec--amber .t-foil { background: none; -webkit-text-fill-color: currentColor; color: var(--ink); filter: none; }
-.sec--amber .btn:not(.btn--ghost) { --bg: var(--ink); --fg: var(--cream); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 14px 30px -14px rgb(60 30 22 / 0.55); }
+.sec--amber .btn:not(.btn--ghost) { --bg: var(--ink); --fg: var(--cream); box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.08), 0 14px 30px -14px rgb(60 30 22 / 0.55); }
 .sec--amber .btn:not(.btn--ghost):hover { --bg: var(--ink-3); }
 .sec--amber .btn--ghost { --fg: var(--ink); --bg: rgb(60 30 22 / 0.06); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.32); backdrop-filter: none; -webkit-backdrop-filter: none; }
 .sec--amber .btn--ghost:hover { --bg: rgb(60 30 22 / 0.12); }
@@ -162,36 +154,36 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
    small accents turn to a warm cream (amber would not read), and panels are a veil of the page colour */
 .sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber, .sec--brown),
 .sheet:not(.sec--paper, .sec--amber, .sec--brown, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber, .sec--brown) {
-  --amber: #fff1d9; --gold: #fff1d9; --amber-hi: #ffffff; --glow: rgb(255 240 214 / 0.14);
+  --amber: #faefdb; --gold: #faefdb; --amber-hi: #fffcf5; --glow: rgb(250 239 219 / 0.14);
   --muted: rgb(255 252 245 / 0.95); --bone: rgb(255 252 245 / 0.97);
   --ink-1: rgb(255 252 245 / 0.07); --line: rgb(255 252 245 / 0.18); --line-2: rgb(255 252 245 / 0.3);
   --sheet-bg: var(--brand-taupe); --sheet-fg: var(--cream);
 }
 /* the label's little box, on taupe: a shade darker than the section, so its cream figure reads */
 :is(.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber, .sec--brown), .sheet:not(.sec--paper, .sec--amber, .sec--brown, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber, .sec--brown)) .label b {
-  background: rgb(60 30 22 / 0.24); box-shadow: inset 0 0 0 1px rgb(255 241 217 / 0.32);
+  background: rgb(60 30 22 / 0.24); box-shadow: inset 0 0 0 1px rgb(250 239 219 / 0.32);
 }
-/* on the taupe-20 surfaces the small taupe type is set a shade deeper, to read */
-.sec--paper.sec--mist { --taupe: #66544e; }
+/* on the taupe-20 surfaces the small taupe type is set in brown's first tint, to read */
+.sec--paper.sec--mist { --taupe: var(--brown-80); }
 
 /* sheets: a section that slides in over the one before it, its top corners rounded like a panel */
 .sheet {
   position: relative; z-index: 2; isolation: isolate;
   margin-top: calc(var(--radius-l) * -1);
   border-radius: var(--radius-l) var(--radius-l) 0 0;
-  box-shadow: 0 -1px 0 var(--line-2), 0 -30px 60px -36px rgb(0 0 0 / 0.4);
+  box-shadow: 0 -1px 0 var(--line-2), 0 -30px 60px -36px rgb(60 30 22 / 0.4);
 }
 .sheet:not(.sec--paper, .sec--hide, .sec--saddle, .sec--taupe, .sec--amber, .sec--brown) { background: var(--brand-taupe); }
 .ftr.sheet { background: var(--ink); }
-.sec--paper.sheet { box-shadow: 0 -30px 60px -34px rgb(0 0 0 / 0.5); }
+.sec--paper.sheet { box-shadow: 0 -30px 60px -34px rgb(60 30 22 / 0.5); }
 
 /* inner pages: every section after the page head slides in over the one before it, like a sheet */
 main > .ph ~ .sec {
   z-index: 1; isolation: isolate; margin-top: calc(var(--radius-l) * -1);
-  border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: 0 -1px 0 var(--line), 0 -30px 60px -36px rgb(0 0 0 / 0.36);
+  border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: 0 -1px 0 var(--line), 0 -30px 60px -36px rgb(60 30 22 / 0.36);
 }
 main > .ph ~ .sec:not(.sec--paper, .sec--hide, .sec--saddle, .sec--amber, .sec--brown) { background-color: var(--brand-taupe); }
-main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36); }
+main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(60 30 22 / 0.36); }
 .ftr.sheet { margin-top: calc(var(--radius-l) * -1); }
 
 /* the light: a soft amber pool behind a section's top, like the sun through a window */
@@ -275,13 +267,13 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36);
   position: relative; display: inline-flex; align-items: center; gap: 0.6em; min-height: 50px; padding: 0 1.35em;
   font-family: var(--f-text); font-weight: 600; font-size: 15px; letter-spacing: 0;
   color: var(--fg); background: var(--bg); border-radius: 999px; isolation: isolate; overflow: hidden; white-space: nowrap;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 10px 30px -12px rgb(226 160 37 / 0.55);
+  box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.35), 0 10px 30px -12px rgb(226 160 37 / 0.55);
   transition: transform 0.45s var(--spring), background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 .btn::before { content: none; }
 .btn svg { width: 1.05em; height: 1.05em; transition: transform 0.45s var(--ease); }
 .btn:hover svg { transform: translateX(3px); }
-.btn:hover { --bg: var(--amber-hi); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4), 0 14px 40px -12px rgb(226 160 37 / 0.75); }
+.btn:hover { --bg: var(--amber-hi); box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.4), 0 14px 40px -12px rgb(226 160 37 / 0.75); }
 .btn:active { transform: scale(0.97); }
 .btn--ghost {
   --bg: rgb(255 252 245 / 0.07); --fg: var(--cream);
@@ -290,8 +282,8 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36);
 .btn--ghost:hover { --bg: rgb(255 252 245 / 0.13); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.28); }
 .sec--paper .btn--ghost { --fg: var(--ink); --bg: rgb(60 30 22 / 0.04); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.2); }
 .sec--paper .btn--ghost:hover { --bg: rgb(60 30 22 / 0.08); }
-.btn--dark { --bg: var(--ink); --fg: var(--cream); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08); }
-.btn--dark:hover { --bg: var(--ink-3); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12); }
+.btn--dark { --bg: var(--ink); --fg: var(--cream); box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.08); }
+.btn--dark:hover { --bg: var(--ink-3); box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.12); }
 .btn--sm { min-height: 40px; padding: 0 1em; font-size: 14px; }
 
 .link {
@@ -318,8 +310,8 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36);
 }
 @media (hover: hover) { .card:hover::before { opacity: 1; } }
 .sec--paper .card::before { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgb(226 160 37 / 0.10), transparent 45%); }
-a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px var(--line-2), inset 0 1px 0 rgb(255 252 245 / 0.1), 0 30px 60px -30px rgb(0 0 0 / 0.9); }
-.sec--paper .card { background: linear-gradient(180deg, #ffffff, var(--paper-2)); box-shadow: inset 0 0 0 1px var(--line-dark), 0 1px 0 rgb(255 255 255 / 0.6); }
+a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px var(--line-2), inset 0 1px 0 rgb(255 252 245 / 0.1), 0 30px 60px -30px rgb(60 30 22 / 0.9); }
+.sec--paper .card { background: linear-gradient(180deg, #fffcf5, var(--paper-2)); box-shadow: inset 0 0 0 1px var(--line-dark), 0 1px 0 rgb(255 252 245 / 0.6); }
 
 /* ── rules and seams (kept for the pages that use them, drawn as hairlines now) ── */
 .stitch { height: 1px; width: 100%; background: linear-gradient(90deg, transparent, var(--line-2) 12%, var(--line-2) 88%, transparent); }
@@ -355,13 +347,16 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inse
 /* a small picture set into a headline, like a word */
 .inlay {
   display: inline-block; vertical-align: -0.08em; width: 1.6em; height: 0.82em; margin-inline: 0.08em; border-radius: 999px;
-  background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.15);
 }
 
 /* an endless row (logos, pictures): the list is doubled in the markup; reduce motion: it stands still and scrolls.
    With the motion script (scripts/motion.ts) it runs on GSAP instead and quickens with the scroll. */
 .marquee { --dur: 48s; display: flex; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-.marquee__track { display: flex; flex: none; gap: var(--gap, 14px); padding-right: var(--gap, 14px); animation: marquee var(--dur) linear infinite; }
+.marquee__track { display: flex; flex: none; gap: var(--gap, 14px); animation: marquee var(--dur) linear infinite; }
+/* the same space after the last item as between the others, so the seam where the row repeats does not show (a list's
+   own reset, ul[role=list], would otherwise take the padding away) */
+.marquee > .marquee__track { padding: 0 var(--gap, 14px) 0 0; }
 .marquee:hover .marquee__track { animation-play-state: paused; }
 .marquee.is-js .marquee__track { animation: none; will-change: transform; }
 @keyframes marquee { to { transform: translateX(-100%); } }
@@ -476,7 +471,7 @@ html.lenis, html.lenis body { height: auto; }
   display: inline-flex; align-items: center; gap: 10px; height: 44px; margin: 0; padding: 0 24px;
   border-radius: 14px 14px 0 0; background: var(--sheet-bg, var(--paper)); color: var(--sheet-fg, var(--ink));
   font-family: var(--f-text); font-size: 14.5px; font-weight: 600; letter-spacing: 0.005em; line-height: 1; white-space: nowrap;
-  box-shadow: 0 -14px 26px -20px rgb(0 0 0 / 0.35);
+  box-shadow: 0 -14px 26px -20px rgb(60 30 22 / 0.35);
 }
 .sheet-tab::before {
   content: ''; position: absolute; inset: 6px 7px -2px; border: 1.4px dashed rgb(226 160 37 / 0.75); border-bottom: 0;
@@ -490,12 +485,14 @@ html.lenis, html.lenis body { height: auto; }
 .sheet-mark { height: 0; }
 @media (prefers-reduced-motion: no-preference) {
   main > .is-stacked { position: sticky; top: min(0px, calc(100vh - var(--sheet-h, 100vh))); }
+  /* covered by the next one and passed: not drawn (scripts/motion.ts) */
+  main > .is-stacked.is-covered { visibility: hidden; }
   main > .is-stacked:not(.window) {
     transform: scale(calc(1 - var(--cover, 0) * 0.025)); transform-origin: 50% max(50%, calc(100% - 50vh));
   }
   .sheet-shade {
     position: absolute; inset: 0; z-index: 60; pointer-events: none; border-radius: inherit;
-    background: #140b07; opacity: calc(var(--cover, 0) * 0.55);
+    background: var(--brand-brown); opacity: calc(var(--cover, 0) * 0.6);
   }
 }
 

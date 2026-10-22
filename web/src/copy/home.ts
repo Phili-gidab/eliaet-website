@@ -63,7 +63,9 @@ export const HIGHLIGHTS = [
     title: 'Enhancing Ethiopian leather industries',
     text: 'Building up the leather industrial sector with the highest manufacturing capability in Africa.',
     to: '/eldsc',
-    image: '/media/carousel-3.webp',
+    image: '/media/eldsc/eldsc.webp',
+    /** hands cutting leather at the bench: keep the knife and the hide in */
+    focus: '50% 62%',
   },
   {
     title: 'Ethiopian Highland Leather',
@@ -110,38 +112,6 @@ export const ABOUT = {
   ],
   count: { value: 194, label: ['Leather', 'manufacturing', 'industries'] },
 }
-
-/* new: the tanning story told by the 3D hide. The facts are general leather-making knowledge. */
-export const PROCESS = [
-  {
-    key: 'raw',
-    amharic: 'ጥሬ ቆዳ',
-    name: 'Raw hide',
-    title: 'It starts at the table.',
-    text: 'Every Ethiopian hide and skin is a by-product of the country’s food culture. Nothing is raised for leather alone; what would be waste becomes a material.',
-  },
-  {
-    key: 'wetblue',
-    amharic: 'ዌት ብሉ',
-    name: 'Wet-blue',
-    title: 'Tanned, and made to last.',
-    text: 'Soaked, limed and tanned, the hide turns a pale blue and will no longer rot. In this stable state it can be stored, graded and traded across the world.',
-  },
-  {
-    key: 'crust',
-    amharic: 'ክረስት',
-    name: 'Crust',
-    title: 'Given its character.',
-    text: 'Re-tanned, dyed and dried, the leather finds its softness, its colour and its strength. Most of a tannery’s craft goes into this stage.',
-  },
-  {
-    key: 'finished',
-    amharic: 'ያለቀ ቆዳ',
-    name: 'Finished leather',
-    title: 'Ready for the maker.',
-    text: 'Finished, graded and measured, it leaves the tannery for the shoe and leather goods factories of Ethiopia, and for buyers around the world.',
-  },
-]
 
 /* legacy: "Why You Should Choose Ethiopian Leather" */
 export const WHY = {

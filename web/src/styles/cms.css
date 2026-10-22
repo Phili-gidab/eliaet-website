@@ -145,7 +145,7 @@
   padding: 18px 18px 16px; border-radius: var(--radius-s); background: var(--paper); color: var(--ink);
   box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.08), 0 18px 34px -30px rgb(60 30 22 / 0.5);
 }
-.mem__logo { grid-area: logo; align-self: start; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #fff; outline: 1px solid rgb(60 30 22 / 0.1); outline-offset: -1px; }
+.mem__logo { grid-area: logo; align-self: start; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #fffcf5; outline: 1px solid rgb(60 30 22 / 0.1); outline-offset: -1px; }
 .mem__logo img { width: 100%; height: 100%; object-fit: contain; }
 .mem__mono { display: grid; place-items: center; width: 100%; height: 100%; background: var(--amber-40); font-family: var(--f-display); font-weight: 700; font-stretch: 80%; font-size: 22px; letter-spacing: -0.02em; color: var(--ink); }
 .mem__name { grid-area: name; align-self: end; font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.12rem; line-height: 1.15; letter-spacing: -0.015em; text-wrap: balance; }

@@ -86,8 +86,8 @@ const roman = ['I', 'II', 'III', 'IV']
   .mform { row-gap: clamp(14px, 1.6vw, 22px); }
   .mform__part {
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; min-width: 0; margin: 0;
-    padding: clamp(24px, 3vw, 40px); border: 0; border-radius: 10px; background: rgb(255 255 255 / 0.5);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, inset 0 0 0 1px var(--line-dark), 0 30px 60px -44px rgb(60 30 22 / 0.4);
+    padding: clamp(24px, 3vw, 40px); border: 0; border-radius: 10px; background: rgb(255 252 245 / 0.5);
+    box-shadow: 0 1px 0 rgb(255 252 245 / 0.7) inset, inset 0 0 0 1px var(--line-dark), 0 30px 60px -44px rgb(60 30 22 / 0.4);
     scroll-margin-top: calc(var(--header-h) + 20px);
   }
   /* a floated legend sits inside the panel as the first row of its grid */
@@ -99,8 +99,8 @@ const roman = ['I', 'II', 'III', 'IV']
   .mform .chips { margin-top: 2px; }
   .mform .field > span:first-child b { color: var(--ink); font-weight: 600; }
   .mform__hint { margin-top: -10px; font-size: 13.5px; color: var(--brown-80); }
-  .mform :global(.hint--bad) { color: #a33d27; font-weight: 500; }
-  .mform .check:has([aria-invalid='true']) { color: #a33d27; }
+  .mform :global(.hint--bad) { color: #3c1e16; font-weight: 650; }
+  .mform .check:has([aria-invalid='true']) { color: #3c1e16; font-weight: 600; }
   .mform .check input:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
   .mform__file input[type='file'] { min-height: 64px; padding: 12px; cursor: pointer; color: var(--ink); font-size: 14.5px; }
   .mform__file input[type='file']::file-selector-button {

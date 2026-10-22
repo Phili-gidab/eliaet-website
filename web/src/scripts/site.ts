@@ -26,7 +26,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const down = y > last + 4
     const up = y < last - 4
     // (not while the home page's door is still closed: the page is held there, scrolling only opens it)
-    if (down && y > 520 && !root.classList.contains('menu-open') && !root.classList.contains('door-closed')) root.classList.add('hide-hdr')
+    if (down && y > 520 && !root.classList.contains('menu-open') && !root.classList.contains('door-closed') && !root.classList.contains('door-gliding')) root.classList.add('hide-hdr')
     else if (up || y < 120) root.classList.remove('hide-hdr')
     last = y
     ticking = false
@@ -135,7 +135,7 @@ if (reduce) {
   if (els.length && !reduce) {
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { run(e.target as HTMLElement); io.unobserve(e.target) }
-    }, { threshold: 0.6 })
+    }, { threshold: 0.25 })
     els.forEach((el) => {
       if (el.getBoundingClientRect().top < innerHeight) return
       el.textContent = '0'

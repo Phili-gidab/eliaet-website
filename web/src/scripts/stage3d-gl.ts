@@ -82,10 +82,10 @@ export class Stage {
     this.scene.add(floor)
     const blob = document.createElement('canvas'); blob.width = blob.height = 128
     const g = blob.getContext('2d')!, grad = g.createRadialGradient(64, 64, 2, 64, 64, 63)
-    grad.addColorStop(0, 'rgba(0,0,0,1)'); grad.addColorStop(0.55, 'rgba(0,0,0,0.45)'); grad.addColorStop(1, 'rgba(0,0,0,0)')
+    grad.addColorStop(0, 'rgba(255,252,245,1)'); grad.addColorStop(0.55, 'rgba(255,252,245,0.45)'); grad.addColorStop(1, 'rgba(255,252,245,0)')
     g.fillStyle = grad; g.fillRect(0, 0, 128, 128)
     this.contact = new Mesh(new PlaneGeometry(1, 1), new MeshBasicMaterial({
-      map: new CanvasTexture(blob), color: 0x2a140c, transparent: true, opacity: 0.38, depthWrite: false, toneMapped: false,
+      map: new CanvasTexture(blob), color: 0x3c1e16, transparent: true, opacity: 0.48, depthWrite: false, toneMapped: false,
     }))
     this.contact.rotation.x = -Math.PI / 2; this.contact.position.y = 0.0008
     this.turntable.add(this.contact)
@@ -135,10 +135,11 @@ export class Stage {
 
   bind() {
     new ResizeObserver(() => { this.resize(); this.frame(true) }).observe(this.canvas)
-    new IntersectionObserver((es) => {
-      this.visible = es[0].isIntersecting
-      if (this.visible) this.loop()
-    }).observe(this.canvas)
+    // on screen, and not under the next sections (a held section stays in the viewport: scripts/motion.ts)
+    let seen = false, covered = false
+    const update = () => { this.visible = seen && !covered; if (this.visible) this.loop() }
+    new IntersectionObserver((es) => { seen = es[0].isIntersecting; update() }).observe(this.canvas)
+    this.canvas.closest('main > section')?.addEventListener('sheet-covered', (e) => { covered = (e as CustomEvent<boolean>).detail; update() })
     const c = this.canvas
     c.addEventListener('pointerdown', (e) => {
       if (e.button > 0) return

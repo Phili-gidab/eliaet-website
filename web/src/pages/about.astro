@@ -212,7 +212,7 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
   .lead__mono {
     width: 96px; height: 96px; flex: none; border-radius: 50%; display: grid; place-items: center;
     font: 700 2rem/1 var(--f-display); font-stretch: 80%; letter-spacing: 0.02em; color: var(--paper);
-    background: radial-gradient(80% 80% at 30% 20%, var(--amber), #b77a12); box-shadow: 0 16px 34px -18px rgb(60 30 22 / 0.7);
+    background: radial-gradient(80% 80% at 30% 20%, var(--amber-75), var(--brand-amber)); box-shadow: 0 16px 34px -18px rgb(60 30 22 / 0.7);
   }
   .lead__who figcaption { display: grid; gap: 4px; }
   .lead__name { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.35rem; color: var(--ink); }
@@ -220,8 +220,8 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
   .lead__quote {
     margin: 0; --stitch-in: 14px; --panel-r: var(--radius); border-radius: var(--radius);
     padding: clamp(66px, 7.2vw, 104px) clamp(30px, 4.4vw, 72px) clamp(40px, 4.6vw, 64px);
-    --hide-veil: radial-gradient(130% 100% at 20% 0%, rgb(255 238 210 / 0.22), transparent 62%), linear-gradient(rgb(255 240 220 / 0.06), rgb(255 240 220 / 0.06));
-    box-shadow: inset 0 1px 0 rgb(255 240 215 / 0.45), inset 0 -2px 0 rgb(80 40 10 / 0.25), 0 30px 60px -36px rgb(60 30 22 / 0.75);
+    --hide-veil: radial-gradient(130% 100% at 20% 0%, rgb(250 239 219 / 0.22), transparent 62%), linear-gradient(rgb(250 239 219 / 0.06), rgb(250 239 219 / 0.06));
+    box-shadow: inset 0 1px 0 rgb(250 239 219 / 0.45), inset 0 -2px 0 rgb(60 30 22 / 0.3), 0 30px 60px -36px rgb(60 30 22 / 0.75);
   }
   .lead__quote > p { position: relative; z-index: 1; }
   .lead__mark {
@@ -250,7 +250,7 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
   .pg__row ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 26px; }
   .pg__row li { font-family: var(--f-display); font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.3rem); line-height: 1.35; color: var(--ink); }
   .partners__row { margin-top: clamp(48px, 6vw, 88px); }
-  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: #fff; padding: 16px 22px; box-shadow: inset 0 0 0 1px var(--line-dark); }
+  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: #fffcf5; padding: 16px 22px; box-shadow: inset 0 0 0 1px var(--line-dark); }
   .logo-tile img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   @media (max-width: 1100px) {

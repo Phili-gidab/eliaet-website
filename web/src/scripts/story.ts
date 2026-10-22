@@ -5,10 +5,12 @@
    the end of the rail plays it again. People who asked for less motion get that last frame and chapter at once.
    Before all that, the door (scripts/door-gl.ts, drawn on the graphics card): the logo plays its own opening, as in
    the brand film (the outline of Ethiopia, the e drawn out of its western point, the dot dropping in, the wordmark
-   sliding out), then the film fills the mark, playing slowly. Scrolling zooms through the mark's dot until the film
-   fills the screen; then the story plays at its own pace. Scrolling on, the film steps back into a panel (--away) while the next section slides over it. */
+   sliding out), then the film fills the mark, playing slowly. A moment later the page goes on by itself: it glides
+   through the mark's dot until the film fills the screen (the same distance a visitor would scroll, so scrolling back
+   up closes the door again), and the story plays at its own pace. Whoever scrolls, taps or presses a key first is in
+   charge instead. Scrolling on, the film is held and the next section slides up over it (scripts/motion.ts). */
 import { mountFilm } from './film'
-import { gsap, ScrollTrigger } from './motion'
+import { gsap, ScrollTrigger, lenis } from './motion'
 import { mountDoor, type Door } from './door-gl'
 
 type Beat = { id: string; t0: number; t1: number; in: number; out: number | null }
@@ -53,16 +55,26 @@ if (root) {
       .then((g) => {
         if (!g) return
         live = g
-        new IntersectionObserver(([e]) => { if (e?.isIntersecting && root.classList.contains('is-end')) g.start(); else g.stop() }).observe(root)
+        new IntersectionObserver(([e]) => { if (e?.isIntersecting && !covered && root.classList.contains('is-end')) g.start(); else g.stop() }).observe(root)
         g.start()
         requestAnimationFrame(() => smoke.classList.add('is-on'))
       })
       .catch(() => {})
   }
 
+  // under the next sections, out of sight (scripts/motion.ts): the film and the live last frame rest
+  let covered = false
+  root.addEventListener('sheet-covered', (e) => {
+    covered = (e as CustomEvent<boolean>).detail
+    video.dispatchEvent(new Event('elia-sync'))
+    if (covered) live?.stop()
+    else if (ended) live?.start()
+  })
+
   const video = mountFilm(filmEl, {
     onEnded: () => { ended = true; root.classList.add('is-end'); draw(END); goLive() },
-    hold: () => holding,
+    // (it waits for the brand film, rests while covered, and once it has ended it stays on its last frame)
+    hold: () => holding || covered || ended,
   })
   video.loop = false
   if (holding) {
@@ -311,7 +323,34 @@ if (root) {
     // the logo's opening, as in the brand film, in about two and a half seconds: the outline of Ethiopia, the amber
     // dot at its western point, the e drawn round out of it, the outline gone, the dot dropping in, the wordmark
     // sliding out; then the film comes into the mark in the logo's amber, spreading from the dot
-    const intro = gsap.timeline({ paused: true, onUpdate: redraw, onComplete: () => root.classList.add('door-played') })
+    // the opening, then (after a moment on the name) the way in through the dot, on its own: the page glides the
+    // door's distance (the scroller's own animation, so a visitor's wheel or finger simply takes over from it)
+    const HOLD = 1.2, GLIDE = 2.8
+    let handOver = false, later: gsap.core.Tween | null = null
+    const gliding = (on: boolean) => html.classList.toggle('door-gliding', on)   // the header stays (site.ts)
+    const goIn = () => {
+      later = null
+      if (handOver || open || scrollY > 4 || html.classList.contains('menu-open')) return
+      const to = root.getBoundingClientRect().top + scrollY + innerHeight * DOOR
+      gliding(true)
+      const done = () => gsap.delayedCall(0.5, () => gliding(false))
+      if (lenis) lenis.scrollTo(to, { duration: GLIDE, easing: (t: number) => t, force: true, onComplete: done })
+      else { scrollTo({ top: to, behavior: 'smooth' }); done() }
+    }
+    // a visitor's own scrolling, tap or key: the glide does not start, or stops where it is
+    const takeOver = () => {
+      if (handOver) return
+      handOver = true
+      later?.kill(); later = null
+      if (html.classList.contains('door-gliding') && lenis) { lenis.stop(); lenis.start() }
+      gliding(false)
+      for (const ev of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) removeEventListener(ev, takeOver)
+    }
+    for (const ev of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) addEventListener(ev, takeOver, { passive: true })
+    const intro = gsap.timeline({
+      paused: true, onUpdate: redraw,
+      onComplete: () => { root.classList.add('door-played'); if (!handOver) later = gsap.delayedCall(HOLD, goIn) },
+    })
     intro
       .to(I, { outline: 1, duration: 0.7, ease: 'power2.inOut' }, 0)
       .to(I, { start: 1, duration: 0.28, ease: 'back.out(3)' }, 0.4)
@@ -339,7 +378,7 @@ if (root) {
       dispatchEvent(new Event('elia-tone'))
       intro.play()
       ScrollTrigger.create({
-        trigger: root, start: 'top top', end: () => `+=${innerHeight * DOOR}`,
+        start: 0, end: () => innerHeight * DOOR,                 // from the top of the page (the story starts it)
         onUpdate: (st) => {
           p = st.progress
           // someone already scrolling: the opening is over at once
@@ -379,16 +418,4 @@ if (root) {
       if (!raf) raf = requestAnimationFrame(step)
     })
   }
-
-  /* scrolling on: the film steps back into a panel as the next section comes over it */
-  let ticking = false
-  const away = () => {
-    const vh = innerHeight
-    const from = useDoor ? vh * DOOR : 0
-    const p = Math.min(1, Math.max(0, (scrollY - from) / (vh * 0.75)))
-    stage.style.setProperty('--away', p.toFixed(4))
-    ticking = false
-  }
-  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(away) } }, { passive: true })
-  away()
 }

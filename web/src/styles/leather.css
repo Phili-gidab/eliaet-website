@@ -19,9 +19,9 @@
   background-repeat: no-repeat, repeat;
   background-position: center, var(--hide-at, 50% 50%);
 }
-.hide--chestnut { --hide-base: #45281d; --hide-img: url('/media/leather/chestnut.webp'); }
-.hide--saddle { --hide-base: #5d3622; --hide-img: url('/media/leather/saddle.webp'); }
-.hide--tan { --hide-base: #a77a4c; --hide-img: url('/media/leather/tan.webp'); color: var(--ink); }
+.hide--chestnut { --hide-base: #3c1e16; --hide-img: url('/media/leather/chestnut.webp'); }
+.hide--saddle { --hide-base: #5d443d; --hide-img: url('/media/leather/saddle.webp'); }
+.hide--tan { --hide-base: #e7b049; --hide-img: url('/media/leather/tan.webp'); color: var(--ink); }
 @media (min-resolution: 1.5dppx) and (min-width: 701px) {
   .hide--chestnut { --hide-img: url('/media/leather/chestnut-2x.webp'); }
   .hide--saddle { --hide-img: url('/media/leather/saddle-2x.webp'); }
@@ -40,31 +40,31 @@
 .stitched { position: relative; }
 .stitched::before {
   content: ''; position: absolute; inset: var(--stitch-in, 12px); z-index: 0; pointer-events: none;
-  border: 1.6px dashed rgb(232 178 82 / 0.62); border-radius: max(0px, calc(var(--panel-r, 0px) - var(--stitch-in, 12px)));
-  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.45));
+  border: 1.6px dashed rgb(231 176 73 / 0.62); border-radius: max(0px, calc(var(--panel-r, 0px) - var(--stitch-in, 12px)));
+  filter: drop-shadow(0 1px 0 rgb(60 30 22 / 0.45));
 }
-.hide--tan.stitched::before { border-color: rgb(110 58 20 / 0.72); filter: drop-shadow(0 1px 0 rgb(255 236 204 / 0.4)); }
+.hide--tan.stitched::before { border-color: rgb(60 30 22 / 0.6); filter: drop-shadow(0 1px 0 rgb(250 239 219 / 0.4)); }
 
 /* ── words in the leather ───────────────────────────────────────────────── */
 /* NB: never on an element that also carries data-reveal (its blur-in would take the filter away): put the
    treatment on a child. */
 /* pressed in: the colour is the pressed floor (smooth, a shade darker than the hide round it) */
-.t-press { color: rgb(34 16 10 / 0.6); filter: url('#elia-press'); }
+.t-press { color: rgb(60 30 22 / 0.72); filter: url('#elia-press'); }
 @media (max-width: 760px) { .t-press { filter: url('#elia-press-s'); } }     /* smaller words: a narrower slope */
-.hide--saddle .t-press, .sec--saddle .t-press { color: rgb(44 22 12 / 0.6); }
-.hide--tan .t-press { color: rgb(120 74 36 / 0.62); }
+.hide--saddle .t-press, .sec--saddle .t-press { color: rgb(60 30 22 / 0.66); }
+.hide--tan .t-press { color: rgb(93 68 61 / 0.62); }
 
 .t-foil {
   color: #e2a025;
-  background: linear-gradient(100deg, #a76f18 0%, #e9b65a 18%, #f8dc93 30%, #d6992f 46%, #fbe6b0 62%, #c98d28 80%, #9c6614 100%);
+  background: linear-gradient(100deg, #e2a025 0%, #ecc06e 18%, #f5dfb6 30%, #e7b049 46%, #faefdb 62%, #e2a025 80%, #ecc06e 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 -1px 0.5px rgb(0 0 0 / 0.55)) drop-shadow(0 1px 0 rgb(255 226 180 / 0.16));
+  filter: drop-shadow(0 -1px 0.5px rgb(60 30 22 / 0.55)) drop-shadow(0 1px 0 rgb(250 239 219 / 0.16));
 }
 /* branded: for a mark drawn in lines (a picture with a transparent ground) */
-.t-burn { color: #1c0b05; filter: url('#elia-burn'); mix-blend-mode: multiply; }
-.t-ink { color: #1d0b05; filter: url('#elia-ink'); mix-blend-mode: multiply; }
+.t-burn { color: #3c1e16; filter: url('#elia-burn'); mix-blend-mode: multiply; }
+.t-ink { color: #3c1e16; filter: url('#elia-ink'); mix-blend-mode: multiply; }
 /* printed ink for longer words on tan leather: clean, with the grain showing through */
-.t-print { color: #24100a; mix-blend-mode: multiply; }
+.t-print { color: #3c1e16; mix-blend-mode: multiply; }
 
 /* where the system colours take over (Windows high contrast), plain text */
 @media (forced-colors: active) {

@@ -11,7 +11,7 @@
        than the grain around it, as the press flattens and burnishes it. -->
   <filter id="elia-press" color-interpolation-filters="sRGB" x="-3%" y="-10%" width="106%" height="120%">
     <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="slope" />
-    <feDiffuseLighting in="slope" surfaceScale="-3.4" diffuseConstant="1" lighting-color="#fff" result="light">
+    <feDiffuseLighting in="slope" surfaceScale="-3.4" diffuseConstant="1" lighting-color="#fffcf5" result="light">
       <feDistantLight azimuth="225" elevation="48" />
     </feDiffuseLighting>
     <feColorMatrix in="light" type="matrix" values="0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.78  1.35 0 0 0 -1.012" result="catch" />
@@ -22,7 +22,7 @@
   <!-- the same for the smaller sizes on a phone: a narrower slope -->
   <filter id="elia-press-s" color-interpolation-filters="sRGB" x="-3%" y="-10%" width="106%" height="120%">
     <feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="slope" />
-    <feDiffuseLighting in="slope" surfaceScale="-2.6" diffuseConstant="1" lighting-color="#fff" result="light">
+    <feDiffuseLighting in="slope" surfaceScale="-2.6" diffuseConstant="1" lighting-color="#fffcf5" result="light">
       <feDistantLight azimuth="225" elevation="48" />
     </feDiffuseLighting>
     <feColorMatrix in="light" type="matrix" values="0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.78  1.4 0 0 0 -1.05" result="catch" />

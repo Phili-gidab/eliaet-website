@@ -29,9 +29,9 @@ const tone = typeof AgXToneMapping === 'number' ? AgXToneMapping : ACESFilmicTon
 function contactShadow(): Mesh {
   const c = document.createElement('canvas'); c.width = c.height = 128
   const g = c.getContext('2d')!, grad = g.createRadialGradient(64, 64, 2, 64, 64, 63)
-  grad.addColorStop(0, 'rgba(0,0,0,1)'); grad.addColorStop(0.55, 'rgba(0,0,0,0.45)'); grad.addColorStop(1, 'rgba(0,0,0,0)')
+  grad.addColorStop(0, 'rgba(255,252,245,1)'); grad.addColorStop(0.55, 'rgba(255,252,245,0.45)'); grad.addColorStop(1, 'rgba(255,252,245,0)')
   g.fillStyle = grad; g.fillRect(0, 0, 128, 128)
-  const m = new Mesh(new PlaneGeometry(1, 1), new MeshBasicMaterial({ map: new CanvasTexture(c), color: 0x2a140c, transparent: true, opacity: 0.34, depthWrite: false, toneMapped: false }))
+  const m = new Mesh(new PlaneGeometry(1, 1), new MeshBasicMaterial({ map: new CanvasTexture(c), color: 0x3c1e16, transparent: true, opacity: 0.44, depthWrite: false, toneMapped: false }))
   m.rotation.x = -Math.PI / 2; m.position.y = 0.0008
   return m
 }

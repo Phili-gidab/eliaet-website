@@ -1,10 +1,11 @@
 ---
 /* The home page's opening. It starts on the page colour with the ELIA mark cut out of it: through the mark, the
-   film of a tannery at work. Scrolling zooms through the mark's dot until the film fills the screen (the door,
-   scripts/story.ts); the film then plays on with its copy in step. The film is the clock: each chapter's words come
+   film of a tannery at work. Once the logo has drawn itself the page zooms on its own through the mark's dot until the
+   film fills the screen (the door, scripts/story.ts; scrolling does the same, and takes over); the film then plays on
+   with its copy in step. The film is the clock: each chapter's words come
    in at their moment and leave before the next; the last chapter (the page's h1, the buttons) stays on the film's
    final frame, which never stands still: it drifts, follows the pointer, and its chimney keeps smoking.
-   As the page scrolls on, the film steps back into a panel and the next section slides over it.
+   As the page scrolls on, the film is held where it is and the next section slides up over it, as everywhere else.
    Without the script, or for less motion, there is no door: the film's last frame and the last chapter. */
 import Film from './Film.astro'
 import { STORY, HERO, PINS } from '../copy/home'
@@ -80,7 +81,6 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     <div class="story__hello wrap" data-door-text aria-hidden="true">
       <p class="story__name"><span>Ethiopian Leather</span> <span>Industries Association</span></p>
       <p class="story__amh geez" lang="am">{ORG.amharic}</p>
-      <p class="story__cue"><span>Scroll to enter</span><i></i></p>
     </div>
 
     <div class="story__copy wrap">
@@ -124,7 +124,10 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
 
 <style>
   /* the stage stays on screen while the door opens (--door screens of scrolling, set by story.ts) and a little after */
-  .story { position: relative; height: calc(130svh + var(--door, 0) * 100svh); background: var(--ink); }
+  .story { height: calc(130svh + var(--door, 0) * 100svh); background: var(--ink); }
+  /* held by the stacking (scripts/motion.ts) it is sticky; otherwise simply positioned (never both: a relative
+     section would be pushed up by the sticky offset) */
+  .story:not(.is-stacked) { position: relative; }
   /* the door is there from the first paint (with the script and motion), so nothing jumps when the script arrives:
      the page colour and the name first, the mark as soon as the script has placed it */
   @media (prefers-reduced-motion: no-preference) {
@@ -133,14 +136,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     :global(.js) .story .story__hello { display: grid; }
     :global(.js) .story:not(.is-open) .story__copy, :global(.js) .story:not(.is-open) .rail, :global(.js) .story:not(.is-open) .story__pins { opacity: 0; visibility: hidden; }
   }
-  .story__stage {
-    position: sticky; top: 0; height: 100svh; overflow: hidden; color: var(--cream); isolation: isolate;
-    transform-origin: 50% 0; will-change: transform;
-    transform: scale(calc(1 - var(--away, 0) * 0.07)); border-radius: calc(var(--away, 0) * 36px);
-  }
-  .story__stage::after {
-    content: ''; position: absolute; inset: 0; z-index: 8; pointer-events: none; background: #000; opacity: calc(var(--away, 0) * 0.55);
-  }
+  /* the stage stays on screen to the end; then the whole section is held (scripts/motion.ts stacks it like the
+     other sections) and the next one slides up over it */
+  .story__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; color: var(--cream); isolation: isolate; }
   .story__view { position: absolute; inset: 0; z-index: 0; }
   .story :global(.story__film) { position: absolute; inset: 0; z-index: 0; }
   .story__end { position: absolute; inset: -3%; z-index: 1; opacity: 0; transition: opacity 1.2s var(--ease); }
@@ -154,9 +152,9 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .story__shade {
     position: absolute; inset: 0; z-index: 3; pointer-events: none;
     background:
-      linear-gradient(180deg, rgb(10 7 5 / 0.42) 0%, rgb(10 7 5 / 0) 18%),
-      linear-gradient(0deg, rgb(10 7 5 / 0.66) 0%, rgb(10 7 5 / 0.28) 24%, rgb(10 7 5 / 0) 46%),
-      radial-gradient(85% 70% at 0% 100%, rgb(10 7 5 / 0.5), transparent 62%);
+      linear-gradient(180deg, rgb(60 30 22 / 0.53) 0%, rgb(60 30 22 / 0) 18%),
+      linear-gradient(0deg, rgb(60 30 22 / 0.83) 0%, rgb(60 30 22 / 0.35) 24%, rgb(60 30 22 / 0) 46%),
+      radial-gradient(85% 70% at 0% 100%, rgb(60 30 22 / 0.63), transparent 62%);
   }
 
   /* the final frame never stands still: a slow drift, and (story.ts) it follows the pointer, and the chimney smokes */
@@ -188,7 +186,6 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     :global(.js) .story:not(.door-in) .story__hello > * { opacity: 0; transform: translateY(16px); animation: story-late 0.8s var(--ease) 4s forwards; }
     :global(.js) .story.door-in .story__hello > * { opacity: 1; transform: none; transition: opacity 0.9s var(--ease), transform 1.1s var(--ease); }
     :global(.js) .story.door-in .story__hello > :nth-child(2) { transition-delay: 0.12s; }
-    :global(.js) .story.door-in .story__hello > :nth-child(3) { transition-delay: 0.5s; }
   }
   @keyframes story-late { to { opacity: 1; transform: none; } }
   .story__name {
@@ -197,14 +194,6 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   }
   .story__name span { display: block; }
   .story__amh { grid-column: 1; font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.2rem); color: var(--taupe); }
-  .story__cue {
-    grid-column: 2; grid-row: 1 / span 2; justify-self: end; display: grid; justify-items: center; gap: 12px;
-    font-size: 13px; font-weight: 560; letter-spacing: 0.02em; color: var(--taupe);
-  }
-  .story__cue i { position: relative; display: block; width: 1px; height: 54px; background: rgb(60 30 22 / 0.16); overflow: hidden; }
-  .story__cue i::after { content: ''; position: absolute; inset: 0; background: var(--ink); transform: translateY(-100%); animation: story-cue 2.4s var(--ease-in-out) infinite; }
-  @keyframes story-cue { 0% { transform: translateY(-100%); } 55% { transform: translateY(0); } 100% { transform: translateY(100%); } }
-  @media (prefers-reduced-motion: reduce) { .story__cue i::after { animation: none; transform: none; } }
 
 
   /* the pins: a lit dot on the thing, a hairline up from it, its name on a small glass tag. They ride on the film
@@ -226,7 +215,7 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     position: absolute; left: -1px; bottom: calc(var(--stem) + 9px); display: inline-flex; align-items: center; gap: 0.75em;
     padding: 6px 11px 6px 9px; border-radius: 8px; white-space: nowrap;
     font-family: var(--f-mono); font-size: 11px; font-weight: 450; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream);
-    background: rgb(20 14 10 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16);
+    background: rgb(60 30 22 / 0.53); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     opacity: 0; transform: translateY(6px); transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
   }
@@ -245,18 +234,18 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   }
   .ch { grid-area: 1 / 1; align-self: end; max-width: min(820px, 92vw); pointer-events: none; }
   .ch.on { pointer-events: auto; }
-  .ch__label { margin-bottom: 18px; text-shadow: 0 1px 12px rgb(0 0 0 / 0.6); }
-  .ch__line { text-shadow: 0 1px 18px rgb(0 0 0 / 0.5); }
+  .ch__label { margin-bottom: 18px; text-shadow: 0 1px 12px rgb(60 30 22 / 0.6); }
+  .ch__line { text-shadow: 0 1px 18px rgb(60 30 22 / 0.5); }
   .ch__title {
     font-family: var(--f-display); font-weight: 640; font-stretch: 80%; letter-spacing: -0.026em; line-height: 0.88;
-    font-size: clamp(3rem, 1.2rem + 6.2vw, 7.6rem); text-wrap: balance; text-shadow: 0 2px 40px rgb(0 0 0 / 0.35);
+    font-size: clamp(3rem, 1.2rem + 6.2vw, 7.6rem); text-wrap: balance; text-shadow: 0 2px 40px rgb(60 30 22 / 0.35);
   }
   .ch__title :global(em) { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.02em; color: var(--amber); }
   .ch__title--final { font-size: clamp(3.2rem, 1.2rem + 7vw, 8.6rem); }
   /* the last line takes the light: a slow amber sheen runs across it */
   @media (prefers-reduced-motion: no-preference) {
     .ch--final.on .ch__title--final :global(em) {
-      background: linear-gradient(100deg, var(--amber) 0%, var(--amber) 38%, #fff1cf 48%, var(--amber) 58%, var(--amber) 100%) 0 0 / 260% 100%;
+      background: linear-gradient(100deg, var(--amber) 0%, var(--amber) 38%, #faefdb 48%, var(--amber) 58%, var(--amber) 100%) 0 0 / 260% 100%;
       -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
       animation: story-sheen 7s var(--ease-in-out) 1.6s infinite;
     }
@@ -304,10 +293,10 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .rail__seg.on .rail__lbl b { color: var(--amber); }
   .rail__btn {
     flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-    background: rgb(20 14 10 / 0.45); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgb(60 30 22 / 0.56); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     transition: background 0.25s, transform 0.4s var(--spring);
   }
-  .rail__btn:hover { background: rgb(20 14 10 / 0.7); transform: scale(1.06); }
+  .rail__btn:hover { background: rgb(60 30 22 / 0.88); transform: scale(1.06); }
   .rail__btn svg { width: 18px; height: 18px; grid-area: 1 / 1; }
   .rail__btn .i-play, .rail__btn .i-replay { display: none; }
   .story[data-state='paused'] .rail__btn .i-pause { display: none; }
@@ -321,8 +310,8 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   @media (max-width: 900px) and (orientation: portrait) {
     .story__shade {
       background:
-        linear-gradient(180deg, rgb(10 7 5 / 0.5) 0%, rgb(10 7 5 / 0) 22%),
-        linear-gradient(0deg, rgb(10 7 5 / 0.82) 0%, rgb(10 7 5 / 0.5) 30%, rgb(10 7 5 / 0) 58%);
+        linear-gradient(180deg, rgb(60 30 22 / 0.63) 0%, rgb(60 30 22 / 0) 22%),
+        linear-gradient(0deg, rgb(60 30 22 / 0.95) 0%, rgb(60 30 22 / 0.63) 30%, rgb(60 30 22 / 0) 58%);
     }
     .story__copy { padding-bottom: 96px; }
     .ch__title { font-size: clamp(2.7rem, 12vw, 4.2rem); }
