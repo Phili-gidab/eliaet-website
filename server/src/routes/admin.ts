@@ -10,7 +10,7 @@ import { upload, store, fileRef, removeFile, setAccess, type Access, type Kind }
 import { requireSecretariat, me, endAllSessions } from '../session.js'
 import { sendWelcome } from './auth.js'
 import { cleanWithdrawnFiles } from './member.js'
-import { HttpError, notFound, parse, wrap, csv, parseCsv, opt, req as required, email, day, url, slugify } from '../util.js'
+import { HttpError, notFound, parse, wrap, csv, parseCsv, opt, req as required, email, day, url, slugify, pageNumber } from '../util.js'
 import { companyOut, adminSchema, applyToCompany, createCompany, freeSlug } from '../companies.js'
 import {
   CATEGORIES, SIZES, REGIONS, EXPORT_STATUS, INQUIRIES, POST_CATEGORIES, PUBLICATION_TYPES, NOTICE_KINDS, OPPORTUNITY_KINDS, TEAMS,
@@ -22,14 +22,14 @@ admin.use(requireSecretariat)
 const keys = <T extends object>(o: T) => Object.keys(o) as [keyof T & string, ...(keyof T & string)[]]
 const id = (req: Request) => {
   const n = Number(req.params.id)
-  if (!Number.isInteger(n) || n < 1) throw notFound()
+  if (!Number.isSafeInteger(n) || n < 1) throw notFound()
   return n
 }
 function audit(req: Request, action: string, subject: string, subjectId: number | null, detail?: string) {
   run('INSERT INTO audit (user_id, action, subject, subject_id, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)',
     me(req).id, action, subject, subjectId, detail ?? null, now())
 }
-const page = (req: Request) => Math.max(1, Number(req.query.page ?? 1) || 1)
+const page = (req: Request) => pageNumber(req.query.page)
 const qs = (req: Request, k: string) => (typeof req.query[k] === 'string' ? String(req.query[k]).trim() : '')
 const like = (s: string) => '%' + s.replace(/[\\%_]/g, (m) => '\\' + m) + '%'
 

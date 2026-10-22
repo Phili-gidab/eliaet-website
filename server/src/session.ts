@@ -111,8 +111,13 @@ export function endAllSessions(userId: number, keep?: string) {
 }
 
 /** Changes must come from the site's own pages: the Origin (or the Referer) has to be one of ours. */
+/** Posts that carry their own key and can do nothing without it, so they need not come from the site's own pages:
+    the e-mailed unsubscribe link's button (a mail program may also post it). */
+const KEYED = new Set(['/forms/unsubscribe'])
+
 export function sameOrigin(req: Request, _res: Response, next: NextFunction) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next()
+  if (KEYED.has(req.path)) return next()
   const host = String(req.headers.host ?? '')
   const from = String(req.headers.origin ?? '') || (() => {
     try { return new URL(String(req.headers.referer ?? '')).origin } catch { return '' }

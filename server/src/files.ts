@@ -109,10 +109,14 @@ export const upload = multer({ storage: multer.memoryStorage(), limits: { fileSi
 export const files = Router()
 
 /** Members-only files are for the Secretariat and the people of a member company whose membership is active (as
-    the directory is), and for whoever uploaded the file. */
-function memberMaySee(u: { id: number; role: string; company_id: number | null }, ownerId: number | null): boolean {
+    the directory is), for whoever uploaded the file, and for the people of the company whose logo or photo it is. */
+function memberMaySee(u: { id: number; role: string; company_id: number | null }, fileId: number, ownerId: number | null): boolean {
   if (u.role === 'secretariat' || u.id === ownerId) return true
-  return !!u.company_id && one<{ status: string }>('SELECT status FROM companies WHERE id = ?', u.company_id)?.status === 'active'
+  if (!u.company_id) return false
+  const c = one<{ status: string; logo_file_id: number | null; photos: string | null }>('SELECT status, logo_file_id, photos FROM companies WHERE id = ?', u.company_id)
+  if (!c) return false
+  if (c.status === 'active' || c.logo_file_id === fileId) return true
+  try { return (JSON.parse(c.photos ?? '[]') as unknown[]).includes(fileId) } catch { return false }
 }
 
 files.get('/:key/:name', wrap((req: Request, res, next) => {
@@ -120,7 +124,7 @@ files.get('/:key/:name', wrap((req: Request, res, next) => {
   if (!f) throw notFound()
   const u = req.session?.user
   const allowed = f.access === 'public'
-    || (f.access === 'members' && !!u && memberMaySee(u, f.owner_user_id))
+    || (f.access === 'members' && !!u && memberMaySee(u, f.id, f.owner_user_id))
     || (f.access === 'private' && !!u && (u.role === 'secretariat' || u.id === f.owner_user_id))
   if (!allowed) {
     if (!u) {

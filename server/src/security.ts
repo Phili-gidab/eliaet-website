@@ -6,9 +6,11 @@
    - Spam: a small proof-of-work puzzle the visitor's browser solves while they type (no picture to read, nothing
      sent to another company), plus the hidden field bots fill and the rate limit. */
 import crypto from 'node:crypto'
+import { isIPv6 } from 'node:net'
 import { promisify } from 'node:util'
 import { config } from './config.js'
 import { one, run, q } from './db.js'
+import { send } from './mail.js'
 import type { Request } from 'express'
 import { HttpError, ipOf, SHARED } from './util.js'
 
@@ -112,11 +114,38 @@ export function forget(key: string) {
   run('DELETE FROM throttle WHERE key = ?', key)
 }
 
-/** A visitor's key for the limits, and their size: where the server cannot tell visitors apart (all of them are
-    SHARED, util.ts), a limit made for one person is made for a crowd. */
-export function visitor(req: Request): { key: string; times: number } {
+/** An IPv6 address's network (its first 64 bits): one household or phone has a whole /64 to pick addresses from,
+    so the limits count the network, not each address in it. An IPv4 address stays as it is. */
+export function addressKey(ip: string): string {
+  if (!isIPv6(ip)) return ip
+  const v4 = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/i.exec(ip)
+  if (v4) return v4[1]
+  const [head, tail] = ip.split('%')[0].split('::')
+  const h = head ? head.split(':') : []
+  const t = tail === undefined ? [] : tail ? tail.split(':') : []
+  const groups = tail === undefined ? h : [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t]
+  return groups.slice(0, 4).map((g) => parseInt(g || '0', 16).toString(16)).join(':') + '::/64'
+}
+
+/** A visitor's key for the limits, and their size. Where the server cannot tell visitors apart (all of them are
+    SHARED, util.ts), a limit made for one person is made for a crowd, and `shared` says so: then sign-in and the
+    password links do without a per-visitor limit (one sender could use it up for everyone) and rely on the limit
+    for each e-mail address and the two-at-once password checks. */
+export function visitor(req: Request): { key: string; times: number; shared: boolean } {
   const ip = ipOf(req)
-  return { key: ipKey(ip), times: ip === SHARED ? 30 : 1 }
+  const shared = ip === SHARED
+  return { key: ipKey(shared ? ip : addressKey(ip)), times: shared ? 30 : 1, shared }
+}
+
+/** Tells the Secretariat, once a day for each, that a form has reached its limit for the day (it may be someone
+    sending junk; meanwhile the form asks people to e-mail instead). */
+export function capNotice(what: string, detail: string) {
+  if (!allow(`notice:${what}`, 1, 86400)) return
+  void send({
+    to: config.teams.secretariat,
+    subject: `[ELIA website] ${what}: today's limit is reached`,
+    text: `${detail}\n\nThis can be someone sending junk through the website. Until the limit resets, the form asks people to e-mail ${config.contactEmail} instead. What did come in is in the back office: ${config.siteUrl}/admin`,
+  })
 }
 /** Counts one go of the whole site at something (auto-replies, stored uploads); false when the day's or hour's
     share is used up. */

@@ -19,7 +19,7 @@ import { member } from './routes/member.js'
 import { admin } from './routes/admin.js'
 import { publicApi } from './routes/public.js'
 import { pages } from './pages.js'
-import { HttpError, ipOf, sameSitePath } from './util.js'
+import { HttpError, ipOf, addressSeen, sameSitePath } from './util.js'
 
 /** The pages' few small inline scripts are allowed by their hashes (found in the build), not by 'unsafe-inline'. */
 function inlineScriptHashes(dir: string): string[] {
@@ -81,11 +81,12 @@ const api = express.Router()
 api.use(express.json({ limit: '200kb' }))
 api.use(express.urlencoded({ extended: false, limit: '200kb' }))
 api.use(loadSession, sameOrigin)
-// the address the rate limits see for this visitor: the deploy script checks it is the visitor's own (not one for
-// everybody, and not one the visitor can make up in a header)
+// the address the rate limits use for this visitor (client), and the one the web server reports whatever the
+// settings say (seen): the deploy script checks that the second is the visitor's own (not one for everybody, not one
+// the visitor can make up in a header) and sets CLIENT_IP accordingly
 api.get('/health', (req, res) => {
   res.setHeader('Cache-Control', 'no-store')
-  res.json({ ok: true, time: new Date().toISOString(), client: ipOf(req) })
+  res.json({ ok: true, time: new Date().toISOString(), client: ipOf(req), seen: addressSeen(req) })
 })
 api.use('/auth', auth)
 api.use('/member', member)

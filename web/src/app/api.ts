@@ -39,7 +39,8 @@ export function safeNext(v: string | null | undefined, fallback: string): string
   if (!v || !v.startsWith('/') || /[\u0000-\u001f\u007f\\]/.test(v)) return fallback
   try {
     const u = new URL(v, location.origin)
-    if (u.origin !== location.origin || u.pathname.startsWith('/api/')) return fallback
+    // after the browser's own tidying (/./, /x/../, %2e) the path must still start with one slash only
+    if (u.origin !== location.origin || !u.pathname.startsWith('/') || u.pathname.startsWith('//') || /%2f|%5c/i.test(u.pathname) || u.pathname.startsWith('/api/')) return fallback
     return u.pathname + u.search + u.hash
   } catch {
     return fallback

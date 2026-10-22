@@ -100,24 +100,33 @@ export function parseCsv(text: string): Record<string, string>[] {
 
 /** Where every visitor counts as one: the web server in front of the app says nothing about who the visitor is. */
 export const SHARED = 'shared'
+/** this machine, or a private network: never a visitor's own address on the internet */
+const PRIVATE = /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|::1$|::$|f[cd][0-9a-f]{0,2}:|fe[89ab][0-9a-f]?:|::ffff:(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.))/i
 let warned = false
-/** The visitor's address, for the rate limits. On cPanel the app sits behind the web server (Apache or LiteSpeed,
-    through Passenger), so the connection itself comes from this machine: then the visitor is the address that web
-    server added at the end of X-Forwarded-For (the entries before it are the visitor's own word and never trusted).
-    The deploy script checks that the host really adds it; where it does not (CLIENT_IP=shared in the data folder's
-    .env), or adds nothing, every visitor counts as one (SHARED) and the limits are set for a crowd (security.ts). */
-export function ipOf(req: Request): string {
+
+/** The visitor's address as the web server in front of the app reports it, whatever the settings (the deploy
+    script's check reads it). On cPanel the app sits behind that web server (Apache or LiteSpeed, through Passenger),
+    so the connection itself comes from this machine or a private address: then the visitor is the address the web
+    server added at the end of X-Forwarded-For (the entries before it are the visitor's own word, never trusted), if
+    it is one on the internet. Nothing usable there: SHARED. */
+export function addressSeen(req: Request): string {
   const peer = req.socket.remoteAddress ?? ''
-  if (peer && !/^(::1$|127\.|::ffff:127\.)/.test(peer)) return peer          // a direct connection
-  if (process.env.CLIENT_IP === 'shared') return SHARED
+  if (peer && !PRIVATE.test(peer)) return peer                       // a visitor connected straight to the app
   const fwd = String(req.headers['x-forwarded-for'] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
   const last = fwd[fwd.length - 1]
-  if (last && isIP(last)) return last
-  if (!warned && process.env.NODE_ENV === 'production') {
+  if (last && isIP(last) && !PRIVATE.test(last)) return last
+  if (!warned && process.env.NODE_ENV === 'production' && peer) {
     warned = true
     console.warn('[server] the web server sends no visitor address (X-Forwarded-For): the rate limits count all visitors together')
   }
   return SHARED
+}
+
+/** The visitor's address, for the rate limits: what the web server reports, unless the deploy script found that it
+    cannot be relied on here (CLIENT_IP=shared in the data folder's .env): then every visitor counts as one, SHARED,
+    and the limits are set for that (security.ts visitor()). */
+export function ipOf(req: Request): string {
+  return process.env.CLIENT_IP === 'shared' ? SHARED : addressSeen(req)
 }
 
 /** A page number from the address: a whole number from 1 to 10 000 (anything else is page 1). */

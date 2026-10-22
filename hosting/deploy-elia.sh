@@ -164,6 +164,9 @@ NOTIFY_TO=info@eliaet.com
 TEAM_AALF=elia.aalf2@gmail.com
 CONTACT_EMAIL=info@eliaet.com
 
+# set by deploy-elia.sh after checking this host: every visitor counts as one for the limits
+CLIENT_IP=shared
+
 # e-mail goes out through the server's own mail; the sender is an address of a domain on this hosting
 MAIL_FROM=ELIA website <no-reply@${ROOT_DOMAIN}>
 # or through an e-mail account (cPanel > Email Accounts):
@@ -242,37 +245,49 @@ fi
 echo "==> Checking the site"
 sleep 2
 health() { curl -s --max-time 30 "$@" "https://${DOMAIN}/api/health" || true; }
-client() { printf '%s' "$1" | sed -n 's/.*"client":"\([^"]*\)".*/\1/p'; }
+seen() { printf '%s' "$1" | sed -n 's/.*"seen":"\([^"]*\)".*/\1/p'; }
+# The limits on the forms and on signing in count each visitor by the address the web server in front of the app
+# reports. Until this check says that address is the visitor's real one (not one a visitor can make up in a header,
+# not the same for everybody), the site counts all visitors together (CLIENT_IP=shared in its settings).
+has_shared() { ssh "$REMOTE" "grep -qs '^CLIENT_IP=' '${DATA}/.env'"; }
+restart_app() { ssh "$REMOTE" "cloudlinux-selector restart --json --interpreter nodejs --app-root '${APP}' >/dev/null 2>&1 || true; mkdir -p '${APPROOT}/tmp' && touch '${APPROOT}/tmp/restart.txt'"; }
+set_shared() {
+    if ! has_shared; then
+        ssh "$REMOTE" "printf '\n# set by deploy-elia.sh after checking this host: every visitor counts as one for the limits\nCLIENT_IP=shared\n' >> '${DATA}/.env'"
+        restart_app
+    fi
+}
 body="$(health)"
 if printf '%s' "$body" | grep -q '"ok":true'; then
     echo "    https://${DOMAIN}/ answers."
-    # The limits on the forms and on signing in count each visitor by their address, as the web server in front of
-    # the app reports it. Check that it is the visitor's real one: not one a visitor can make up in a header, not the
-    # same for everybody. Where it is not, the site counts all visitors together (CLIENT_IP=shared, with limits made
-    # for a crowd) rather than trusting it.
-    PREV="$(ssh "$REMOTE" "grep -s '^CLIENT_IP=' '${DATA}/.env'" || true)"
-    if [ -n "$PREV" ]; then
-        echo "    The limits count all visitors together (${PREV} in the settings: take that line out and deploy again to check anew)."
+    here="$(seen "$body")"
+    fake="$(seen "$(health -H 'X-Forwarded-For: 203.0.113.7' -H 'X-Real-IP: 203.0.113.7')")"
+    there="$(seen "$(ssh "$REMOTE" "curl -s --max-time 20 https://${DOMAIN}/api/health" 2>/dev/null || true)")"
+    mine="$(ssh "$REMOTE" 'echo "${SSH_CLIENT%% *}"' 2>/dev/null || true)"
+    v4() { printf '%s' "$1" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; }
+    WHY=""
+    if [ "$fake" = "203.0.113.7" ]; then WHY="a visitor can make up the address it shows"
+    elif [ -z "$here" ] || [ "$here" = "shared" ]; then WHY="the web server does not pass the visitor's address on"
+    elif [ -n "$there" ] && [ "$here" = "$there" ]; then WHY="every visitor shows the same address"
+    elif v4 "$here" && v4 "$mine" && [ "$here" != "$mine" ]; then WHY="it shows ${here} for you, but your connection is ${mine}"
+    fi
+    if [ -n "$WHY" ]; then
+        set_shared
+        echo "    The site cannot tell visitors apart here (${WHY}): its limits count all visitors together."
     else
-        here="$(client "$body")"
-        fake="$(client "$(health -H 'X-Forwarded-For: 203.0.113.7' -H 'X-Real-IP: 203.0.113.7')")"
-        there="$(client "$(ssh "$REMOTE" "curl -s --max-time 20 https://${DOMAIN}/api/health" 2>/dev/null || true)")"
-        WHY=""
-        if [ "$fake" = "203.0.113.7" ]; then WHY="a visitor can make up the address it shows"
-        elif [ -z "$here" ] || [ "$here" = "shared" ]; then WHY="the web server does not pass the visitor's address on"
-        elif [ -n "$there" ] && [ "$here" = "$there" ]; then WHY="every visitor shows the same address"
+        if has_shared; then
+            ssh "$REMOTE" "sed -i '/^# set by deploy-elia.sh after checking this host/d;/^CLIENT_IP=/d' '${DATA}/.env'"
+            restart_app
         fi
-        if [ -n "$WHY" ]; then
-            echo "    The site cannot tell visitors apart here (${WHY}): from now on its limits count all visitors together."
-            ssh "$REMOTE" "printf '\n# set by deploy-elia.sh: this host does not give the app the address of each visitor\nCLIENT_IP=shared\n' >> '${DATA}/.env'; cloudlinux-selector restart --json --interpreter nodejs --app-root '${APP}' >/dev/null 2>&1 || true; mkdir -p '${APPROOT}/tmp' && touch '${APPROOT}/tmp/restart.txt'"
-        else
-            echo "    The site sees each visitor's own address (yours: ${here}), so the limits count each visitor apart."
-        fi
+        echo "    The site sees each visitor's own address (yours: ${here}), so its limits count each visitor apart."
     fi
 else
+    set_shared
     echo "    https://${DOMAIN}/ does not answer yet (${body:-no answer}). The app starts on its first visit and a new"
     echo "    subdomain can take a few minutes for its certificate: try it in the browser in a minute."
     echo "    If it stays down: cPanel > Setup Node.js App > the app > Restart, and ~/${APP}/stderr.log on the server."
+    echo "!!  So the visitor-address check did not run: until it does, the site's limits count all visitors together."
+    echo "    Run ./deploy-elia.sh again once the site answers (with the same package it just puts the same version back)."
 fi
 echo "==> Done: https://${DOMAIN}/"
 echo "    Back office: https://${DOMAIN}/admin    Members: https://${DOMAIN}/members/login"

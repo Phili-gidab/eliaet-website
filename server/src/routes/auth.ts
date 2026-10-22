@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { config } from '../config.js'
 import { one, run, now, tx } from '../db.js'
 import { send, link } from '../mail.js'
-import { hashPassword, verifyPassword, passwordProblem, randomToken, sha256, limit, powCheck, bump, unbump, forget, visitor, siteAllows } from '../security.js'
+import { hashPassword, verifyPassword, passwordProblem, randomToken, sha256, limit, allow, powCheck, bump, unbump, forget, visitor, siteAllows, capNotice } from '../security.js'
 import { startSession, endSession, endAllSessions, requireUser, me } from '../session.js'
 import { HttpError, parse, wrap, req as required, opt, email, slugify } from '../util.js'
 
@@ -40,9 +40,11 @@ auth.post('/login', wrap(async (req, res) => {
   // Each go is counted before the password is checked and taken back when it is right, so only wrong ones add up,
   // and many at the same moment cannot slip past the count. Five wrong ones for an address (whether or not it has an
   // account: the answer must not tell) stop that address for the rest of the quarter hour; a reset ends that.
+  // Where visitors cannot be told apart, there is no limit per visitor (one sender could use it up for everyone):
+  // the one for each address and the two-at-once password checks hold the guessing down.
   const v = visitor(req)
-  const ipKeyName = `login:ip:${v.key}`, emKeyName = loginFailKey(d.email)
-  if (bump(ipKeyName, 900) > 30 * v.times) {
+  const ipKeyName = v.shared ? null : `login:ip:${v.key}`, emKeyName = loginFailKey(d.email)
+  if (ipKeyName && bump(ipKeyName, 900) > 30) {
     unbump(ipKeyName, 900)
     throw new HttpError(429, 'Too many attempts from this connection. Please wait fifteen minutes and try again.')
   }
@@ -55,7 +57,7 @@ auth.post('/login', wrap(async (req, res) => {
   if (!u || !ok || u.status !== 'active') {
     throw new HttpError(401, 'That e-mail address and password do not match an active account.', { password: 'Check it and try again' })
   }
-  unbump(ipKeyName, 900)
+  if (ipKeyName) unbump(ipKeyName, 900)
   forget(emKeyName)
   const s = startSession(req, res, u.id)
   res.json({ user: sessionInfo(u.id), csrf: s.csrf })
@@ -105,10 +107,11 @@ auth.get('/token', wrap((req, res) => {
 
 auth.post('/password', wrap(async (req, res) => {
   const d = parse(z.object({ token: z.string().min(10).max(100), password: z.string().max(200) }), req.body)
-  const v = visitor(req)
-  limit(`pw:ip:${v.key}`, 20 * v.times, 3600, 'Too many attempts. Please try again later.')
+  // the link is checked first (it cannot be guessed: 256 random bits); only a visitor sending wrong ones is counted
   const row = one(`SELECT t.id, t.user_id, t.expires_at, t.used_at, u.email, u.status FROM tokens t JOIN users u ON u.id = t.user_id WHERE t.id = ?`, sha256(d.token))
   if (!row || row.used_at || row.expires_at < now() || row.status !== 'active') {
+    const v = visitor(req)
+    if (!v.shared) limit(`pw:ip:${v.key}`, 20, 3600, 'Too many attempts. Please try again later.')
     throw new HttpError(400, 'This link has expired or has already been used. Ask for a new one.')
   }
   const problem = passwordProblem(d.password, row.email)
@@ -128,7 +131,7 @@ auth.post('/forgot', wrap(async (req, res) => {
   const d = parse(z.object({ email }), req.body)
   if (!powCheck(req.body?.pow)) throw new HttpError(400, 'The form’s spam check did not finish. Please wait a moment and send it again.')
   const v = visitor(req)
-  limit(`forgot:ip:${v.key}`, 6 * v.times, 3600, 'Too many requests from this connection. Please try again in an hour.')
+  if (!v.shared) limit(`forgot:ip:${v.key}`, 6, 3600, 'Too many requests from this connection. Please try again in an hour.')
   const u = one('SELECT id, name, email, status FROM users WHERE email = ?', d.email)
   // at most three links an hour to one address, and the same answer either way, as fast either way (the e-mail goes
   // on its own, after the answer)
@@ -169,8 +172,12 @@ auth.post('/request-access', wrap(async (req, res) => {
   }), req.body)
   if (!powCheck(req.body?.pow)) throw new HttpError(400, 'The form’s spam check did not finish. Please wait a moment and send it again.')
   const v = visitor(req)
-  limit(`access:ip:${v.key}`, 5 * v.times, 3600, `Too many requests from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
-  limit('access:site', 60, 86400, `Too many requests today. Please try again tomorrow, or e-mail ${config.contactEmail}.`)
+  if (!v.shared) limit(`access:ip:${v.key}`, 5, 3600, `Too many requests from this connection. Please try again in an hour, or e-mail ${config.contactEmail}.`)
+  // a ceiling for the whole site, counting only requests that got this far (filled in, the spam check solved)
+  if (!allow('access:site', 60, 86400)) {
+    capNotice('Access requests', 'The members’ area has had 60 requests for access today, the most it takes in a day.')
+    throw new HttpError(429, `Too many requests today. Please try again tomorrow, or e-mail ${config.contactEmail}.`)
+  }
   const company = one<{ id: number; name: string }>(
     `SELECT id, name FROM companies WHERE status <> 'archived' AND (name = ? COLLATE NOCASE OR slug = ?)`,
     d.companyName, slugify(d.companyName))
@@ -188,7 +195,7 @@ auth.post('/request-access', wrap(async (req, res) => {
     replyTo: d.email,
   })
   // the confirmation repeats nothing that was typed in (the form must not carry someone else's words to an inbox)
-  if (siteAllows('autoreply', 120, 3600) && limitQuiet(`autoreply:${sha256(d.email)}`, 3, 86400)) {
+  if (limitQuiet(`autoreply:${sha256(d.email)}`, 3, 86400) && siteAllows('autoreply', 120, 3600)) {
     await send({
       to: d.email,
       subject: 'Your request for access to the ELIA members’ area',

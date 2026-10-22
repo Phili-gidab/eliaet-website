@@ -105,6 +105,10 @@ r = await anon.req('POST', '/api/forms/membership', fd2, { form: true, headers: 
 expect(r.status === 422 && r.json?.fields?.licence, 'a disguised HTML "PDF" is refused', r.json)
 r = await anon.req('POST', '/api/forms/constructor', { pow: await pow() })
 expect(r.status === 404, 'a form name that is not a form is a 404 (not an error)', r.json)
+// sends that fail the spam check count for nothing: a hundred of them cannot close the form for the next person
+for (let i = 0; i < 105; i++) await anon.req('POST', '/api/forms/media', { name: 'Junk', outlet: 'X', email: 'junk@example.com', request: 'x', pow: 'a.b.15.1.sig.' + i })
+r = await anon.req('POST', '/api/forms/media', { name: 'Reporter Two', outlet: 'The Reporter', email: 'r2@example.com', request: 'Interview', pow: await pow() })
+expect(r.status === 201, 'a real send still goes through after a hundred junk ones', r.json)
 
 // ---- access request (matches a seeded member)
 r = await anon.req('POST', '/api/auth/request-access', { companyName: 'Kinaff Leather', name: 'Hana Tadesse', position: 'Export manager', email: 'hana@kinaff.example', phone: '0911', pow: await pow() })
@@ -279,7 +283,9 @@ expect(pg.status === 200 && pg.text.includes('/news/') && pg.text.includes('/eve
   const t = sub && /unsubscribe\?t=([\w-]+)/.exec(sub)?.[1]
   pg = await page('/api/forms/unsubscribe?t=' + t)
   expect(pg.status === 200 && pg.text.includes('Yes, unsubscribe'), 'the unsubscribe link asks first (a mail scanner opening it changes nothing)')
-  const u = await anon.req('POST', '/api/forms/unsubscribe', new URLSearchParams({ t }), { form: true })
+  expect(pg.text.includes('name="referrer" content="same-origin"'), 'the page lets the browser say where the button is pressed')
+  // a browser may still post it as from no origin ("null"): the code in it is the key
+  const u = await anon.req('POST', '/api/forms/unsubscribe', new URLSearchParams({ t }), { form: true, origin: 'null' })
   expect(u.status === 303, 'pressing the button unsubscribes', u.status)
 }
 
@@ -291,8 +297,10 @@ expect(r.status === 429, 'five wrong passwords lock the account for a while', r.
 for (let i = 0; i < 5; i++) r = await other.req('POST', '/api/auth/login', { email: 'nobody@nowhere.example', password: 'wrong-password-' + i })
 r = await other.req('POST', '/api/auth/login', { email: 'nobody@nowhere.example', password: 'another-guess' })
 expect(r.status === 429, 'an address with no account is stopped the same way (the answer does not tell)', r.json)
+// where visitors cannot be told apart (this test's own case), junk sign-ins for many addresses do not shut sign-in
+for (let i = 0; i < 40; i++) await other.req('POST', '/api/auth/login', { email: `junk${i}@nowhere.example`, password: 'junk-password' })
 r = await other.req('POST', '/api/auth/login', { email: 'admin@eliaet.example', password: 'Leather-Highlands-2026' })
-expect(r.status === 200, 'the Secretariat signs in with its password')
+expect(r.status === 200, 'the Secretariat signs in with its password (after 40 junk sign-ins)', r.json)
 r = await sec.req('POST', '/api/auth/logout', {})
 r = await sec.req('GET', '/api/admin/overview')
 expect(r.status === 401, 'signed out')
