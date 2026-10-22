@@ -148,6 +148,14 @@ Until ELIA has hosting of its own, the site runs as a Node.js app on the AALF si
    `./deploy-elia.sh --admin someone@eliaet.com "Their Name"` (the link to set its password is shown at the end and
    e-mailed).
 
+The server takes the films and photos (about 70 MB) from GitHub itself, so they never travel over the deploying
+computer's connection. While the repository (`Phili-gidab/eliaet`) is private, the server needs a read-only token
+for it: on GitHub, Settings > Developer settings > Personal access tokens > Fine-grained tokens, one for this
+repository only with Contents: Read-only. Give it to the server once with `./deploy-elia.sh --github-token` (it asks
+for the token without showing it, and keeps it in `~/.elia-github-token`, readable by that account only). When the
+token runs out, the deploy stops before changing anything and says so: make a new one and run that again. A public
+repository needs no token.
+
 The first run creates the subdomain, makes the Node.js app in cPanel and moves the old static site's files to
 `~/backups`. Every run copies the data first (`~/backups/elia-data`, the last five), keeps the version before in
 `~/elia-app/.previous`, and checks that the site answers and sees each visitor's own address (where the host does

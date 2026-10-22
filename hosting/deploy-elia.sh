@@ -5,6 +5,8 @@
 #   ./deploy-elia.sh                                        a new version of the site
 #   ./deploy-elia.sh --admin you@example.com "Your Name"    the same, then a Secretariat account for the back office
 #                                                           (the link to set its password is shown at the end)
+#   ./deploy-elia.sh --github-token                         while the GitHub repository is private: gives the server a
+#                                                           read-only token for it (asked for here, never shown), once
 #
 # Run it from Git Bash in the folder it is in, next to the package it sends (elia-app-<version>.tar.gz, made by
 # hosting/bundle.mjs). It uses the same SSH setup as the AALF site's deploy: the "allafrica" host block in
@@ -16,8 +18,9 @@
 #  2. finds the newest Node.js on the server (22.13 or later is needed);
 #  3. copies the site's data (database and uploads) to ~/backups/elia-data (the last five copies are kept);
 #  4. sends the package (a few MB) and has the server download the films, photos and documents from the site's GitHub
-#     repository, at the same version (about 60 MB that never travel over this computer's connection), unless the
-#     ones it has are already the same;
+#     repository, at the same version (about 70 MB that never travel over this computer's connection), unless the
+#     ones it has are already the same; a private repository needs the token above (a fine-grained token for that
+#     repository only, with Contents: read-only), which stays in ~/.elia-github-token on the server;
 #  5. puts the new version in ~/elia-app (the one before it stays in ~/elia-app/.previous);
 #  6. the first time, makes it a Node.js app in cPanel (Setup Node.js App), and moves the old static site's files out
 #     of the subdomain's folder into ~/backups; after that, restarts the app;
@@ -28,9 +31,10 @@ set -euo pipefail
 
 REMOTE="allafrica"
 HOME_DIR="/home/allafrpp"
-REPO="Phili-gidab/eliaet-website"
+REPO="Phili-gidab/eliaet"
 APP="elia-app"                                   # the app's folder, in the home folder
 MARKER="ELIA site"                               # our block in .htaccess
+KEYFILE="${HOME_DIR}/.elia-github-token"         # the read-only GitHub token, for a private repository
 
 ADMIN_EMAIL=""; ADMIN_NAME=""
 if [ "${1:-}" = "--admin" ]; then
@@ -38,6 +42,29 @@ if [ "${1:-}" = "--admin" ]; then
     if [ -z "$ADMIN_EMAIL" ] || [ -z "$ADMIN_NAME" ]; then
         echo "Usage: ./deploy-elia.sh --admin you@example.com \"Your Name\""; exit 1
     fi
+elif [ "${1:-}" = "--github-token" ]; then
+    echo "The server downloads the films and photos from ${REPO}. While that repository is private it needs a token:"
+    echo "on GitHub, Settings > Developer settings > Personal access tokens > Fine-grained tokens > Generate new token,"
+    echo "with Repository access: Only select repositories > ${REPO#*/}, and Permissions > Contents: Read-only."
+    read -rsp "Paste the token here (it is not shown) and press Enter: " TOKEN; echo
+    TOKEN="$(printf '%s' "$TOKEN" | tr -d '[:space:]')"
+    [ -n "$TOKEN" ] || { echo "!!  Nothing was pasted."; exit 1; }
+    # over the SSH connection's input, so the token is never on a command line, here or on the server
+    printf '%s\n' "$TOKEN" | ssh "$REMOTE" "umask 077 && cat > '${KEYFILE}'"
+    unset TOKEN
+    CODE="$(ssh "$REMOTE" bash -s <<EOF || true
+printf 'header = "Authorization: Bearer %s"\n' "\$(tr -d '[:space:]' < '${KEYFILE}')" |
+    curl -s --max-time 30 -K - -o /dev/null -w '%{http_code}' 'https://api.github.com/repos/${REPO}'
+EOF
+)"
+    if [ "$CODE" = "200" ]; then
+        echo "==> Saved on the server (~/.elia-github-token, readable by its account only); GitHub accepts it."
+        echo "    Now run ./deploy-elia.sh (with --admin the first time)."
+        exit 0
+    fi
+    echo "!!  Saved on the server, but GitHub answers ${CODE:-nothing} to it for ${REPO}: check that the token is for"
+    echo "    that repository with Contents: Read-only, then run ./deploy-elia.sh --github-token again."
+    exit 1
 fi
 
 cd "$(dirname "$0")"
@@ -53,7 +80,6 @@ ROOT_DOMAIN="${DOMAIN#*.}"                       # allafricanleatherfair.org
 DOCROOT="${HOME_DIR}/${DOMAIN}"                  # the subdomain's document root
 APPROOT="${HOME_DIR}/${APP}"
 DATA="${HOME_DIR}/elia-data/${DOMAIN}"
-NAME="${REPO#*/}"
 ADMIN_EMAIL_Q="$(printf '%q' "$ADMIN_EMAIL")"
 ADMIN_NAME_Q="$(printf '%q' "$ADMIN_NAME")"
 
@@ -120,12 +146,37 @@ if [ -n '${MEDIA}' ] && [ "\$(cat "\$APPROOT/.elia-media" 2>/dev/null || true)" 
     cp -al "\$APPROOT/web/dist/film" "\$APPROOT/web/dist/media" "\$NEW/web/dist/"
     [ -d "\$APPROOT/server/data/seed/files" ] && cp -al "\$APPROOT/server/data/seed/files" "\$NEW/server/data/seed/"
 else
-    echo "==> The server is downloading the films, photos and documents from GitHub (about 60 MB)"
-    URL='https://codeload.github.com/${REPO}/tar.gz/${COMMIT}'
-    if command -v curl >/dev/null 2>&1; then curl -fsSL --retry 3 -o "\$W/src.tar.gz" "\$URL"; else wget -q -O "\$W/src.tar.gz" "\$URL"; fi
+    echo "==> The server is downloading the films, photos and documents from GitHub (about 70 MB)"
+    KEY='${KEYFILE}'
+    GOT=''
+    if [ -s "\$KEY" ]; then
+        # a private repository: GitHub's API takes the token and answers with a download address that works for a
+        # few minutes (the token goes to api.github.com only, through curl's input rather than its command line)
+        LOC="\$(printf 'header = "Authorization: Bearer %s"\n' "\$(tr -d '[:space:]' < "\$KEY")" |
+            curl -fsS --retry 3 -K - -o /dev/null -w '%{redirect_url}' 'https://api.github.com/repos/${REPO}/tarball/${COMMIT}' || true)"
+        [ -n "\$LOC" ] && curl -fsSL --retry 3 -o "\$W/src.tar.gz" "\$LOC" && GOT=1
+    else
+        URL='https://codeload.github.com/${REPO}/tar.gz/${COMMIT}'
+        if command -v curl >/dev/null 2>&1; then curl -fsSL --retry 3 -o "\$W/src.tar.gz" "\$URL" && GOT=1
+        else wget -q -O "\$W/src.tar.gz" "\$URL" && GOT=1; fi
+    fi
+    if [ -z "\$GOT" ]; then
+        echo "!!  GitHub did not hand over ${REPO} at ${COMMIT:0:7}."
+        if [ -s "\$KEY" ]; then
+            echo "    The token on the server did not work: it may have run out, or it cannot read ${REPO}. Make a new one"
+            echo "    and give it to the server with ./deploy-elia.sh --github-token"
+        else
+            echo "    If the repository is private, either make it public (on GitHub: the repository > Settings > Change"
+            echo "    visibility), or give the server a read-only token for it, once: ./deploy-elia.sh --github-token"
+        fi
+        echo "    (And ${COMMIT:0:7} must be pushed: hosting/bundle.mjs checks that before it makes the package.)"
+        exit 4
+    fi
+    # the archive's one top folder: <repository>-<commit> from codeload, <owner>-<repository>-<short commit> from the API
+    TOP="\$(tar tzf "\$W/src.tar.gz" | awk -F/ '\$1 != "pax_global_header" && t == "" { t = \$1 } END { print t }')"
     mkdir -p "\$W/src"
     tar xzf "\$W/src.tar.gz" -C "\$W/src" --strip-components=1 --no-same-owner --no-same-permissions \\
-        '${NAME}-${COMMIT}/web/public/film' '${NAME}-${COMMIT}/web/public/media' '${NAME}-${COMMIT}/server/data/seed/files'
+        "\$TOP/web/public/film" "\$TOP/web/public/media" "\$TOP/server/data/seed/files"
     rm -f "\$W/src.tar.gz"
     if [ ! -d "\$W/src/web/public/film" ] || [ ! -d "\$W/src/web/public/media" ]; then echo "!!  The films and photos did not arrive."; exit 1; fi
     mv "\$W/src/web/public/film" "\$W/src/web/public/media" "\$NEW/web/dist/"
