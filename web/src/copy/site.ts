@@ -63,6 +63,12 @@ export const NAV: NavItem[] = [
 
 /** the header's own links (the rest are in the menu) */
 export const PRIMARY_NAV = ['/about', '/members', '/industry', '/programs', '/invest', '/news', '/contact']
+/** ELIA's own initiatives, set beside its mark in the header (the old site had them in its bar too) */
+export const FAMILY = [
+  { short: 'EHL', to: '/ehl', name: 'Ethiopian Highland Leather' },
+  { short: 'AALF', to: '/aalf', name: 'All Africa Leather & Textile Fair' },
+  { short: 'ELDSC', to: '/eldsc', name: 'Ethiopian Leather Development S.C.' },
+]
 /** shorter names for the header */
 export const SHORT_LABEL: Record<string, string> = { '/industry': 'Industry', '/invest': 'Invest', '/news': 'News' }
 

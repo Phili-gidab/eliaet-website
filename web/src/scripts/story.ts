@@ -3,12 +3,13 @@
    stay in step), the rail's segments fill with it, and a click on a segment goes to that chapter. The film plays
    once and stays on its last frame, where the last chapter (the page's title and buttons) stands; the button at
    the end of the rail plays it again. People who asked for less motion get that last frame and chapter at once.
-   Before all that, the door: the page colour with the ELIA mark cut out of it, the film inside the mark (its first
-   chapters, round and round). Scrolling zooms through the mark's dot until the film fills the screen; then the
-   story begins. Scrolling on, the film steps back into a panel (--away) while the next section slides over it. */
+   Before all that, the door (scripts/door-gl.ts, drawn on the graphics card): the logo plays its own opening, as in
+   the brand film (the outline of Ethiopia, the e drawn out of its western point, the dot dropping in, the wordmark
+   sliding out), then the film fills the mark, playing slowly. Scrolling zooms through the mark's dot until the film
+   fills the screen; then the story plays at its own pace. Scrolling on, the film steps back into a panel (--away) while the next section slides over it. */
 import { mountFilm } from './film'
-import { ScrollTrigger } from './motion'
-import { DOT } from '../brand/logo'
+import { gsap, ScrollTrigger } from './motion'
+import { mountDoor, type Door } from './door-gl'
 
 type Beat = { id: string; t0: number; t1: number; in: number; out: number | null }
 
@@ -27,12 +28,11 @@ if (root) {
   let holding = !!document.querySelector('[data-intro]') && !html.classList.contains('no-intro') && !reduce
 
   /* ── the door ── */
-  const door = root.querySelector<SVGSVGElement>('[data-door]')
-  const useDoor = !!door && !reduce
+  const doorCanvas = root.querySelector<HTMLCanvasElement>('[data-door]')
+  let useDoor = !!doorCanvas && !reduce
   let open = !useDoor
-  // the film's first chapters play round and round inside the mark while the door is closed
-  const LOOP_FROM = 0.15, LOOP_TO = chapters[1] ? chapters[1].out ?? 7 : 3
-  const DOOR = 1.15                                   // screens of scrolling to open it (as --door in Story.astro)
+  const DOOR = 1.6                                    // screens of scrolling to open it (as --door in Story.astro)
+  const BEHIND = 0.6                                  // the film's pace inside the mark, before the door opens
 
   // the pointer over the stage, smoothed (-1 to 1 each way): the last frame follows it
   const ptr = { x: 0, y: 0 }
@@ -193,7 +193,7 @@ if (root) {
   const FAST = 1.6, SLOW = 1.1, SLOW_FROM = 15.6
   let rate = 0
   const pace = (t: number) => {
-    const want = t < SLOW_FROM ? FAST : SLOW
+    const want = !open ? BEHIND : t < SLOW_FROM ? FAST : SLOW
     if (want === rate && video.playbackRate === want) return
     rate = want
     video.defaultPlaybackRate = want
@@ -203,8 +203,6 @@ if (root) {
   // the clock: the film's time, every frame it shows (rVFC where there is one: it gives the shown frame's own time)
   const tick = (_now?: number, meta?: { mediaTime?: number }) => {
     const t = video.currentTime || 0
-    // behind the closed door, the first chapters again and again
-    if (!open && !ended && t > LOOP_TO) { try { video.currentTime = LOOP_FROM } catch (e) { /* not seekable yet */ } }
     pace(t)
     if (!ended) draw(t)
     pins(meta && typeof meta.mediaTime === 'number' ? meta.mediaTime : t)
@@ -253,55 +251,114 @@ if (root) {
   }
   state()
 
-  /* ── the door: the mark is placed and zoomed through its dot as the page scrolls ── */
-  if (useDoor && door) {
-    const mark = door.querySelector<SVGGElement>('[data-door-mark]')!
-    const edge = door.querySelector<SVGGElement>('[data-door-edge]')!
-    const view = root.querySelector<HTMLElement>('[data-story-view]')!
-    root.style.setProperty('--door', String(DOOR))
-    root.classList.add('has-door')
+  /* ── the door: the logo plays its opening, then the scroll zooms through the mark's dot ── */
+  if (useDoor && doorCanvas) {
+    root.classList.add('has-door', 'door-anim')
+    html.classList.add('door-closed')
+    root.dataset.tone = 'light'
     // the door is this visit's logo moment: the other pages skip their logo loader from now on
     try { sessionStorage.setItem('elia-intro', '1') } catch (e) { /* private mode */ }
-    root.dataset.tone = 'light'
-    // the mark's box and its dot, in the logo's own units (brand/logo.ts VIEW.mark)
-    const BOX = { x: 237.9, y: 215.7, w: 146, h: 131.8 }
-    const C = { x: BOX.x + BOX.w / 2, y: BOX.y + BOX.h / 2 }
-    const smooth = (a: number, b: number, v: number) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t) }
-    let last = -1
-    const place = (p: number) => {
+    const outline = root.querySelector<SVGGElement>('[data-outline-g]')
+    const outlinePath = outline?.querySelector<SVGPathElement>('path')
+    const outlineDot = outline?.querySelector<SVGCircleElement>('circle')
+    const poster = filmEl.querySelector<HTMLImageElement>('.film__poster img')?.currentSrc || '/film/tannery-start-1600.webp'
+    const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+    const smooth = (a: number, b: number, v: number) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t) }
+    const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+    // the lockup's box, the mark's, and the dot, in the logo's own units (brand/logo.ts)
+    const LOCKUP = { x: 237.9, y: 215.7, w: 366, h: 131.8 }, MARK = { x: 237.9, y: 215.7, w: 146, h: 131.8 }
+    const DOTC = { x: 367.52, y: 251.05, r: 10.17 }
+    // the opening's own values (gsap moves them), and the scroll's
+    const I = { outline: 0, outlineA: 1, start: 0, sweep: 0, dot: 0, dotY: -52, wordX: -70, wordA: 0, filmIn: 0, rim: 0 }
+    let p = 0
+    let door: Door | null = null
+    let queued = 0
+    const compose = () => {
+      queued = 0
+      if (!door) return
       const W = stage.clientWidth, H = stage.clientHeight
-      const w0 = Math.min(W * 0.8, H * 0.5 * (BOX.w / BOX.h))      // the mark's width when the door is closed
-      const s0 = w0 / BOX.w
-      const s1 = (Math.hypot(W / 2, H / 2) * 1.1) / DOT.r            // the dot covers the whole screen
-      const k = smooth(0, 0.55, p)                                   // the dot comes to the middle early on
-      const s = s0 * Math.pow(s1 / s0, Math.pow(p, 1.15))
-      const ax = C.x + (DOT.cx - C.x) * k, ay = C.y + (DOT.cy - C.y) * k
-      const tx = W / 2 - ax * s, ty = H * (0.43 + 0.07 * k) - ay * s
-      const tr = `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${s.toFixed(5)})`
-      mark.setAttribute('transform', tr)
-      edge.setAttribute('transform', tr)
-      root.style.setProperty('--edge', String(1 - smooth(0, 0.18, p)))
-      root.style.setProperty('--hello', String(1 - smooth(0, 0.2, p)))
-      view.style.setProperty('--view-s', String(1.18 - 0.18 * smooth(0, 1, p)))
-      const isOpen = p >= 0.985
-      if (isOpen !== open) {
-        open = isOpen
-        root.classList.toggle('is-open', open)
-        if (open) { draw(video.currentTime || 0); video.dispatchEvent(new Event('elia-sync')) }
+      const wide = W > H * 1.05
+      const box = wide ? LOCKUP : MARK
+      const w0 = wide ? clamp(W * 0.54, 330, 860) : Math.min(W * 0.66, H * 0.34 * (MARK.w / MARK.h))
+      const s0 = w0 / box.w
+      const s1 = (Math.hypot(W / 2, H / 2) * 1.08) / DOTC.r       // the dot covers the whole screen
+      const z = inOut(clamp(p))
+      const sc = s0 * Math.pow(s1 / s0, z)
+      // where the zoom is centred: the lockup, then the mark alone as the wordmark leaves, then the dot
+      const m = wide ? smooth(0, 0.14, p) : 1
+      const k = smooth(0.08, 0.5, p)
+      const bx = box.x + box.w / 2 + (MARK.x + MARK.w / 2 - (box.x + box.w / 2)) * m, by = box.y + box.h / 2
+      const ax = bx + (DOTC.x - bx) * k, ay = by + (DOTC.y - by) * k
+      const tx = W / 2 - ax * sc, ty = H * (0.42 + 0.08 * k) - ay * sc
+      const exit = smooth(0, 0.14, p)                             // the wordmark goes back behind the e
+      Object.assign(door.state, {
+        s: sc, tx, ty, sweep: I.sweep, dot: I.dot, dotY: I.dotY,
+        wordX: I.wordX - 70 * exit, wordA: wide ? I.wordA * (1 - exit) : 0,
+        filmIn: I.filmIn, rim: I.rim * (1 - smooth(0, 0.16, p)), view: 1.18 - 0.18 * smooth(0, 1, p),
+        color: smooth(0.06, 0.5, p),
+      })
+      door.draw()
+      if (outline && !root.classList.contains('door-played')) {
+        outline.setAttribute('transform', `matrix(${sc} 0 0 ${sc} ${tx} ${ty})`)
+        outline.style.opacity = String(I.outlineA * (1 - exit))
+        if (outlinePath) outlinePath.style.strokeDashoffset = String(1 - I.outline)
+        if (outlineDot) outlineDot.style.transform = `scale(${I.start})`
       }
-      const tone = p > 0.6 ? 'dark' : 'light'
-      if (root.dataset.tone !== tone) { root.dataset.tone = tone; dispatchEvent(new Event('elia-tone')) }
-      last = p
+      root.style.setProperty('--hello', String(1 - smooth(0, 0.18, p)))
     }
-    ScrollTrigger.create({
-      trigger: root, start: 'top top', end: () => `+=${innerHeight * DOOR}`,
-      onUpdate: (st) => place(st.progress),
-      onRefresh: (st) => place(st.progress),
+    const redraw = () => { if (!queued) queued = requestAnimationFrame(compose) }
+
+    // the logo's opening, as in the brand film, in about two and a half seconds: the outline of Ethiopia, the amber
+    // dot at its western point, the e drawn round out of it, the outline gone, the dot dropping in, the wordmark
+    // sliding out; then the film comes into the mark in the logo's amber, spreading from the dot
+    const intro = gsap.timeline({ paused: true, onUpdate: redraw, onComplete: () => root.classList.add('door-played') })
+    intro
+      .to(I, { outline: 1, duration: 0.7, ease: 'power2.inOut' }, 0)
+      .to(I, { start: 1, duration: 0.28, ease: 'back.out(3)' }, 0.4)
+      .to(I, { sweep: 1, duration: 0.62, ease: 'power2.inOut' }, 0.6)
+      .to(I, { outlineA: 0, start: 0, duration: 0.4, ease: 'power1.in' }, 0.95)
+      .to(I, { dot: 1, duration: 0.16, ease: 'power1.out' }, 1.08)
+      .to(I, { dotY: 0, duration: 0.66, ease: 'bounce.out' }, 1.08)
+      .to(I, { wordX: 0, wordA: 1, duration: 0.65, ease: 'power3.out' }, 1.25)
+      .call(() => root.classList.add('door-in'), [], 1.45)
+      .to(I, { filmIn: 1, duration: 0.85, ease: 'power2.inOut' }, 1.6)
+
+    mountDoor(doorCanvas, video, poster).then((d) => {
+      if (!d) {                                                   // no WebGL here: no door, the film as it is
+        useDoor = false; open = true
+        root.classList.add('no-door', 'is-open'); root.classList.remove('door-anim')
+        html.classList.remove('door-closed')
+        root.dataset.tone = 'dark'; dispatchEvent(new Event('elia-tone'))
+        ScrollTrigger.refresh()
+        return
+      }
+      door = d
+      door.run(true)
+      compose()
+      root.dataset.tone = 'light'
+      dispatchEvent(new Event('elia-tone'))
+      intro.play()
+      ScrollTrigger.create({
+        trigger: root, start: 'top top', end: () => `+=${innerHeight * DOOR}`,
+        onUpdate: (st) => {
+          p = st.progress
+          // someone already scrolling: the opening is over at once
+          if (p > 0.015 && intro.progress() < 1) intro.progress(1)
+          const isOpen = p >= 0.985
+          if (isOpen !== open) {
+            open = isOpen
+            root.classList.toggle('is-open', open)
+            html.classList.toggle('door-closed', !open)
+            door?.run(!open)
+            if (open) { draw(video.currentTime || 0); video.dispatchEvent(new Event('elia-sync')) }
+          }
+          const tone = p > 0.6 ? 'dark' : 'light'
+          if (root.dataset.tone !== tone) { root.dataset.tone = tone; dispatchEvent(new Event('elia-tone')) }
+          redraw()
+        },
+      })
+      addEventListener('resize', redraw)
     })
-    place(0)
-    root.classList.add('door-ready')
-    dispatchEvent(new Event('elia-tone'))
-    addEventListener('resize', () => place(Math.max(0, last)))
   } else {
     root.classList.add('is-open')
   }

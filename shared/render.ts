@@ -2,6 +2,7 @@
    build the pages' first version (Astro, from the seed data) and fill them with the live data on every visit (the
    server, server/src/pages.ts), so the two never differ. Their styles are global: web/src/styles/cms.css. */
 import { esc, markdown } from './markdown.js'
+import { LISTING, CATEGORY_NOTES, type Category } from './options.js'
 
 export interface CardPost {
   slug: string
@@ -106,3 +107,71 @@ export function pubRow(p: CardPublication): string {
 
 /** A post's page body (Markdown, rendered safely). */
 export const postBody = (md: string) => markdown(md)
+
+/* ── the public members' listing (the members page) ─────────────────────── */
+
+export interface CardMember {
+  slug: string
+  name: string
+  category: string          // tannery, footwear, leather_goods, associate
+  city?: string | null
+  logo?: string | null
+  phone?: string | null     // as the company gave it: "Tel +251-115-535-978 · Mobile +251-912-073-375"
+  email?: string | null
+  website?: string | null
+  ehl?: boolean             // certified to the Ethiopian Highland Leather standard
+}
+
+const PHONE_LABEL: Record<string, string> = { tel: 'Tel', telephone: 'Tel', phone: 'Tel', office: 'Tel', mobile: 'Mobile', mob: 'Mobile', cell: 'Mobile', fax: 'Fax' }
+
+/** "Tel +251-115-535-978 · Mobile +251-912-073-375" -> [{ label: 'Tel', value: '+251-115-535-978' }, …] */
+export function phoneLines(s?: string | null): { label: string; value: string }[] {
+  if (!s) return []
+  return s.split(/\s*(?:·|;|,|\|)\s*|\s+\/\s+/).map((part) => {
+    const m = /^(telephone|tel|phone|office|mobile|mob|cell|fax)\.?\s*:?\s*(.+)$/i.exec(part.trim())
+    return m ? { label: PHONE_LABEL[m[1].toLowerCase()], value: m[2].trim() } : { label: 'Tel', value: part.trim() }
+  }).filter((p) => p.value)
+}
+
+/** a company's initials, for a card without a logo: "Natural Footwear Studio" -> "NF" */
+const initials = (name: string) => name.replace(/\b(PLC|P\.L\.C|S\.C|SC|Ltd|Co|and|the|of)\b\.?/gi, '').split(/[\s.&-]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+
+export function memberCard(m: CardMember, i = 0): string {
+  const phones = phoneLines(m.phone)
+  const tel = (v: string) => v.replace(/[^\d+]/g, '')
+  const web = m.website ? (/^https?:\/\//i.test(m.website) ? m.website : `https://${m.website}`) : ''
+  const webShort = web.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '')
+  const rows = phones.map((p) => `<div><dt>${esc(p.label)}</dt><dd>${p.label !== 'Fax' && tel(p.value).replace('+', '').length >= 6
+    ? `<a href="tel:${esc(tel(p.value))}">${esc(p.value)}</a>` : esc(p.value)}</dd></div>`)
+  // a long address may break before its @, never inside a word
+  if (m.email) rows.push(`<div><dt>Email</dt><dd><a href="mailto:${esc(m.email)}">${esc(m.email).replace('@', '<wbr>@')}</a></dd></div>`)
+  const meta = [m.city ? esc(m.city) : '', m.ehl ? `<a class="mem__ehl" href="/ehl">EHL certified</a>` : ''].filter(Boolean)
+  return `<li class="mem" data-reveal style="--d:${((i % 3) * 0.06).toFixed(2)}s">`
+    + `<div class="mem__logo">${m.logo ? `<img src="${esc(m.logo)}" alt="" loading="lazy" decoding="async">` : `<span class="mem__mono" aria-hidden="true">${esc(initials(m.name))}</span>`}</div>`
+    + `<h4 class="mem__name">${esc(m.name)}</h4>`
+    + (meta.length ? `<p class="mem__meta">${meta.join('<span aria-hidden="true"> · </span>')}</p>` : '')
+    + (rows.length ? `<dl class="mem__dl">${rows.join('')}</dl>` : '')
+    + (web ? `<a class="mem__web" href="${esc(web)}" target="_blank" rel="noopener">${esc(webShort)} ${svg(OUT)}<span class="sr-only"> (opens in a new tab)</span></a>` : '')
+    + `</li>`
+}
+
+/** The listing: an index of the categories, then each category's companies (the three the old site had always, even
+    when empty, so its addresses keep working; associates once there are some). */
+export function memberRoster(list: CardMember[]): string {
+  const keys = (Object.keys(LISTING) as Category[]).filter((k) => k !== 'associate' || list.some((m) => m.category === k))
+  const by = (k: string) => list.filter((m) => m.category === k).sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const index = `<nav class="roster__index" aria-label="Members by sector" data-reveal><ol role="list">`
+    + keys.map((k) => `<li><a href="#${LISTING[k].anchor}"><span class="roster__ix">${esc(LISTING[k].title)}</span>`
+      + `<span class="roster__ixn">${by(k).length} listed</span>${svg('M12 4v15m-6-6 6 6 6-6')}</a></li>`).join('')
+    + `</ol></nav>`
+  return index + keys.map((k) => {
+    const ms = by(k), a = LISTING[k].anchor
+    return `<div class="roster__group" id="${a}" aria-labelledby="${a}-h">`
+      + `<div class="roster__head" data-reveal><p class="roster__n" aria-hidden="true"><b class="figure-num">${pad(ms.length)}</b><span>listed</span></p>`
+      + `<h3 class="roster__t" id="${a}-h">${esc(LISTING[k].title)}</h3><p class="roster__note">${esc(CATEGORY_NOTES[k])}</p></div>`
+      + (ms.length ? `<ul class="roster__list" role="list">${ms.map((m, i) => memberCard(m, i)).join('')}</ul>`
+        : `<p class="roster__empty">No companies are listed here yet.</p>`)
+      + `</div>`
+  }).join('')
+}

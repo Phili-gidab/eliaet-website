@@ -1,7 +1,8 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
+import Window from '../components/Window.astro'
 import SectionHead from '../components/SectionHead.astro'
 import {
   EHL_BRAND,
@@ -34,17 +35,17 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
 ---
 
 <Base title="Ethiopian Highland Leather" description={EHL_BRAND.lead}>
-  <PageHead
-    index="01"
-    eyebrow="EHL"
+  <Cover
+    n="07" kicker="Ethiopian Highland Leather"
     title={['Ethiopian', '<em>Highland</em>', 'Leather.']}
+    size="clamp(3.4rem, 1rem + 9.6vw, 12rem)"
     lede={EHL_BRAND.lead}
-    image={EHL_IMAGES.hero}
-    imageAlt="A young herder wrapped in a sheepskin stands on a cliff above the clouds in the Ethiopian highlands"
+    bg="var(--brown-80)" ink="cream" numeral="EHL"
+    cut={{ src: '/media/cut/herder.webp', alt: 'A young herder wrapped in a sheepskin, seen from behind, looking out over the highlands', h: '90svh', x: '14vw', w: 358, hgt: 857 }}
   />
 
   <!-- 02 · the figures, stamped large -->
-  <section class="sec sec--tight sec--hide figs" aria-labelledby="figs-h">
+  <section class="sec sec--tight sec--paper sec--wheat figs" aria-labelledby="figs-h">
     <div class="wrap">
       <h2 class="label label--rule" id="figs-h" data-reveal="fade"><b>02</b> In figures</h2>
       <dl class="figs__list">
@@ -99,7 +100,11 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
   </section>
 
   <!-- 04 · the story, in four chapters -->
-  <section class="sec grain story" id="story">
+  <Window image="/media/profile/highland-sheep.webp" cut="/media/cut/highland-sheep.webp" alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind"
+    words={['_Thin, light,_', 'strong.']} kicker="Highland sheepskin" note="Highland sheepskin: thin and light, yet strong and durable."
+    place="--hx:5vw;--hy:15vh;--hs:clamp(4.6rem,1rem + 13vw,16rem)" focus="50% 40%" focusM="72% 40%" />
+
+  <section class="sec sec--brown grain story" id="story">
     <div class="wrap">
       <SectionHead index="04" eyebrow={EHL_STORY.eyebrow} title={dot(EHL_STORY.title)} />
       <div class="story__grid">
@@ -195,10 +200,10 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
   .figs__list { margin: clamp(32px, 4vw, 56px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .fig { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 18px; padding: 8px clamp(16px, 2vw, 32px) 6px; }
   .fig:first-child { padding-left: 0; }
-  .fig + .fig { border-left: 1.4px dashed rgb(226 160 37 / 0.4); }
-  .fig__num { margin: 0; font-size: clamp(2.3rem, 1rem + 3.6vw, 5.4rem); color: var(--cream); white-space: nowrap; }
-  .fig__unit { font-size: 0.34em; letter-spacing: 0; margin-left: 0.18em; color: var(--gold); vertical-align: 0.15em; }
-  .fig__label { font-size: 14.5px; line-height: 1.45; color: var(--muted); max-width: 24ch; text-wrap: pretty; }
+  .fig + .fig { border-left: 1.4px dashed rgb(60 30 22 / 0.28); }
+  .fig__num { margin: 0; font-size: clamp(2.3rem, 1rem + 3.6vw, 5.4rem); color: var(--ink); white-space: nowrap; }
+  .fig__unit { font-size: 0.34em; letter-spacing: 0; margin-left: 0.18em; color: var(--brown-80); vertical-align: 0.15em; }
+  .fig__label { font-size: 14.5px; line-height: 1.45; color: var(--brown-80); max-width: 24ch; text-wrap: pretty; }
 
   /* 03 · brand */
   .brand__top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
@@ -230,7 +235,6 @@ const dot = (s: string) => `${s.replace(/\.$/, '')}<em>.</em>`
   .cert__note .stamp, .jica__shows .stamp { background: var(--ink); color: var(--amber-75); box-shadow: inset 0 1px 0 rgb(250 239 219 / 0.08); backdrop-filter: none; -webkit-backdrop-filter: none; }
 
   /* 04 · story */
-  .story { background: var(--ink); }
   .story__grid { margin-top: clamp(44px, 5.4vw, 84px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px clamp(32px, 5vw, 96px); align-items: start; }
   .story__media { position: sticky; top: calc(var(--header-h) + 24px); }
   .story__frame { aspect-ratio: 604 / 683; }

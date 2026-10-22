@@ -8,10 +8,11 @@ import { Router, type Response } from 'express'
 import { config } from './config.js'
 import { one, all } from './db.js'
 import { esc, plain, brief } from '../../shared/markdown.js'
-import { postCard, eventRow, pubRow, fmtDate, fmtRange, postBody } from '../../shared/render.js'
+import { postCard, eventRow, pubRow, fmtDate, fmtRange, postBody, memberRoster } from '../../shared/render.js'
 import { POST_CATEGORIES } from '../../shared/options.js'
 import { posts, events, publications, postOut, srcset, today } from './content.js'
 import { fileRef } from './files.js'
+import { publicListing } from './companies.js'
 import { wrap, notFound, pageNumber } from './util.js'
 
 const cache = new Map<string, { mtime: number; html: string }>()
@@ -59,6 +60,13 @@ pages.get(['/', '/index.html'], wrap((_req, res, next) => {
   if (!html) return next()
   const latest = posts({ limit: 3 }).items
   sendHtml(res, fill(html, 'home-news', latest.map((p, i) => postCard(p, i, srcset)).join('')))
+}))
+
+/* the members page: the companies on the public listing, by sector (the directory itself is for members) */
+pages.get(['/members', '/members.html'], wrap((_req, res, next) => {
+  const html = template('members.html')
+  if (!html) return next()
+  sendHtml(res, fill(html, 'members-roster', memberRoster(publicListing())))
 }))
 
 pages.get(['/news', '/news.html'], wrap((req, res, next) => {

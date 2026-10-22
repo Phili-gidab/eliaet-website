@@ -4,7 +4,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { POST_CATEGORIES } from '../../../shared/options'
-import { postCard, eventRow, pubRow, type CardPost, type CardEvent, type CardPublication } from '../../../shared/render'
+import { postCard, eventRow, pubRow, memberRoster, type CardPost, type CardEvent, type CardPublication, type CardMember } from '../../../shared/render'
 import { srcsetFor } from '../lib/media'
 
 const SEED = [path.resolve(process.cwd(), '../server/data/seed'), path.resolve(process.cwd(), 'server/data/seed')].find((d) => fs.existsSync(d)) ?? ''
@@ -65,8 +65,28 @@ export function publications(): CardPublication[] {
     })
 }
 
+type SeedMember = { slug: string; name: string; public?: boolean; sectors: string[]; city?: string; ehlCertified?: boolean; logo?: string;
+  phones?: { label: string; value: string }[]; emails?: string[]; website?: string }
+
+/** the companies on the public members listing, as the database starts with them (server/src/seed.ts puts them in) */
+export function listedMembers(): CardMember[] {
+  let list: SeedMember[] = []
+  try {
+    list = JSON.parse(fs.readFileSync(path.join(SEED, '..', 'members.json'), 'utf8')).members ?? []
+  } catch {
+    return []
+  }
+  return list.filter((m) => m.public).map((m) => ({
+    slug: m.slug, name: m.name, city: m.city ?? null, logo: m.logo ?? null, ehl: !!m.ehlCertified,
+    category: m.sectors.includes('tannery') ? 'tannery' : m.sectors.includes('footwear') ? 'footwear' : 'leather_goods',
+    phone: m.phones?.map((p) => `${p.label} ${p.value}`).join(' · ') ?? null, email: m.emails?.[0] ?? null,
+    website: m.website ? (m.website.startsWith('http') ? m.website : `https://${m.website}`) : null,
+  }))
+}
+
 export const html = {
   posts: (list: CardPost[]) => list.map((p, i) => postCard(p, i, srcsetFor)).join(''),
   events: (list: CardEvent[]) => list.map(eventRow).join(''),
   pubs: (list: CardPublication[]) => list.map(pubRow).join(''),
+  roster: (list: CardMember[]) => memberRoster(list),
 }

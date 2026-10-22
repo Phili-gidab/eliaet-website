@@ -123,7 +123,10 @@ files.get('/:key/:name', wrap((req: Request, res, next) => {
   const f = one('SELECT * FROM files WHERE key = ?', String(req.params.key))
   if (!f) throw notFound()
   const u = req.session?.user
-  const allowed = f.access === 'public'
+  // a company's logo is for members, unless the company is on the public members page (shared/render.ts)
+  const publicLogo = f.access === 'members'
+    && !!one(`SELECT 1 FROM companies WHERE logo_file_id = ? AND status = 'active' AND listed = 1 AND public_listing = 1`, f.id)
+  const allowed = f.access === 'public' || publicLogo
     || (f.access === 'members' && !!u && memberMaySee(u, f.id, f.owner_user_id))
     || (f.access === 'private' && !!u && (u.role === 'secretariat' || u.id === f.owner_user_id))
   if (!allowed) {
@@ -140,7 +143,7 @@ files.get('/:key/:name', wrap((req: Request, res, next) => {
   res.setHeader('Content-Length', String(f.size))
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('Content-Disposition', `${inline ? 'inline' : 'attachment'}; filename="${f.name.replace(/"/g, '')}"`)
-  res.setHeader('Cache-Control', f.access === 'public' ? 'public, max-age=86400' : 'private, no-store')
+  res.setHeader('Cache-Control', f.access === 'public' ? 'public, max-age=86400' : publicLogo ? 'public, max-age=3600' : 'private, no-store')
   // a file that cannot be read after all (removed a moment ago, the disk): a 404, or a cut connection if it was
   // already on its way; never an error nobody catches, which would stop the whole server
   const stream = fs.createReadStream(p)

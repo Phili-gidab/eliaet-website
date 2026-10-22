@@ -5,6 +5,7 @@ import { one, all, run, now, fromJson, toJson, type Row } from './db.js'
 import { fileRef, fileUrl } from './files.js'
 import { str, opt, intOrNull, url, optEmail, slugify } from './util.js'
 import { CATEGORIES, SIZES, REGIONS, EXPORT_STATUS, CERTIFICATIONS, REGION_FILTERS } from '../../shared/options.js'
+import type { CardMember } from '../../shared/render.js'
 
 const keys = <T extends object>(o: T) => Object.keys(o) as [keyof T & string, ...(keyof T & string)[]]
 
@@ -42,6 +43,8 @@ export const adminSchema = profileSchema.extend({
   size: z.preprocess((v) => (v === '' ? null : v), z.enum(keys(SIZES)).nullable()),
   status: z.enum(['active', 'suspended', 'archived']),
   listed: z.preprocess((v) => v === true || v === 'true' || v === '1' || v === 1, z.boolean()),
+  /** also on the public members page (name, logo, city, phones, email, website) */
+  public_listing: z.preprocess((v) => v === true || v === 'true' || v === '1' || v === 1, z.boolean()),
   member_since: intOrNull(1994, new Date().getFullYear()),
   dues_paid_until: z.preprocess((v) => (v === '' || v == null ? null : v), z.iso.date('Pick a date').nullable()),
   dues_note: opt(300),
@@ -67,7 +70,7 @@ export function companyOut(c: Row, full = false) {
   }
   if (full) {
     Object.assign(out, {
-      status: c.status, listed: !!c.listed, dues_paid_until: c.dues_paid_until, dues_note: c.dues_note, created_at: c.created_at,
+      status: c.status, listed: !!c.listed, public_listing: !!c.public_listing, dues_paid_until: c.dues_paid_until, dues_note: c.dues_note, created_at: c.created_at,
     })
   }
   return out
@@ -81,6 +84,15 @@ export function cardOut(c: Row) {
     products: c.products, export_status: c.export_status, certifications: fromJson<string[]>(c.certifications, []),
     logo: fileUrl(c.logo_file_id),
   }
+}
+
+/** The public members page's listing: the active companies the Secretariat shows there (listed in the directory, and
+    ticked for the public page), with what the old site showed of them. */
+export function publicListing(): CardMember[] {
+  return all(`SELECT * FROM companies WHERE status = 'active' AND listed = 1 AND public_listing = 1 ORDER BY name COLLATE NOCASE`).map((c) => ({
+    slug: c.slug, name: c.name, category: c.category, city: c.city, logo: fileUrl(c.logo_file_id), phone: c.phone, email: c.email,
+    website: c.website, ehl: fromJson<string[]>(c.certifications, []).includes('EHL'),
+  }))
 }
 
 export interface DirectoryQuery {

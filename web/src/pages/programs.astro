@@ -1,7 +1,8 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
+import Window from '../components/Window.astro'
 import ItemGrid from '../components/ItemGrid.astro'
 import FactTable from '../components/FactTable.astro'
 import Seals from '../components/Seals.astro'
@@ -11,7 +12,6 @@ import {
 import { AALF_2026 } from '../copy/aalf'
 
 const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 November 2026'
-const pad = (n: number) => String(n).padStart(2, '0')
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 const out = 'M7 17 17 7M9 7h8v8'
 const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
@@ -19,24 +19,18 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
 ---
 
 <Base title={PROGRAMS_HEAD.title} description={`${PROGRAMS_HEAD.subtitle} ${PROGRAM_MENU.map((m) => m.label).join(', ')}.`}>
-  <PageHead
-    index="01"
-    eyebrow={PROGRAMS_HEAD.title}
-    amharic="ፕሮግራሞች"
-    title={['Projects', 'and <em>programs</em>.']}
+  <Cover
+    n="04" kicker={PROGRAMS_HEAD.title} amharic="ፕሮግራሞች"
+    title={['Projects', '<em class="and">and</em> programs.']}
+    size="clamp(3.6rem, 1rem + 13.4vw, 16rem)"
     lede={PROGRAMS_HEAD.subtitle}
-    image="/media/studio/goods-head.webp"
-    imageAlt="A chestnut leather tote and a pair of brown leather boots on a warm brown studio backdrop"
-  >
-    <ol class="toc" role="list" aria-label="On this page" data-reveal style="--d:.3s">
-      {PROGRAM_MENU.map((m, i) => (
-        <li><a href={`#${m.id}`}><span class="toc__n">{pad(i + 2)}</span><span class="toc__name">{m.label}</span></a></li>
-      ))}
-    </ol>
-  </PageHead>
+    bg="var(--amber-60)"
+    goods={{ poster: '/media/studio/goods-head.webp', alt: 'A chestnut leather tote and a pair of tan leather boots, in 3D, turning slowly' }}
+    lines={PROGRAM_MENU.map((m) => ({ href: `#${m.id}`, label: m.label }))}
+  />
 
   <!-- 02 · AALF -->
-  <section class="sec sec--saddle grain pg" id="aalf" aria-labelledby="aalf-h">
+  <section class="sec sec--brown grain pg" id="aalf" aria-labelledby="aalf-h">
     <div class="wrap pg__in">
       <div class="pg__text">
         <p class="label label--rule" data-reveal="fade"><b>02</b> All Africa Leather Fair</p>
@@ -96,7 +90,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   </section>
 
   <!-- 04 · ELDSC -->
-  <section class="sec grain pg pg--ink" id="eldsc" aria-labelledby="eldsc-h">
+  <section class="sec sec--saddle grain pg" id="eldsc" aria-labelledby="eldsc-h">
     <div class="wrap pg__in">
       <div class="pg__text">
         <p class="label label--rule" data-reveal="fade"><b>04</b> Ethiopian Leather Development S.C.</p>
@@ -111,6 +105,10 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   </section>
 
   <!-- 05 · market development -->
+  <Window image="/media/carousel-0.webp" cut="/media/cut/carousel-0.webp" alt="A woman in orange resting on a tan leather sofa, a green leather card wallet in her hand"
+    words={['_Leather the_', 'world wears.']} kicker="Market development" note="Shoes, bags, garments and gloves, cut and sewn by Ethiopian manufacturers."
+    place="--hx:5vw;--hy:13vh;--hs:clamp(3.4rem,1rem + 6.6vw,8.6rem)" focus="60% 50%" focusM="66% 50%" />
+
   <section class="sec sec--paper sheet pg pg--flip" id="market-development" aria-labelledby="md-h">
     <div class="wrap pg__in">
       <div class="pg__text">
@@ -125,7 +123,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   </section>
 
   <!-- 06 · capacity building -->
-  <section class="sec sec--hide pg" id="capacity-building" aria-labelledby="cb-h">
+  <section class="sec sec--paper sec--sand pg" id="capacity-building" aria-labelledby="cb-h">
     <div class="wrap pg__in">
       <div class="pg__text">
         <p class="label label--rule" data-reveal="fade"><b>06</b> Capacity building</p>
@@ -154,14 +152,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
 </Base>
 
 <style>
-  .toc { list-style: none; margin: clamp(32px, 4vw, 52px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; max-width: 640px; }
-  .toc a { display: grid; grid-template-columns: 2.4em minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); color: var(--bone); transition: color 0.25s, padding 0.35s var(--ease); }
-  .toc a:hover { color: var(--cream); padding-left: 6px; }
-  .toc__n { font-family: var(--f-mono); font-size: 12px; color: var(--amber); }
-  .toc__name { font-size: 15px; }
-
   .pg { scroll-margin-top: 80px; }
-  .pg--ink { background: var(--ink); }
   .pg__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 96px); align-items: center; }
   .pg--flip .pg__in { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
   .pg--flip .pg__pic { order: -1; }
@@ -186,5 +177,4 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     .pg--flip .pg__pic { order: 0; }
     .pg__pic { aspect-ratio: 4 / 3; max-height: none; }
   }
-  @media (max-width: 560px) { .toc { grid-template-columns: 1fr; } }
 </style>

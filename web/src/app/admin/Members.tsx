@@ -7,7 +7,7 @@ import { Head, Table, Badge, Filters, Facts, go } from './kit'
 import type { Options } from './Admin'
 
 type FileRef = { id: number; url: string; name: string; size: number }
-type CompanyRow = { id: number; slug: string; name: string; category: string; size: string | null; city: string | null; region: string | null; status: string; listed: number; dues_paid_until: string | null; updated_at: string; users: number }
+type CompanyRow = { id: number; slug: string; name: string; category: string; size: string | null; city: string | null; region: string | null; status: string; listed: number; public_listing: number; dues_paid_until: string | null; updated_at: string; users: number }
 const entries = (o: Record<string, string>) => Object.entries(o) as [string, string][]
 const CERTS: [string, string][] = [['EHL', 'EHL certified'], ['LWG', 'LWG certified'], ['ISO', 'ISO certified']]
 const today = () => new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10)
@@ -49,7 +49,7 @@ function CompanyList({ opts, dues: dues0 }: { opts: Options; dues: string }) {
           <p class="small atools__count">{data.items.length} {data.items.length === 1 ? 'company' : 'companies'}</p>
           <Table rows={data.items} href={(r) => `#companies/${r.id}`} empty="No companies match."
             cols={[
-              ['Company', (r) => <>{r.name}{!r.listed && <span class="sub">Not listed in the directory</span>}</>],
+              ['Company', (r) => <>{r.name}{!r.listed ? <span class="sub">Not listed in the directory</span> : !!r.public_listing && <span class="sub">On the public members page</span>}</>],
               ['Category', (r) => opts.categories[r.category] ?? r.category],
               ['Size', (r) => (r.size ? opts.sizes[r.size] : '–')],
               ['Location', (r) => [r.city, r.region ? opts.regions[r.region] : null].filter(Boolean).join(', ') || '–'],
@@ -120,6 +120,7 @@ function CompanyForm({ opts, c, onSaved }: { opts: Options; c?: Full['company'];
     e.preventDefault()
     const body = formObject(form.current!)
     body.listed = (form.current!.elements.namedItem('listed') as HTMLInputElement).checked
+    body.public_listing = (form.current!.elements.namedItem('public_listing') as HTMLInputElement).checked
     if (c) run(() => api(`/admin/companies/${c.id}`, { method: 'PUT', body }), 'Saved.').then((r) => r && onSaved?.())
     else run(() => api<{ id: number }>('/admin/companies', { body })).then((r) => r && go(`companies/${r.id}`))
   }
@@ -131,6 +132,7 @@ function CompanyForm({ opts, c, onSaved }: { opts: Options; c?: Full['company'];
       <Select label="Size" name="size" options={entries(opts.sizes)} empty="Not set" defaultValue={v('size')} errors={errors} />
       <Select label="Membership" name="status" options={[['active', 'Active'], ['suspended', 'Suspended'], ['archived', 'Archived (removed)']]} defaultValue={v('status') || 'active'} errors={errors} />
       <label class="check"><input type="checkbox" name="listed" defaultChecked={c ? !!c.listed : true} /><span>Listed in the members directory</span></label>
+      <label class="check"><input type="checkbox" name="public_listing" defaultChecked={c ? !!c.public_listing : false} /><span>Also on the public members page (name, logo, city, phone, email and website), with the company’s agreement</span></label>
       <Field label="Member since (year)" name="member_since" type="number" inputMode="numeric" min={1994} defaultValue={v('member_since')} errors={errors} optional />
       <Field label="Dues paid until" name="dues_paid_until" type="date" defaultValue={v('dues_paid_until')} errors={errors} optional />
       <Area label="Note on dues (the member sees it)" name="dues_note" defaultValue={v('dues_note')} rows={2} maxLength={300} errors={errors} optional />

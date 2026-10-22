@@ -1,7 +1,8 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
+import Window from '../components/Window.astro'
 import SectionHead from '../components/SectionHead.astro'
 import {
   AALF_2026,
@@ -27,17 +28,18 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   title={AALF_2026.name}
   description={`${AALF_2026.name}, ${AALF_2026.edition}: ${AALF_2026.dates}, ${AALF_2026.venue}, ${AALF_2026.city}. ${AALF_2026.cobrand}.`}
 >
-  <PageHead
-    index="01"
-    eyebrow={AALF_2026.edition}
-    title={['All Africa Leather', '&amp; Textile Fair', '<em>2026</em>']}
-    lede={`${AALF_2026.cobrand}.`}
-    image={AALF_IMAGES.model}
-    imageAlt="A model in a cognac leather jacket"
+  <Cover
+    n="06" kicker={AALF_2026.edition}
+    title={['All Africa Leather', '&amp; Textile <em>Fair</em>']}
+    size="clamp(3.2rem, 1rem + 6.4vw, 8.4rem)"
+    numeral="2026"
+    bg="var(--brand-amber)"
+    cut={{ src: '/media/cut/aalf-model-5.webp', alt: 'A model in a cognac leather jacket', h: '92svh', x: '3vw', w: 1080, hgt: 1080 }}
   >
     <!-- the 2026 edition as a stitched ticket -->
     <div class="ticket seam" data-reveal style="--d:.35s">
       <img class="ticket__logo" src="/media/aalf-logo.svg" alt="All African Leather Fair" width="383" height="143" decoding="async" />
+      <p class="ticket__co">{AALF_2026.cobrand}.</p>
       <dl class="ticket__grid">
         <div class="ticket__cell">
           <dt class="label">Dates</dt>
@@ -55,7 +57,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
         <span class="ticket__unit"><b class="figure-num" data-cd="m">00</b> min</span>
       </p>
       <div class="ticket__cta">
-        <a class="btn" href={AALF_2026.register} target="_blank" rel="noopener">
+        <a class="btn btn--keep" href={AALF_2026.register} target="_blank" rel="noopener">
           Register
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d={out} fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
           <span class="sr-only">for {AALF_2026.name} on {registerHost} (opens in a new tab)</span>
@@ -67,7 +69,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
         </a>
       </div>
     </div>
-  </PageHead>
+  </Cover>
 
   <!-- 02 · about the fair -->
   <section class="sec sec--paper about" id="about">
@@ -83,7 +85,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   </section>
 
   <!-- 03 · what happens at the fair -->
-  <section class="sec grain comp" id="components" aria-labelledby="comp-h">
+  <section class="sec sec--brown grain comp" id="components" aria-labelledby="comp-h">
     <div class="wrap">
       <p class="label label--rule" data-reveal="fade"><b>03</b> Components</p>
       <h2 class="h2 comp__title" id="comp-h" data-reveal>Components of the fair<em>.</em></h2>
@@ -109,6 +111,10 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   </section>
 
   <!-- 05 · partners and financing -->
+  <Window image="/media/profile/fair-stand.webp" alt="A buyer holding up a leather bag at an exhibitor’s stand, talking with the maker" align="end"
+    words={['_Meet the_', 'makers.']} kicker="Exhibitors" note="Four days in Addis Ababa with Ethiopia’s tanneries, shoe factories and leather goods makers."
+    place="--hx:5vw;--hy:13vh" focus="50% 40%" focusM="30% 40%" />
+
   <section class="sec sec--saddle grain partners" id="partners">
     <div class="wrap">
       <SectionHead index="05" eyebrow={AALF_PARTNERS.eyebrow} title={dot(AALF_PARTNERS.title)} intro={AALF_PARTNERS.body[0]} />
@@ -145,7 +151,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   </section>
 
   <!-- 07 · past editions -->
-  <section class="sec grain past" id="past" aria-labelledby="past-h">
+  <section class="sec sec--brown grain past" id="past" aria-labelledby="past-h">
     <div class="wrap past__in">
       <div class="frame past__poster" data-reveal="fade">
         <img src={AALF_PAST.poster} alt="Poster of the 14th All African Leather Fair at Millennium Hall, Addis Ababa" width="763" height="1080" loading="lazy" decoding="async" {...responsive(AALF_PAST.poster, '(max-width: 900px) 92vw, 540px')} />
@@ -200,11 +206,14 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
 <style>
   /* 01 · the ticket in the page head */
   .ticket {
-    margin-top: clamp(30px, 3.6vw, 48px); max-width: 600px; padding: clamp(24px, 2.6vw, 36px); border-radius: 10px;
+    max-width: 520px; padding: clamp(20px, 2.2vw, 30px); border-radius: 10px; color: var(--cream);
+    --cream: #fffcf5; --bone: #d3cccb; --muted: #d3cccb; --amber: #e2a025; --line: rgb(255 252 245 / 0.14);
     background: linear-gradient(160deg, #4b2f28 0%, #43261e 60%, #3c1e16 100%);
     box-shadow: inset 0 1px 0 rgb(255 252 245 / 0.07), 0 30px 60px -40px rgb(0 0 0 / 0.95);
   }
-  .ticket__logo { width: clamp(150px, 14vw, 190px); height: auto; }
+  .ticket__logo { width: clamp(130px, 11vw, 160px); height: auto; }
+  .ticket__co { margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: rgb(255 252 245 / 0.86); max-width: 44ch; }
+  .ticket :global(.link) { color: var(--cream); }
   .ticket__grid { margin: 22px 0 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: 1px dashed rgb(226 160 37 / 0.35); }
   .ticket__cell { padding-top: 18px; display: grid; gap: 8px; align-content: start; }
   .ticket__cell + .ticket__cell { padding-left: 22px; border-left: 1px dashed rgb(226 160 37 / 0.35); margin-left: 22px; }
@@ -225,7 +234,6 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   .about__frame { grid-column: 8 / span 5; aspect-ratio: 1; margin-bottom: clamp(0px, 4vw, 64px); }
 
   /* 03 · components */
-  .comp { background: var(--ink); }
   .comp__title { margin-top: 22px; max-width: 16ch; }
   /* quilted like a stitched panel: the cells divided by saddle stitches, no outer edge */
   .comp__list {
@@ -277,7 +285,6 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   .outcomes__list a:hover { gap: 0.5em; }
 
   /* 07 · past editions */
-  .past { background: var(--ink); }
   .past__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: center; }
   .past__poster { grid-column: 1 / span 5; aspect-ratio: 763 / 1080; }
   .past__text { grid-column: 7 / span 6; }

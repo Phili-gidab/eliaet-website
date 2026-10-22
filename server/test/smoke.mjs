@@ -246,7 +246,24 @@ expect(r.json.added === 2 && r.json.skipped.length === 1, 'members import from a
 
 // ---- the pages the server fills, and the short addresses
 const page = async (p) => { const x = await fetch(BASE + p, { redirect: 'manual' }); return { status: x.status, text: await x.text(), to: x.headers.get('location') } }
-let pg = await page('/news')
+// the public members listing: the companies the old site listed, each only while the Secretariat keeps it there
+let pg = await page('/members')
+const cards = (pg.text.match(/class="mem"/g) ?? []).length
+expect(pg.status === 200 && cards === 14 && ['tannery', 'shoe-manufacturer', 'leather-product'].every((a) => pg.text.includes(`id="${a}"`)), `the members page lists ${cards} companies, by sector at the old addresses`)
+expect(!pg.text.includes('Awash Tannery Test'), 'an imported company is not on the public page until it is ticked')
+{
+  const kin = (await sec.req('GET', '/api/admin/companies?q=Kinaff')).json.items[0]
+  const full = (await sec.req('GET', `/api/admin/companies/${kin.id}`)).json.company
+  const logo = async () => full.logo ? (await fetch(BASE + full.logo, { redirect: 'manual' })).status : 0
+  expect(pg.text.includes('Kinaff Leather') && (!full.logo || await logo() === 200), 'a listed company, and its logo, are public')
+  r = await sec.req('PUT', `/api/admin/companies/${kin.id}`, { ...full, public_listing: false })
+  pg = await page('/members')
+  expect(r.status === 200 && !pg.text.includes('Kinaff Leather') && (!full.logo || await logo() === 302), 'taken off the public page: gone from it, its logo for members again', r.json)
+  r = await sec.req('PUT', `/api/admin/companies/${kin.id}`, { ...full, public_listing: true })
+  pg = await page('/members')
+  expect(r.status === 200 && pg.text.includes('Kinaff Leather'), 'ticked again: listed again')
+}
+pg = await page('/news')
 expect(pg.status === 200 && pg.text.includes('ELIA welcomes new members') && pg.text.includes('data-tab="all"'), 'the News page shows the newest post')
 pg = await page('/news?tab=events')
 expect(pg.text.includes('data-tab="events"') && pg.text.includes('Tanners'), 'the Events tab, with the new event')

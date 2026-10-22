@@ -25,7 +25,8 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     root.classList.toggle('scrolled', y > 24)
     const down = y > last + 4
     const up = y < last - 4
-    if (down && y > 520 && !root.classList.contains('menu-open')) root.classList.add('hide-hdr')
+    // (not while the home page's door is still closed: the page is held there, scrolling only opens it)
+    if (down && y > 520 && !root.classList.contains('menu-open') && !root.classList.contains('door-closed')) root.classList.add('hide-hdr')
     else if (up || y < 120) root.classList.remove('hide-hdr')
     last = y
     ticking = false
@@ -90,9 +91,21 @@ if (reduce) {
   }
 }
 
-/* ── leather: a hide's picture loads when its place comes near (styles/leather.css) ── */
+/* ── a cover's leather goods in 3D (components/Cover.astro, scripts/cover3d.ts); the still picture where 3D cannot be
+   drawn ── */
 {
-  const els = document.querySelectorAll<HTMLElement>('.hide, .sec--saddle')
+  const gl = document.querySelector<HTMLCanvasElement>('[data-cover-gl]')
+  const cover = gl?.closest<HTMLElement>('[data-cover]')
+  if (gl && cover) {
+    const can = (() => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')) } catch { return false } })()
+    if (!can) cover.classList.add('no-gl')
+    else import('./cover3d').then((m) => m.mountGoods(gl, cover)).then((ok) => { if (!ok) cover.classList.add('no-gl') }).catch(() => cover.classList.add('no-gl'))
+  }
+}
+
+/* ── leather: a hide's picture loads when its place comes near (styles/leather.css); a spread's photographs too ── */
+{
+  const els = document.querySelectorAll<HTMLElement>('.hide, .sec--saddle, .window')
   if (!('IntersectionObserver' in window)) els.forEach((el) => el.classList.add('is-near'))
   else {
     const io = new IntersectionObserver((entries) => {

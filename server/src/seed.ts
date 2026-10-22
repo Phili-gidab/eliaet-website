@@ -12,7 +12,7 @@ const read = <T>(file: string): T | null => {
   try { return JSON.parse(fs.readFileSync(path.join(config.seedDir, file), 'utf8')) as T } catch { return null }
 }
 
-type Member = { slug: string; name: string; sectors: string[]; city?: string; ehlCertified?: boolean; logo?: string;
+type Member = { slug: string; name: string; public?: boolean; sectors: string[]; city?: string; ehlCertified?: boolean; logo?: string;
   phones?: { label: string; value: string }[]; emails?: string[]; website?: string }
 
 const REGION_OF_CITY: Record<string, string> = { 'addis ababa': 'addis_ababa', 'bahir dar': 'amhara', modjo: 'oromia', mojo: 'oromia' }
@@ -29,11 +29,11 @@ export function seedIfEmpty() {
         try { logo = storeLocal(logoFile, 'members') } catch { logo = null }
       }
       const t = now()
-      run(`INSERT INTO companies (slug, name, category, city, region, certifications, phone, email, website, logo_file_id, status, listed, photos, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1, '[]', ?, ?)`,
+      run(`INSERT INTO companies (slug, name, category, city, region, certifications, phone, email, website, logo_file_id, status, listed, public_listing, photos, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1, ?, '[]', ?, ?)`,
         freeSlug(m.slug || m.name), m.name, category, m.city ?? null, m.city ? REGION_OF_CITY[m.city.toLowerCase()] ?? null : null,
         toJson(m.ehlCertified ? ['EHL'] : []), m.phones?.map((p) => `${p.label} ${p.value}`).join(' · ') ?? null,
-        m.emails?.[0] ?? null, m.website ? (m.website.startsWith('http') ? m.website : `https://${m.website}`) : null, logo, t, t)
+        m.emails?.[0] ?? null, m.website ? (m.website.startsWith('http') ? m.website : `https://${m.website}`) : null, logo, m.public ? 1 : 0, t, t)
     }
 
     const posts = read<{ posts: Record<string, any>[] }>('seed/posts.json')?.posts ?? []

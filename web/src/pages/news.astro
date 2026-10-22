@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
 import { posts, postCount, events, publications, html } from '../data/cms'
 import { POST_CATEGORIES, PUBLICATION_TYPES } from '../../../shared/options'
 
@@ -29,23 +29,20 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
 
 <Base newsletter={false} title="News, Events and Publications" description="Updates from ELIA and Ethiopia’s leather industry: news, the events calendar, and ELIA’s reports and downloads.">
   <div class="ntabs-page" data-tab="all">
-  <PageHead
-    index="01"
-    eyebrow="News · Events · Publications"
-    amharic="ዜና"
+  <Cover
+    n="09" kicker="News · Events · Publications" amharic="ዜና"
     title={['News, events', 'and <em>publications</em>.']}
     lede="Updates from ELIA and Ethiopia’s leather industry."
-    image="/media/studio/tote-detail.webp"
-    imageAlt="Close on a chestnut leather tote: where the handle meets the bag, a stitched keeper with a brass ring and rivet"
+    bg="var(--brand-page)" numeral="ELIA"
   >
     <nav class="ntabs" aria-label="News, events and publications" data-reveal style="--d:.32s">
       {TABS.map((t) => <a class="ntab" href={t.href} data-k={t.k}>{t.label}</a>)}
     </nav>
     <p class="unsub" role="status" data-unsub hidden>You are unsubscribed from ELIA’s updates. You can subscribe again at any time below.</p>
-  </PageHead>
+  </Cover>
 
     <!-- 02 · news -->
-    <section class="sec sheet lit nsec" id="news" data-in="all news spotlights" aria-labelledby="news-h">
+    <section class="sec sec--paper sec--sand sheet nsec" id="news" data-in="all news spotlights" aria-labelledby="news-h">
       <div class="wrap">
         <div class="nsec__head">
           <p class="label label--rule" data-reveal="fade"><b>02</b> News</p>
@@ -66,7 +63,7 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
     </section>
 
     <!-- 03 · events -->
-    <section class="sec sec--hide sheet nsec" id="events" data-in="all events" aria-labelledby="events-h">
+    <section class="sec sec--brown sheet lit nsec" id="events" data-in="all events" aria-labelledby="events-h">
       <div class="wrap nsec__split">
         <div class="nsec__head">
           <p class="label label--rule" data-reveal="fade"><b>03</b> Events calendar</p>
@@ -114,7 +111,7 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
     </section>
 
     <!-- 05 · featured articles -->
-    <section class="sec sheet lit nsec" id="featured" data-in="all" aria-labelledby="feat-h">
+    <section class="sec sec--paper sec--mist sheet nsec" id="featured" data-in="all" aria-labelledby="feat-h">
       <div class="wrap">
         <div class="nsec__head">
           <p class="label label--rule" data-reveal="fade"><b>05</b> Featured articles</p>
@@ -185,7 +182,6 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
 
 <style>
   /* on the wide crop of small screens keep the keeper and its ring in the frame */
-  @media (max-width: 900px) { :global(.ph__media img) { object-position: 50% 40%; } }
   .unsub { margin-top: 28px; padding: 14px 18px; border-radius: var(--radius-s); background: rgb(226 160 37 / 0.12); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.4); color: var(--cream); max-width: 52ch; }
   .unsub[hidden] { display: none; }
 
@@ -194,7 +190,7 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
   .ntab { flex: none; display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; font-size: 14.5px; font-weight: 560; color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s, color 0.25s; }
   .ntab:hover { color: var(--cream); background: rgb(255 252 245 / 0.06); }
   [data-tab='all'] .ntab[data-k='all'], [data-tab='news'] .ntab[data-k='news'], [data-tab='events'] .ntab[data-k='events'],
-  [data-tab='publications'] .ntab[data-k='publications'], [data-tab='spotlights'] .ntab[data-k='spotlights'] { background: var(--amber); color: var(--ink); }
+  [data-tab='publications'] .ntab[data-k='publications'], [data-tab='spotlights'] .ntab[data-k='spotlights'] { background: #3c1e16; color: #fffcf5; box-shadow: none; }
 
   /* a tab shows its own sections only */
   [data-tab='news'] .nsec:not([data-in~='news']), [data-tab='events'] .nsec:not([data-in~='events']),
@@ -215,6 +211,10 @@ const pagerBuilt = more ? `<nav class="pager" aria-label="More posts"><span></sp
   .cat { display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; font-weight: 560; color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s, color 0.25s; }
   .cat:hover { color: var(--cream); background: rgb(255 252 245 / 0.06); }
   .cat[aria-current] { background: var(--cream); color: var(--ink); box-shadow: none; }
+  /* on the light news sheet */
+  .sec--paper .cat { color: var(--ink); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.2); }
+  .sec--paper .cat:hover { color: var(--ink); background: rgb(60 30 22 / 0.06); }
+  .sec--paper .cat[aria-current] { background: var(--ink); color: var(--cream); box-shadow: none; }
   .nsec__all { color: var(--amber); }
   .news-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 

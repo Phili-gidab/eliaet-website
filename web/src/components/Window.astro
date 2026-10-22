@@ -1,0 +1,68 @@
+---
+/* A spread: a magazine page laid over a photograph, between two sections. The page (its running head, its standfirst
+   and its caption) scrolls by like any other; behind it is a scene fixed to the screen and clipped to the page, in
+   three layers: the photograph, the headline, and the photograph's subject cut out of it (tools/segment.py), so the
+   subject stands in front of the type, as on a cover. scripts/motion.ts moves the layers apart as the page passes
+   (the photograph drifts down through its margin, the headline rises a little) and sets the type in: the lines rise
+   out of their masks, the running head's rule draws, the caption is uncovered. Less motion: the scene scrolls with
+   the page and everything is simply there. */
+interface Props {
+  image: string
+  alt: string
+  /** the photograph's subject cut out of it, the photograph's size (web/public/media/cut/) */
+  cut?: string
+  /** the headline, a line each; a line in underscores (_From the_) is set light and italic */
+  words: string[]
+  /** a short paragraph under the headline's story */
+  note?: string
+  /** the running head's subject */
+  kicker: string
+  /** the spread's number on the page */
+  n?: number
+  /** the headline's place in the scene, as CSS custom properties: --hx --hy (and --hx-m --hy-m on phones), --hs
+      (its size), --hw (how wide it may go). Measured from the left (or right, with align end) and the top */
+  place?: string
+  align?: 'start' | 'end'
+  /** where the photograph is held when the screen crops it (object-position); on phones too, with focusM */
+  focus?: string
+  focusM?: string
+  /** cream type over a dark photograph, or brown over a light one */
+  ink?: 'cream' | 'brown'
+  caption?: string
+  /** the headline only repeats what the page says (out of the reading order then) */
+  decorative?: boolean
+  /** keep the subject in front of the headline on phones too (their crop may leave no room round it) */
+  cutM?: boolean
+}
+const { image, alt, cut, words, note, kicker, n = 1, place = '', align = 'start', focus = '50% 50%', focusM, ink = 'cream', caption, decorative = false, cutM = true } = Astro.props
+const pad = (v: number) => String(v).padStart(2, '0')
+const soft = (w: string) => /^_.*_$/.test(w)
+const style = `--focus:${focus};--focus-m:${focusM ?? focus};${place}`
+---
+
+<section class:list={['window', `window--${align}`, `window--${ink}`, { 'window--cut': cut, 'window--nocut-m': cut && !cutM }]} data-window
+  data-tone={ink === 'brown' ? 'light' : 'dark'} style={style} aria-label={decorative ? alt : undefined}>
+  <div class="window__pic"><img src={image} alt={alt} loading="lazy" decoding="async" /></div>
+  <div class="window__head" aria-hidden={decorative ? 'true' : undefined}>
+    <p class="window__words">
+      {words.map((w, i) => (
+        <Fragment>
+          <span class:list={['ln', { 'ln--soft': soft(w) }]}><span class="ln__in">{soft(w) ? w.slice(1, -1) : w}</span></span>{i < words.length - 1 && ' '}
+        </Fragment>
+      ))}
+    </p>
+  </div>
+  {cut && <div class="window__cut" aria-hidden="true"><img src={cut} alt="" loading="lazy" decoding="async" /></div>}
+  <div class="wrap window__page">
+    <p class="window__run">
+      <span class="window__brand">ELIA</span>
+      <span class="window__kicker">{kicker}</span>
+      <i class="window__rule" aria-hidden="true"></i>
+      <span class="window__folio">N° {pad(n)}</span>
+    </p>
+    <div class="window__foot">
+      {note && <p class="window__note">{note}</p>}
+      <p class="window__cap"><b>Fig. {pad(n)}</b> {caption ?? alt}</p>
+    </div>
+  </div>
+</section>

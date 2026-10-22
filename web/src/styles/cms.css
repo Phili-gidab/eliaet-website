@@ -113,3 +113,59 @@
 .prose ul, .prose ol { padding-left: 1.3em; display: grid; gap: 0.45em; }
 .prose li::marker { color: var(--taupe); }
 .prose blockquote { margin-inline: 0; padding: 4px 0 4px 22px; border-left: 3px solid var(--amber); color: var(--ink); font-size: 1.08em; }
+
+/* ── the members' listing (the members page; shared/render.ts memberRoster) ──
+   an index of the sectors with their counts, then each sector under a rule with its count set large, and its
+   companies as cards: the logo on a white tile, the name, the town, the contacts ruled like a register */
+.roster__index ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 0 clamp(16px, 2.4vw, 32px); }
+.roster__index a { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; padding: 16px 30px 18px 0; position: relative; border-top: 1.6px solid var(--ink); color: var(--ink); }
+.roster__ix { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.1rem, 0.98rem + 0.45vw, 1.35rem); line-height: 1.1; letter-spacing: -0.015em; }
+.roster__ixn { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--taupe); }
+.roster__index svg { position: absolute; right: 2px; top: 18px; width: 18px; height: 18px; transition: transform 0.4s var(--ease); }
+.roster__index a:hover .roster__ix { text-decoration: underline; text-decoration-color: var(--brand-amber); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.roster__index a:hover svg { transform: translateY(4px); }
+
+.roster__group { margin-top: clamp(56px, 7vw, 104px); scroll-margin-top: calc(var(--header-h) + 12px); }
+.roster__index + .roster__group { margin-top: clamp(44px, 5vw, 72px); }
+.roster__head {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'n t' 'n note'; column-gap: clamp(16px, 2.2vw, 32px);
+  align-items: end; padding-top: 20px; margin-bottom: clamp(22px, 2.6vw, 34px); border-top: 1.6px solid var(--ink);
+}
+.roster__n { grid-area: n; display: grid; justify-items: start; color: var(--ink); }
+.roster__n b { font-size: clamp(3.6rem, 2rem + 4.6vw, 7rem); font-weight: 700; }
+.roster__n span { margin-top: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe); }
+.roster__t { grid-area: t; font-family: var(--f-display); font-weight: 650; font-stretch: 84%; font-size: clamp(1.6rem, 1.1rem + 1.7vw, 2.8rem); line-height: 1; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
+.roster__note { grid-area: note; margin-top: 10px; max-width: 54ch; font-size: 15px; line-height: 1.5; color: var(--brown-80); }
+.roster__empty { padding: 4px 0 8px; font-size: 15px; color: var(--brown-80); }
+.roster__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+.mem {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; column-gap: 16px;
+  grid-template-areas: 'logo name' 'logo meta' 'dl dl' 'web web';
+  padding: 18px 18px 16px; border-radius: var(--radius-s); background: var(--paper); color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.08), 0 18px 34px -30px rgb(60 30 22 / 0.5);
+}
+.mem__logo { grid-area: logo; align-self: start; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #fff; outline: 1px solid rgb(60 30 22 / 0.1); outline-offset: -1px; }
+.mem__logo img { width: 100%; height: 100%; object-fit: contain; }
+.mem__mono { display: grid; place-items: center; width: 100%; height: 100%; background: var(--amber-40); font-family: var(--f-display); font-weight: 700; font-stretch: 80%; font-size: 22px; letter-spacing: -0.02em; color: var(--ink); }
+.mem__name { grid-area: name; align-self: end; font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.12rem; line-height: 1.15; letter-spacing: -0.015em; text-wrap: balance; }
+.mem:not(:has(.mem__meta)) .mem__name { grid-row: 1 / span 2; align-self: center; }
+.mem__meta { grid-area: meta; align-self: start; margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--taupe); }
+.mem__meta > span { color: rgb(60 30 22 / 0.3); }
+.mem__ehl { padding: 3px 8px 2px; border-radius: 999px; background: var(--amber-40); color: var(--ink); letter-spacing: 0.08em; transition: background 0.25s; }
+.mem__ehl:hover { background: var(--amber-60); }
+.mem__dl { grid-area: dl; margin: 16px 0 0; border-top: 1px solid var(--line-dark); }
+.mem__dl > div { display: grid; grid-template-columns: 4.4em minmax(0, 1fr); gap: 10px; padding: 8px 0 7px; border-bottom: 1px dashed rgb(60 30 22 / 0.16); }
+.mem__dl dt { padding-top: 3px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--taupe); }
+.mem__dl dd { margin: 0; font-size: 14.5px; line-height: 1.4; overflow-wrap: break-word; min-width: 0; font-variant-numeric: tabular-nums; }
+.mem__dl a { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color 0.2s; }
+.mem__dl a:hover { text-decoration-color: var(--brand-amber); }
+.mem__web { grid-area: web; align-self: end; justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.mem__web svg { width: 15px; height: 15px; flex: none; transition: transform 0.35s var(--ease); }
+.mem__web:hover { text-decoration: underline; text-decoration-color: var(--brand-amber); text-underline-offset: 3px; }
+.mem__web:hover svg { transform: translate(2px, -2px); }
+@media (max-width: 1060px) { .roster__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .roster__list { grid-template-columns: 1fr; }
+  .roster__head { grid-template-areas: 'n t' 'note note'; align-items: center; }
+}

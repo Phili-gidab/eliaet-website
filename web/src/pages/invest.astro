@@ -1,7 +1,8 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
+import Window from '../components/Window.astro'
 import ItemGrid from '../components/ItemGrid.astro'
 import Steps from '../components/Steps.astro'
 import FactTable from '../components/FactTable.astro'
@@ -18,20 +19,19 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
 ---
 
 <Base title={INVEST_HEAD.title} description={`${INVEST_HEAD.subtitle} ${BUYERS.text}`}>
-  <PageHead
-    index="01"
-    eyebrow="Invest and source"
-    amharic="ኢንቨስትመንት"
+  <Cover
+    n="05" kicker="Invest and source" amharic="ኢንቨስትመንት"
     title={['Invest and', '<em>source</em> in', 'Ethiopia.']}
+    size="clamp(3.4rem, 1rem + 8.4vw, 10.5rem)"
     lede={INVEST_HEAD.subtitle}
-    image="/media/profile/fair-stand.webp"
-    imageAlt="A buyer holding up a leather bag at an exhibitor's stand, talking with the maker"
+    bg="var(--taupe-35)"
+    cut={{ src: '/media/cut/messenger.webp', alt: 'A brown leather messenger bag with brass buckles, made in Ethiopia', h: '80svh', x: '6vw', w: 650, hgt: 826 }}
   >
     <div class="row mt-l" data-reveal style="--d:.32s">
       <a class="btn" href="/contact?form=buyer#forms">Buyer Inquiry <Fragment set:html={svg(arrow)} /></a>
       <a class="btn btn--ghost" href="/contact?form=investor#forms">Investor Inquiry <Fragment set:html={svg(arrow)} /></a>
     </div>
-  </PageHead>
+  </Cover>
 
   <!-- 02 · why Ethiopia -->
   <section class="sec sec--paper sheet why" aria-labelledby="why-h">
@@ -54,7 +54,11 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
   </section>
 
   <!-- 03 · for buyers -->
-  <section class="sec sheet lit buyers" id="buyers" aria-labelledby="buy-h">
+  <Window image="/media/carousel-3.webp" cut="/media/cut/carousel-3.webp" alt="Leather shoes laid on hides of wet-blue, black and tan leather" ink="brown"
+    words={['_Made in_', 'Ethiopia.']} kicker="Sourcing" note="Finished leather, shoes, bags and garments, from the makers who tan the hides."
+    place="--hx:5vw;--hy:15vh;--hs:clamp(4rem,1rem + 10vw,12.5rem)" focus="50% 50%" focusM="60% 50%" cutM={false} />
+
+  <section class="sec sec--brown sheet lit buyers" id="buyers" aria-labelledby="buy-h">
     <div class="wrap">
       <div class="buyers__head">
         <p class="label label--rule" data-reveal="fade"><b>03</b> For buyers</p>
@@ -104,7 +108,7 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
   </section>
 
   <!-- 05 · meet us at AALF 2026 -->
-  <section class="sec sec--saddle grain meet" aria-labelledby="meet-h">
+  <section class="sec sec--amber meet" aria-labelledby="meet-h">
     <div class="wrap meet__in">
       <div>
         <p class="label label--rule" data-reveal="fade"><b>05</b> {MEET_AT_AALF.title}</p>

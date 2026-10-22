@@ -56,7 +56,8 @@ const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', film,
 </script>
 
 <style>
-  .ph { position: relative; padding-top: calc(var(--header-h) + clamp(56px, 9vw, 140px)); padding-bottom: clamp(40px, 5vw, 72px); background: var(--ink); }
+  .ph:not(.is-stacked) { position: relative; }
+  .ph { padding-top: calc(var(--header-h) + clamp(56px, 9vw, 140px)); padding-bottom: clamp(40px, 5vw, 72px); background: var(--ink); }
   .ph.sec--paper { background: var(--paper); }
   .ph.sec--paper.sec--mist { background: var(--mist); }
   .ph__in { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(32px, 5vw, 88px); align-items: end; }

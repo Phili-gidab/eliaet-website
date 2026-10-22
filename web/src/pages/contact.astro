@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
 import MembershipForm from '../components/MembershipForm.astro'
 import { ORG, CONTACT, SOCIAL } from '../copy/site'
 import { INQUIRIES, TEAMS, INTERESTS } from '../../../shared/options'
@@ -34,12 +34,12 @@ const today = new Date().toISOString().slice(0, 10)
   title="Contact Us"
   description={`Contact the ${ORG.name}: ${CONTACT.address.full}. Phone ${CONTACT.phones.map((p) => p.value).join(' / ')}, e-mail ${CONTACT.emails[0].value}.`}
 >
-  <PageHead
-    index="01"
-    eyebrow="Contact"
-    amharic="አድራሻ"
-    title={['Contact', '<em>us</em>.']}
+  <Cover
+    n="10" kicker="Contact" amharic="አድራሻ"
+    title={['Contact <em>us</em>.']}
+    size="clamp(3.6rem, 1rem + 11vw, 13.5rem)"
     lede="We welcome inquiries from members, buyers, investors, partners and the media."
+    bg="var(--amber-90)" numeral="+251" wide
   >
     <address class="ledger" data-reveal style="--d:.35s">
       <div class="ledger__col">
@@ -69,10 +69,10 @@ const today = new Date().toISOString().slice(0, 10)
       </div>
     </address>
     <p class="ph-forms" data-reveal style="--d:.42s"><a class="btn" href="#forms">Inquiry forms <Fragment set:html={svg('M12 4v15m-6-6 6 6 6-6')} /></a></p>
-  </PageHead>
+  </Cover>
 
   <!-- 02 · the map -->
-  <section class="sec sec--hide map" aria-labelledby="map-h">
+  <section class="sec sec--brown map" aria-labelledby="map-h">
     <div class="wrap map__in">
       <div class="map__text">
         <p class="label label--rule" data-reveal="fade"><b>02</b> Find us</p>

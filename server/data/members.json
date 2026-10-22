@@ -1,9 +1,10 @@
 {
-  "_note": "The member companies the database starts with: those the current eliaet.com lists (members.html and ehl.html, October 2026), and Pittards Ethiopia Tannery (an EHL-certified producer in the content document, which spells it Pitards). The other members of the 194 are added in the back office (one at a time, or from a spreadsheet: Members > Import).",
+  "_note": "The member companies the database starts with: those the current eliaet.com lists (members.html and ehl.html, October 2026), and Pittards Ethiopia Tannery (an EHL-certified producer in the content document, which spells it Pitards). The other members of the 194 are added in the back office (one at a time, or from a spreadsheet: Members > Import). \"public\": shown on the public members page too, as the old site showed them (the Secretariat can change it in the back office).",
   "members": [
     {
       "slug": "davimpex-bahir-dar-tannery",
       "name": "Davimpex Enterprise Bahir Dar Tannery PLC",
+      "public": true,
       "sectors": [
         "tannery",
         "leather-goods"
@@ -33,6 +34,7 @@
     {
       "slug": "elico-awash-tannery",
       "name": "ELICO PLC. Awash Tannery",
+      "public": true,
       "sectors": [
         "tannery"
       ],
@@ -56,6 +58,7 @@
     {
       "slug": "new-wing-addis-shoe-factory",
       "name": "New Wing Addis Shoe Factory PLC. Tannery Expansion",
+      "public": true,
       "sectors": [
         "tannery"
       ],
@@ -81,6 +84,7 @@
     {
       "slug": "msgana-shoe",
       "name": "Msgana Shoe",
+      "public": true,
       "sectors": [
         "footwear"
       ],
@@ -104,6 +108,7 @@
     {
       "slug": "natural-footwear-studio",
       "name": "Natural Footwear Studio",
+      "public": true,
       "sectors": [
         "footwear"
       ],
@@ -121,6 +126,7 @@
     {
       "slug": "elico-tikur-abbay-shoe-factory",
       "name": "ELICO PLC. Tikur Abbay Shoe Factory",
+      "public": true,
       "sectors": [
         "footwear"
       ],
@@ -143,6 +149,7 @@
     {
       "slug": "samra-leather",
       "name": "SAMRA Leather",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -162,6 +169,7 @@
     {
       "slug": "kinaff-leather",
       "name": "Kinaff Leather",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -180,6 +188,7 @@
     {
       "slug": "kootkeet",
       "name": "Kootkeet",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -202,6 +211,7 @@
     {
       "slug": "ker-ezhi-ethiopia",
       "name": "Ker Ezhi Ethiopia Leather Manufacturing",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -220,6 +230,7 @@
     {
       "slug": "amour-leather",
       "name": "Amour Leather",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -243,6 +254,7 @@
     {
       "slug": "meron-addis-ababa",
       "name": "Meron Addis Ababa",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -263,6 +275,7 @@
     {
       "slug": "root-in-style",
       "name": "Root In Style",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],
@@ -282,6 +295,7 @@
     {
       "slug": "shirshir-ethiopia",
       "name": "Shirshir Ethiopia",
+      "public": true,
       "sectors": [
         "leather-goods"
       ],

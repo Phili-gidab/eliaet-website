@@ -15,8 +15,16 @@ export const CATEGORY_NOTES: Record<Category, string> = {
   leather_goods: 'Producers of garments, bags, belts, wallets, gloves, upholstery and artisanal products.',
   associate: 'Suppliers of chemicals, machinery, technical services and logistics to the industry.',
 }
+/** the public members' listing on the members page: each category's heading, and its address on the page (the old
+    site's: members.html#tannery, #shoe-manufacturer, #leather-product) */
+export const LISTING: Record<Category, { title: string; anchor: string }> = {
+  tannery: { title: 'Tanneries', anchor: 'tannery' },
+  footwear: { title: 'Shoe manufacturers', anchor: 'shoe-manufacturer' },
+  leather_goods: { title: 'Leather product manufacturers', anchor: 'leather-product' },
+  associate: { title: 'Associate members', anchor: 'associate' },
+}
 
-export const SIZES = { large: 'Large', medium: 'Medium', small: 'Small' } as const
+export const SIZES ={ large: 'Large', medium: 'Medium', small: 'Small' } as const
 export type Size = keyof typeof SIZES
 
 /** Ethiopia's regions and chartered cities */

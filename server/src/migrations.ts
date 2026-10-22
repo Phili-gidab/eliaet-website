@@ -272,4 +272,14 @@ CREATE TABLE meta (
 );
 `,
   },
+  {
+    version: 2,
+    name: 'the public members listing',
+    // a company shows on the public members page only when the Secretariat says so (the directory itself is for
+    // members); the companies the old site listed in public are listed again
+    sql: `
+ALTER TABLE companies ADD COLUMN public_listing INTEGER NOT NULL DEFAULT 0;
+UPDATE companies SET public_listing = 1 WHERE slug IN ('davimpex-bahir-dar-tannery', 'elico-awash-tannery', 'new-wing-addis-shoe-factory', 'msgana-shoe', 'natural-footwear-studio', 'elico-tikur-abbay-shoe-factory', 'samra-leather', 'kinaff-leather', 'kootkeet', 'ker-ezhi-ethiopia', 'amour-leather', 'meron-addis-ababa', 'root-in-style', 'shirshir-ethiopia');
+`,
+  },
 ]

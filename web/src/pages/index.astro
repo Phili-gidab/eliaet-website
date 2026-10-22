@@ -1,4 +1,5 @@
 ---
+import Window from '../components/Window.astro'
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import Story from '../components/Story.astro'
@@ -38,7 +39,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   <Story />
 
   <!-- who we are -->
-  <section class="sec sec--paper sheet about" data-tone="light" aria-labelledby="about-title">
+  <section class="sec sec--paper sheet about" data-tone="light" data-tab="About ELIA" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about__grid">
         <h2 class="h1 about__title words" id="about-title" data-reveal="fade">
@@ -81,14 +82,11 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     </div>
   </section>
 
-  <!-- a window onto the highlands -->
-  <section class="window window--hills" data-window data-tone="dark" aria-label="The Ethiopian highlands">
-    <div class="window__pic"><img src="/media/profile/highland-sheep.webp" alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind" loading="lazy" decoding="async" /></div>
-    <div class="wrap window__in">
-      <p class="window__words" aria-hidden="true"><span class="ln" data-window-line>From the</span><span class="ln" data-window-line>highlands,</span></p>
-      <p class="window__note">Highland sheepskin is thin and light, yet strong and durable: the start of Ethiopian leather.</p>
-    </div>
-  </section>
+  <!-- a spread: the highlands -->
+  <Window image="/media/profile/highland-sheep.webp" cut="/media/cut/highland-sheep.webp" decorative n={1}
+    alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind"
+    words={['_From the_', 'highlands,']} kicker="Where it starts" note="Highland sheepskin is thin and light, yet strong and durable: the start of Ethiopian leather."
+    place="--hx:4vw;--hy:12vh;--hs:clamp(4.6rem,1rem + 16vw,19rem)" focus="50% 40%" focusM="66% 40%" />
 
   <!-- how leather is made: the four colours of a hide's life, one panel each; on a wide screen they slide by as the
        page scrolls -->
@@ -118,7 +116,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   </section>
 
   <!-- what we do -->
-  <section class="sec sec--paper sec--mist programmes" data-tone="light" aria-labelledby="prog-title">
+  <section class="sec sec--paper sec--mist programmes" data-tone="light" data-tab="What we do" aria-labelledby="prog-title">
     <div class="wrap">
       <div class="head">
         <h2 class="h1 head__title" id="prog-title" data-reveal>Programmes that open markets.</h2>
@@ -142,7 +140,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   </section>
 
   <!-- why Ethiopian leather -->
-  <section class="sec sec--paper why" data-tone="light" aria-labelledby="why-title">
+  <section class="sec sec--paper why" data-tone="light" data-tab="Why Ethiopian leather" aria-labelledby="why-title">
     <div class="wrap why__in">
       <div class="why__text">
         <h2 class="h1 why__title" id="why-title" data-reveal>{WHY.title}</h2>
@@ -169,17 +167,14 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     </div>
   </section>
 
-  <!-- a window onto the fair: to the world -->
-  <section class="window window--world" data-window data-tone="dark" aria-label="The All Africa Leather Fair">
-    <div class="window__pic"><img src="/media/profile/fair-hall.webp" alt="The All Africa Leather Fair’s exhibition hall from above, its stands laid out in rows under the lights" loading="lazy" decoding="async" /></div>
-    <div class="wrap window__in window__in--end">
-      <p class="window__words" aria-hidden="true"><span class="ln" data-window-line>to the</span><span class="ln" data-window-line>world.</span></p>
-      <p class="window__note">Every year the All Africa Leather Fair brings buyers from around the world to Ethiopian makers.</p>
-    </div>
-  </section>
+  <!-- a spread: the fair, to the world -->
+  <Window image="/media/profile/fair-hall.webp" decorative n={2} align="end"
+    alt="The All Africa Leather Fair’s exhibition hall from above, its stands laid out in rows under the lights"
+    words={['_to the_', 'world.']} kicker="The fair" note="Every year the All Africa Leather Fair brings buyers from around the world to Ethiopian makers."
+    place="--hx:4vw;--hy:13vh;--hs:clamp(4.6rem,1rem + 15vw,18rem)" focus="50% 30%" focusM="50% 30%" />
 
   <!-- the fair, on amber -->
-  <section class="sec sec--amber fair" data-tone="light" aria-labelledby="fair-title">
+  <section class="sec sec--amber fair" data-tone="light" data-tab="AALF 2026" aria-labelledby="fair-title">
     <div class="wrap fair__in">
       <p class="fair__kicker" data-reveal="fade">The {AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair</p>
       <h2 class="fair__date" id="fair-title">
@@ -217,7 +212,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   </section>
 
   <!-- news -->
-  <section class="sec sec--paper news" data-tone="light" aria-labelledby="news-title">
+  <section class="sec sec--paper news" data-tone="light" data-tab="News" aria-labelledby="news-title">
     <div class="wrap">
       <div class="head">
         <h2 class="h1 head__title" id="news-title" data-reveal>From the sector.</h2>
@@ -233,7 +228,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   <Appointment class="sec--mist" />
 
   <!-- partners: two rows that keep moving, the other way from each other -->
-  <section class="sec sec--paper partners" data-tone="light" aria-labelledby="partners-title">
+  <section class="sec sec--paper partners" data-tone="light" data-tab="Partners" aria-labelledby="partners-title">
     <div class="wrap partners__head">
       <h2 class="partners__title" id="partners-title">Working with</h2>
       <p class="partners__sub">Development partners, government offices and the sector’s own brands.</p>
@@ -291,12 +286,6 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     .sectors { grid-template-columns: 1fr; }
     .sectors li + li { border-left: 0; border-top: 1px solid var(--line-dark); }
   }
-
-  /* the windows */
-  .window__in { display: grid; gap: clamp(28px, 4vw, 56px); }
-  .window__in--end { justify-items: end; text-align: right; }
-  .window--world .window__pic img { object-position: 50% 70%; }
-  .window--world { align-content: start; padding-top: 18svh; }
 
   /* how leather is made: the four colours of a hide's life */
   .process { position: relative; background: var(--brand-taupe); color: var(--cream); }

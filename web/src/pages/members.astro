@@ -1,11 +1,13 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
 import SectionHead from '../components/SectionHead.astro'
 import MembershipForm from '../components/MembershipForm.astro'
 import { Login } from '../app/Auth'
 import { CATEGORIES, CATEGORY_NOTES } from '../../../shared/options'
+import { ORG } from '../copy/site'
+import { listedMembers, html } from '../data/cms'
 import {
   SECTORS, SIZE_NOTE, BY_SIZE, SECTOR_TOTALS, SIZE_TOTALS, TOTAL_MEMBERS, MEMBERS_HEAD, LOGIN_NOTE, BENEFITS, JOIN,
   type SectorKey, type SizeKey,
@@ -29,6 +31,9 @@ const dotCount = bands.reduce((n, b) => n + b.dots.length, 0)
 if (dotCount !== TOTAL_MEMBERS || bands.some((b) => b.dots.length !== b.total)) {
   console.warn(`[members] BY_SIZE adds up to ${dotCount}, the totals say ${TOTAL_MEMBERS}: check src/copy/members.ts`)
 }
+/* the companies on the public listing as the database starts with them; the server puts the current ones in on
+   every visit (server/src/pages.ts) */
+const roster = html.roster(listedMembers())
 const CATEGORY_TITLE: Record<string, string> = { tannery: 'Tannery Members', footwear: 'Footwear Members', leather_goods: 'Leather Goods Members', associate: 'Associate Members' }
 const pad = (n: number) => String(n).padStart(2, '0')
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
@@ -39,17 +44,14 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   title={MEMBERS_HEAD.title}
   description={`${MEMBERS_HEAD.subtitle} ${TOTAL_MEMBERS} member companies: ${SECTOR_TOTALS.tannery} tanneries, ${SECTOR_TOTALS.footwear} shoe manufacturers and ${SECTOR_TOTALS['leather-goods']} other leather product manufacturers.`}
 >
-  <PageHead
-    index="01"
-    eyebrow="Members"
-    amharic="አባላት"
+  <Cover
+    n="02" kicker="Members" amharic="አባላት"
     title={['Members', '<em>directory</em>.']}
     lede={MEMBERS_HEAD.subtitle}
-    image="/media/studio/goods-sectors.webp"
-    imageAlt="A chestnut leather tote, a roll of tan leather and a pair of brown leather boots on a warm brown studio backdrop"
+    bg="var(--amber-40)" numeral={String(ORG.members)}
+    cut={{ src: '/media/cut/samra-leather.webp', alt: 'Two hands holding a black leather bag by its handles', h: '94svh', x: '9vw', w: 1080, hgt: 1513, lapM: false }}
   >
-    <p class="body ph-intro" data-reveal style="--d:.3s">{MEMBERS_HEAD.intro}</p>
-    <div class="row mt-m" data-reveal style="--d:.36s">
+    <div class="row" data-reveal style="--d:.36s">
       <a class="btn" href="/members/login" data-account><span data-account-label>Member Login</span> <Fragment set:html={svg(arrow)} /></a>
       <a class="btn btn--ghost" href="#apply">Become a Member</a>
     </div>
@@ -57,7 +59,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
       <b>Buyers and investors:</b> not a member? ELIA connects international buyers and investors with suitable manufacturers.
       Visit <a href="/invest">Investor and Buyer Information</a> or <a href="/contact?form=buyer#forms">send us an inquiry</a>.
     </p>
-  </PageHead>
+  </Cover>
 
   <!-- 02 · our membership at a glance -->
   <section class="sec sec--paper sheet size" id="at-a-glance" aria-labelledby="size-h">
@@ -123,13 +125,26 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     </div>
   </section>
 
-  <!-- 03 · member login -->
-  <section class="sec sheet lit login" id="login" aria-labelledby="login-h">
+  <!-- 03 · member listings: the companies on the public listing, by sector (the old site's members.html#tannery …) -->
+  <section class="sec sec--paper sheet roster" id="listings" aria-labelledby="roster-h">
+    <div class="wrap">
+      <SectionHead index="03" eyebrow="Member listings" title="Meet our <em>members</em>." id="roster-h"
+        intro={`Member companies by sector, with their contacts. The full directory of all ${TOTAL_MEMBERS} members, with search and filters, is in the members’ area.`} />
+      <div class="roster__body">
+        <template data-cms="members-roster"></template><Fragment set:html={roster} /><template data-cms-end="members-roster"></template>
+      </div>
+      <p class="roster__ask" data-reveal>A member who would like to be listed here, or to change a listing: <a href="/contact">write to the Secretariat</a>.</p>
+    </div>
+  </section>
+
+  <!-- 04 · member login -->
+  <section class="sec sec--brown sheet lit login" id="login" aria-labelledby="login-h">
     <div class="wrap login__in">
       <div>
-        <p class="label label--rule" data-reveal="fade"><b>03</b> Member login</p>
+        <p class="label label--rule" data-reveal="fade"><b>04</b> Member login</p>
         <h2 class="h2 mt-m" id="login-h" data-reveal>The directory is for <em>members</em>.</h2>
-        <p class="body mt-m login__note" data-reveal style="--d:.08s">{LOGIN_NOTE}</p>
+        <p class="body mt-m" data-reveal style="--d:.04s">{MEMBERS_HEAD.intro}</p>
+        <p class="body mt-s login__note" data-reveal style="--d:.08s">{LOGIN_NOTE}</p>
         <ul class="login__list" role="list" data-reveal style="--d:.12s">
           <li><b>Find a member</b> Search by company name, product or keyword; filter by category, size, region, export capability and certification.</li>
           <li><b>Member dashboard</b> Your profile, member notices, members-only documents, opportunities, and your membership status.</li>
@@ -141,11 +156,11 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     </div>
   </section>
 
-  <!-- 04 · membership benefits -->
+  <!-- 05 · membership benefits -->
   <section class="sec sec--paper sheet benefits" id="benefits" aria-labelledby="ben-h">
     <div class="wrap benefits__in">
       <div class="benefits__head">
-        <p class="label label--rule" data-reveal="fade"><b>04</b> Membership benefits</p>
+        <p class="label label--rule" data-reveal="fade"><b>05</b> Membership benefits</p>
         <h2 class="h2 mt-m" id="ben-h" data-reveal>What membership <em>brings</em>.</h2>
         <p class="mt-l" data-reveal style="--d:.1s"><a class="btn btn--dark" href="#apply">Apply for Membership <Fragment set:html={svg(arrow)} /></a></p>
       </div>
@@ -161,10 +176,10 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     </div>
   </section>
 
-  <!-- 05 · membership categories -->
+  <!-- 06 · membership categories -->
   <section class="sec sec--saddle grain cats-sec" aria-labelledby="cat-h">
     <div class="wrap">
-      <SectionHead index="05" eyebrow="Membership categories" title="Four kinds of <em>member</em>." id="cat-h" />
+      <SectionHead index="06" eyebrow="Membership categories" title="Four kinds of <em>member</em>." id="cat-h" />
       <ul class="mcats" role="list">
         {Object.keys(CATEGORIES).map((k, i) => (
           <li class="mcat card" data-reveal style={`--d:${i * 0.06}s`}>
@@ -177,11 +192,11 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     </div>
   </section>
 
-  <!-- 06 · apply for membership -->
+  <!-- 07 · apply for membership -->
   <section class="sec sec--paper sheet apply" id="apply" aria-labelledby="apply-h">
     <div class="wrap apply__in">
       <aside class="apply__side">
-        <p class="label label--rule" data-reveal="fade"><b>06</b> Apply for membership</p>
+        <p class="label label--rule" data-reveal="fade"><b>07</b> Apply for membership</p>
         <h2 class="h2 mt-m" id="apply-h" data-reveal>Join <em>ELIA</em>.</h2>
         <p class="body mt-m apply__note" data-reveal style="--d:.08s">{JOIN.text}</p>
         <figure class="frame apply__pic" data-reveal="mask">
@@ -194,8 +209,6 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
 </Base>
 
 <style>
-  :global(.ph__media img) { object-position: 50% 62%; }
-  .ph-intro { margin-top: 22px; max-width: 52ch; }
   .ph-note { margin-top: clamp(26px, 3vw, 36px); padding: 16px 18px; max-width: 60ch; border-radius: var(--radius-s); background: rgb(255 252 245 / 0.05); box-shadow: inset 0 0 0 1px var(--line-2); color: var(--bone); font-size: 15px; line-height: 1.55; }
   .ph-note b { color: var(--cream); }
   .ph-note a { color: var(--amber); font-weight: 600; text-decoration: underline; text-decoration-color: rgb(226 160 37 / 0.5); text-underline-offset: 3px; }
@@ -242,7 +255,13 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   .tbl td:last-child { font-weight: 650; }
   .tbl tfoot th, .tbl tfoot td { border-bottom: 0; border-top: 1.6px solid var(--ink); color: var(--ink); font-weight: 650; }
 
-  /* 03 · login */
+  /* 03 · the listing (its cards are global: styles/cms.css), on the palest amber */
+  .roster.sec--paper { background: var(--amber-20); --sheet-bg: var(--amber-20); }
+  .roster__body { margin-top: clamp(40px, 5vw, 72px); }
+  .roster__ask { margin-top: clamp(36px, 4vw, 56px); padding-top: 18px; border-top: 1px solid var(--line-dark); font-size: 15px; color: var(--brown-80); }
+  .roster__ask a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: rgb(226 160 37 / 0.8); text-underline-offset: 3px; }
+
+  /* 04 · login */
   .login__in { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px clamp(32px, 5vw, 96px); align-items: center; }
   .login__note { max-width: 44ch; }
   .login__list { list-style: none; margin: clamp(28px, 3vw, 40px) 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); max-width: 560px; }
@@ -250,7 +269,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   .login__list b { display: block; color: var(--cream); font-weight: 650; margin-bottom: 4px; }
   .login__card { padding: clamp(24px, 3vw, 40px); border-radius: var(--radius); background: var(--paper); color: var(--ink); box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.8); }
 
-  /* 04 · benefits */
+  /* 05 · benefits */
   .benefits__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
   .benefits__head { position: sticky; top: 110px; }
   .blist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(20px, 3vw, 48px); }
@@ -259,14 +278,14 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   .blist__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem); line-height: 1.12; letter-spacing: -0.02em; }
   .blist__p { color: var(--brown-80); font-size: 15.5px; line-height: 1.55; }
 
-  /* 05 · categories */
+  /* 06 · categories */
   .mcats { list-style: none; margin: clamp(40px, 5vw, 72px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .mcat { display: grid; align-content: start; gap: 10px; padding: clamp(20px, 2.2vw, 30px); }
   .mcat__n { font-size: 15px; color: var(--amber); }
   .mcat__t { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem); line-height: 1.12; letter-spacing: -0.02em; }
   .mcat__p { color: var(--bone); font-size: 15.5px; line-height: 1.55; }
 
-  /* 06 · apply */
+  /* 07 · apply */
   .apply__in { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 48px clamp(32px, 5vw, 96px); align-items: start; }
   .apply__side { position: sticky; top: calc(var(--header-h) + 28px); }
   .apply__note { max-width: 36ch; }

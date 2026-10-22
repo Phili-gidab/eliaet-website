@@ -80,11 +80,13 @@
 *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 12px); }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+/* no native smooth scrolling: with motion, Lenis (scripts/motion.ts) glides the wheel and the anchor links, and two
+   smoothings on top of each other make the page lag and jump */
 
 body {
   margin: 0;
-  background: var(--ink);
+  /* what shows round a sheet as the next one covers it: the pile's shadow, not a colour */
+  background: #1a100c;
   color: var(--cream);
   font-family: var(--f-text);
   font-size: var(--step-0);
@@ -126,25 +128,47 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 .sec--tight { padding-block: clamp(56px, 7vw, 104px); }
 .sec--hide { background: var(--brand-taupe); }
 .sec--saddle { background: radial-gradient(120% 90% at 85% 0%, rgb(255 236 200 / 0.16), transparent 55%), var(--brand-taupe); }
-.sec--paper { background: var(--paper); color: var(--ink); color-scheme: light; }
+.sec--paper { background: var(--paper); color: var(--ink); color-scheme: light; --sheet-bg: var(--paper); --sheet-fg: var(--ink); }
 .sec--paper ::selection { background: var(--ink); color: var(--paper); }
 /* the brand guide's order: the page colour is the main surface, taupe's tints go between, taupe itself carries one
    mid-tone band, amber is a surface once (the fair), and brown is kept for the type, the film and the footer */
-.sec--paper.sec--mist { background: var(--mist); }
+.sec--paper.sec--mist { background: var(--mist); --sheet-bg: var(--mist); }
 .sec--taupe { background: var(--brand-taupe); color: var(--cream); }
-.sec--amber { background: var(--brand-amber); color: var(--ink); color-scheme: light; }
+.sec--amber { background: var(--brand-amber); color: var(--ink); color-scheme: light; --sheet-bg: var(--brand-amber); --sheet-fg: var(--ink); }
 .sec--amber ::selection { background: var(--ink); color: var(--amber); }
+/* on amber the type is brown: the label's box and the ghost button in brown's veils, the main button brown, and
+   foil (gold on gold) printed in brown instead */
+.sec--amber { --bone: var(--brown-80); --muted: var(--brown-80); --taupe: var(--brown-80); --line: rgb(60 30 22 / 0.16); --line-2: rgb(60 30 22 / 0.26); }
+.sec--amber .label, .sec--amber .lede, .sec--amber .body { color: var(--ink); }
+.sec--amber .label b { color: var(--ink); background: rgb(255 252 245 / 0.32); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.3); }
+.sec--amber :is(.display, .h1, .h2, .h3) em { color: var(--ink); }
+.sec--amber .t-foil { background: none; -webkit-text-fill-color: currentColor; color: var(--ink); filter: none; }
+.sec--amber .btn:not(.btn--ghost) { --bg: var(--ink); --fg: var(--cream); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 14px 30px -14px rgb(60 30 22 / 0.55); }
+.sec--amber .btn:not(.btn--ghost):hover { --bg: var(--ink-3); }
+.sec--amber .btn--ghost { --fg: var(--ink); --bg: rgb(60 30 22 / 0.06); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.32); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.sec--amber .btn--ghost:hover { --bg: rgb(60 30 22 / 0.12); }
+/* the brand brown as a surface, lit warm from its top corner; on it amber keeps its own colour (the root's tokens) */
+.sec--brown {
+  background: radial-gradient(110% 80% at 88% 0%, rgb(226 160 37 / 0.11), transparent 58%), var(--brand-brown);
+  color: var(--cream); --sheet-bg: var(--brand-brown); --sheet-fg: var(--cream);
+}
+/* amber's own tints as light surfaces, warmer than the page colour: sand (20) between sections, wheat (40) for a band
+   of figures or a statement; the small taupe type a shade deeper on wheat, to read */
+.sec--paper.sec--sand { background: var(--amber-20); --sheet-bg: var(--amber-20); }
+.sec--paper.sec--wheat { background: var(--amber-40); --sheet-bg: var(--amber-40); --taupe: #5d443d; }
+.sec--paper.sec--wheat .label b { background: var(--amber-20); }
 
 /* the darker sections of the inner pages are taupe (the brand guide's main second colour), not brown: on it the
    small accents turn to a warm cream (amber would not read), and panels are a veil of the page colour */
-.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber),
-.sheet:not(.sec--paper, .sec--amber, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber) {
+.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber, .sec--brown),
+.sheet:not(.sec--paper, .sec--amber, .sec--brown, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber, .sec--brown) {
   --amber: #fff1d9; --gold: #fff1d9; --amber-hi: #ffffff; --glow: rgb(255 240 214 / 0.14);
   --muted: rgb(255 252 245 / 0.95); --bone: rgb(255 252 245 / 0.97);
   --ink-1: rgb(255 252 245 / 0.07); --line: rgb(255 252 245 / 0.18); --line-2: rgb(255 252 245 / 0.3);
+  --sheet-bg: var(--brand-taupe); --sheet-fg: var(--cream);
 }
 /* the label's little box, on taupe: a shade darker than the section, so its cream figure reads */
-:is(.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber), .sheet:not(.sec--paper, .sec--amber, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber)) .label b {
+:is(.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber, .sec--brown), .sheet:not(.sec--paper, .sec--amber, .sec--brown, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber, .sec--brown)) .label b {
   background: rgb(60 30 22 / 0.24); box-shadow: inset 0 0 0 1px rgb(255 241 217 / 0.32);
 }
 /* on the taupe-20 surfaces the small taupe type is set a shade deeper, to read */
@@ -157,7 +181,7 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
   border-radius: var(--radius-l) var(--radius-l) 0 0;
   box-shadow: 0 -1px 0 var(--line-2), 0 -30px 60px -36px rgb(0 0 0 / 0.4);
 }
-.sheet:not(.sec--paper, .sec--hide, .sec--saddle, .sec--taupe, .sec--amber) { background: var(--brand-taupe); }
+.sheet:not(.sec--paper, .sec--hide, .sec--saddle, .sec--taupe, .sec--amber, .sec--brown) { background: var(--brand-taupe); }
 .ftr.sheet { background: var(--ink); }
 .sec--paper.sheet { box-shadow: 0 -30px 60px -34px rgb(0 0 0 / 0.5); }
 
@@ -166,7 +190,7 @@ main > .ph ~ .sec {
   z-index: 1; isolation: isolate; margin-top: calc(var(--radius-l) * -1);
   border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: 0 -1px 0 var(--line), 0 -30px 60px -36px rgb(0 0 0 / 0.36);
 }
-main > .ph ~ .sec:not(.sec--paper, .sec--hide, .sec--saddle, .sec--amber) { background-color: var(--brand-taupe); }
+main > .ph ~ .sec:not(.sec--paper, .sec--hide, .sec--saddle, .sec--amber, .sec--brown) { background-color: var(--brand-taupe); }
 main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36); }
 .ftr.sheet { margin-top: calc(var(--radius-l) * -1); }
 
@@ -183,7 +207,7 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36);
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.35; mix-blend-mode: overlay;
   background-image: url('/media/texture/grain.webp'); background-size: 220px;
 }
-.grain:not(.sec--paper, .sec--hide, .sec--saddle, .sheet) { background-color: var(--brand-taupe); }
+.grain:not(.sec--paper, .sec--hide, .sec--saddle, .sec--brown, .sheet) { background-color: var(--brand-taupe); }
 
 /* ── type ───────────────────────────────────────────────────────────────── */
 .display, .h1, .h2, .h3 {
@@ -314,7 +338,8 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inse
   .js [data-reveal='fade'] { transform: none; }
   .js [data-reveal='mask'] { opacity: 1; filter: none; transform: none; clip-path: inset(12% 6% 12% 6% round var(--radius)); transition: clip-path 1.4s var(--ease-in-out); transition-delay: var(--d, 0s); }
   .js [data-reveal='mask'].in { clip-path: inset(0 0 0 0 round var(--radius)); }
-  .js .lines .ln { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+  /* the mask reaches below the descenders and past an italic's overhang, so no letter is cut */
+  .js .lines .ln { display: block; overflow: hidden; padding: 0 0.1em 0.26em; margin: 0 -0.1em -0.26em; }
   .js .lines .ln > span { display: block; transform: translateY(108%); transition: transform 1.25s var(--ease); transition-delay: calc(var(--d, 0s) + var(--i, 0) * 0.08s); }
   .js .lines.in .ln > span { transform: none; }
   /* words that rise out of a blur, one after another */
@@ -348,23 +373,86 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: clip; }
 
-/* ── a window onto a still photograph: the picture stays put while the page slides past it (it is fixed to the
-   screen and clipped to the window, which works on phones too, unlike a fixed background) ── */
-.window { position: relative; isolation: isolate; clip-path: inset(0); min-height: 112svh; display: grid; align-content: center; color: var(--cream); background: var(--ink); }
-.window__pic { position: fixed; left: 0; top: 0; width: 100%; height: 100vh; height: 100lvh; z-index: -1; pointer-events: none; }
-.window__pic img { width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 55%; }
-.window__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(12 8 6 / 0.42), rgb(12 8 6 / 0.08) 38%, rgb(12 8 6 / 0.1) 60%, rgb(12 8 6 / 0.5)); }
-.window__words {
-  font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.045em; line-height: 0.84;
-  font-size: clamp(4.2rem, 1rem + 13.5vw, 16rem); white-space: nowrap; text-shadow: 0 12px 80px rgb(0 0 0 / 0.3);
+/* ── spreads (components/Window.astro): a magazine page over a photograph. The page scrolls by; behind it a scene is
+   fixed to the screen and clipped to the page (which works on phones too, unlike a fixed background), in layers: the
+   photograph, the headline, the photograph's subject (cut out of it, so it stands in front of the type), a shade at
+   the page's edges, then the page's own type. The photograph and its subject are a fifth taller than the screen and
+   drift down through that margin together as the page goes up (scripts/motion.ts) ── */
+.window {
+  position: relative; isolation: isolate; clip-path: inset(0); min-height: 100vh; min-height: 100svh;
+  display: grid; color: var(--cream); background: var(--ink);
+  --hx: var(--gutter); --hy: 18vh; --hs: clamp(4.4rem, 1rem + 12vw, 15rem); --hw: 92vw;
+  --soft: var(--cream); --shade: 20 10 6;
 }
-.window__words .ln { display: block; }
-.window__words em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.04em; color: var(--amber-hi); }
-.window__note { max-width: 34ch; font-size: var(--step-1); line-height: 1.4; color: var(--cream); text-shadow: 0 1px 2px rgb(0 0 0 / 0.6), 0 0 30px rgb(0 0 0 / 0.55); }
+.window--brown { color: var(--ink); background: var(--amber-20); --soft: var(--brown-80); --shade: 255 252 245; }
+.window__pic, .window__cut { position: fixed; left: 0; top: -10vh; width: 100%; height: 120vh; pointer-events: none; }
+.window__head { position: fixed; inset: 0 0 auto; height: 100vh; pointer-events: none; }
+@supports (height: 1lvh) { .window__pic, .window__cut { top: -10lvh; height: 120lvh; } .window__head { height: 100lvh; } }
+.window__pic { z-index: -1; }
+.window__head { z-index: 1; }
+.window__cut { z-index: 2; }
+.window__pic img, .window__cut img {
+  width: 100%; height: 100%; object-fit: cover; object-position: var(--focus); will-change: transform;
+  /* the same grade on both, so the subject and its photograph stay one picture */
+  filter: saturate(1.12) contrast(1.05) sepia(0.05);
+}
+/* the pictures load as their page comes near (site.ts adds .is-near); fixed, they would all load with the page */
+.js .window:not(.is-near) :is(.window__pic, .window__cut) img { display: none; }
+/* the shade: over the scene, under the page's type, only at the page's top and foot */
+.window::before {
+  content: ''; position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgb(var(--shade) / 0.62), rgb(var(--shade) / 0) 28%, rgb(var(--shade) / 0) 58%, rgb(var(--shade) / 0.7));
+}
+
+/* the headline, in the scene */
+.window__words {
+  position: absolute; left: var(--hx); top: var(--hy); max-width: var(--hw); margin: 0;
+  font-family: var(--f-display); font-size: var(--hs); font-weight: 800; font-stretch: 75%; letter-spacing: -0.05em;
+  line-height: 0.82; text-shadow: 0 10px 60px rgb(var(--shade) / 0.35);
+}
+.window--end .window__words { left: auto; right: var(--hx); text-align: right; }
+.window__words .ln { display: block; overflow: hidden; padding: 0.06em 0.12em 0.3em; margin: -0.06em -0.12em -0.3em; }
+.window__words .ln__in { display: inline-block; white-space: nowrap; }
+.window__words .ln--soft { font-size: 0.42em; font-weight: 480; font-style: italic; font-stretch: 100%; letter-spacing: -0.03em; line-height: 1.05; color: var(--soft); margin-bottom: 0.08em; text-shadow: 0 2px 22px rgb(var(--shade) / 0.55); }
+
+/* the page: its running head at the top, its standfirst and caption at the foot */
+.window__page { position: relative; z-index: 4; display: grid; grid-template-rows: auto 1fr auto; min-height: inherit; padding-top: calc(var(--header-h) + 14px); padding-bottom: calc(var(--radius-l) + 62px); }
+.window__run {
+  display: flex; align-items: center; gap: 14px; margin: 0;
+  font-size: 11.5px; font-weight: 650; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+}
+.window__brand { font-weight: 800; letter-spacing: 0.22em; }
+.window__kicker { opacity: 0.92; }
+.window__rule { flex: 1; height: 1px; background: currentColor; opacity: 0.5; transform-origin: left; }
+.window__folio { font-variant-numeric: tabular-nums; color: var(--amber-75); }
+.window--brown .window__folio { color: var(--brown-80); }
+.window__foot { grid-row: 3; display: flex; align-items: end; justify-content: space-between; gap: 32px; }
+.window--start .window__foot { flex-direction: row-reverse; }
+.window__note {
+  max-width: 31ch; margin: 0; font-size: clamp(1.02rem, 0.9rem + 0.4vw, 1.3rem); line-height: 1.42; font-weight: 420;
+  padding-top: 16px; border-top: 2px solid var(--amber); text-wrap: pretty;
+}
+.window--brown .window__note { border-top-color: var(--ink); }
+.window__cap { max-width: 46ch; margin: 0; font-size: 12.5px; line-height: 1.45; opacity: 0.92; }
+.window__cap b { font-weight: 700; letter-spacing: 0.08em; margin-right: 6px; color: var(--amber-75); }
+.window--brown .window__cap b { color: var(--ink); }
+
 @media (max-width: 700px) {
-  .window { min-height: 92svh; align-content: end; padding-bottom: 9svh; }
-  .window__pic::after { background: linear-gradient(180deg, rgb(12 8 6 / 0.35), rgb(12 8 6 / 0) 30%, rgb(12 8 6 / 0.2) 50%, rgb(12 8 6 / 0.72)); }
-  .window__words { white-space: normal; font-size: clamp(3.6rem, 19vw, 6rem); }
+  .window { --hs: clamp(3.4rem, 17.5vw, 6rem); --hw: calc(100vw - 2 * var(--gutter)); }
+  .window__words { left: var(--hx-m, var(--gutter)); top: var(--hy-m, 17vh); }
+  .window--end .window__words { right: var(--hx-m, var(--gutter)); }
+  .window__words .ln__in { white-space: normal; }
+  .window__pic img, .window__cut img { object-position: var(--focus-m); }
+  /* where a phone's crop leaves no room round the subject, the headline lies over it instead */
+  .window--nocut-m .window__cut { display: none; }
+  .window__run { gap: 10px; font-size: 10.5px; letter-spacing: 0.12em; }
+  .window__kicker { display: none; }
+  .window__foot, .window--start .window__foot { flex-direction: column; align-items: start; gap: 14px; }
+  .window__cap { font-size: 11.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* the scene scrolls with its page */
+  .window__pic, .window__cut, .window__head, .window::before { position: absolute; top: 0; height: 100%; }
 }
 
 /* hr */
@@ -378,3 +466,36 @@ html.lenis, html.lenis body { height: auto; }
 
 /* while the brand film plays (home, first visit) the page waits behind it */
 .intro-on body { overflow: hidden; }
+
+/* ── sheets (scripts/motion.ts): every section is a sheet laid on the one before it, as in a pile of folders. Its
+   name sits in a tab at its top edge, stitched like a leather tag; scrolling, the next sheet slides up over it while
+   it holds still and sinks back a little (less motion: they simply follow one another) ── */
+.sheet-tab {
+  position: absolute; top: 1px; z-index: 4; transform: translateY(-100%);
+  left: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)), calc(var(--radius-l) + 10px));
+  display: inline-flex; align-items: center; gap: 10px; height: 44px; margin: 0; padding: 0 24px;
+  border-radius: 14px 14px 0 0; background: var(--sheet-bg, var(--paper)); color: var(--sheet-fg, var(--ink));
+  font-family: var(--f-text); font-size: 14.5px; font-weight: 600; letter-spacing: 0.005em; line-height: 1; white-space: nowrap;
+  box-shadow: 0 -14px 26px -20px rgb(0 0 0 / 0.35);
+}
+.sheet-tab::before {
+  content: ''; position: absolute; inset: 6px 7px -2px; border: 1.4px dashed rgb(226 160 37 / 0.75); border-bottom: 0;
+  border-radius: 9px 9px 0 0; pointer-events: none;
+}
+.sec--amber .sheet-tab::before { border-color: rgb(60 30 22 / 0.45); }
+.sheet-tab .geez { font-weight: 400; font-size: 13px; }
+.sheet-tab b { display: none; }
+@media (max-width: 560px) { .sheet-tab { height: 34px; padding: 0 16px; font-size: 12.5px; } }
+
+.sheet-mark { height: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  main > .is-stacked { position: sticky; top: min(0px, calc(100vh - var(--sheet-h, 100vh))); }
+  main > .is-stacked:not(.window) {
+    transform: scale(calc(1 - var(--cover, 0) * 0.025)); transform-origin: 50% max(50%, calc(100% - 50vh));
+  }
+  .sheet-shade {
+    position: absolute; inset: 0; z-index: 60; pointer-events: none; border-radius: inherit;
+    background: #140b07; opacity: calc(var(--cover, 0) * 0.55);
+  }
+}
+

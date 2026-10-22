@@ -13,7 +13,7 @@ export const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 const root = document.documentElement
 
 /* ── smooth scrolling: the wheel glides; touch, keys and the scrollbar stay native ── */
-export const lenis = reduce ? null : new Lenis({ lerp: 0.1, smoothWheel: true })
+export const lenis = reduce ? null : new Lenis({ lerp: 0.1, smoothWheel: true, anchors: true })
 if (lenis) {
   lenis.on('scroll', ScrollTrigger.update)
   gsap.ticker.add((t) => lenis.raf(t * 1000))
@@ -43,22 +43,81 @@ if (lenis) {
   tone()
 }
 
+/* ── sheets: each section is laid on the one before it. Its label goes up into a tab at its top edge (or its
+   data-tab names it); with motion, the one before holds still while the next slides up over it, and sinks back ── */
+{
+  const main = document.querySelector('main')
+  if (main) {
+    const kids = [...main.children] as HTMLElement[]
+    const sheets = kids.filter((el) => el.matches('section.sec, section.window, section.ph, section.cover') && !el.matches('.story, .process'))
+    for (const sec of sheets) {
+      if (sec.matches('.ph, .window, .cover') || sec.querySelector(':scope > .sheet-tab')) continue
+      const named = sec.dataset.tab
+      const label = named ? null : sec.querySelector<HTMLElement>(':scope > .wrap .label--rule')
+      if (!named && !label) continue
+      // a label that is the section's heading stays its heading in the tab (its level, and the id that names the section)
+      const tab = document.createElement(label && /^H[2-6]$/.test(label.tagName) ? label.tagName.toLowerCase() : 'p')
+      tab.className = 'sheet-tab'
+      if (label) { tab.innerHTML = label.innerHTML; if (label.id) tab.id = label.id; label.remove() } else tab.textContent = named!
+      sec.prepend(tab)
+    }
+    if (!reduce) {
+      kids.forEach((el, i) => { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; el.style.zIndex = String(i + 1) })
+      const ro = new ResizeObserver((entries) => {
+        for (const e of entries) (e.target as HTMLElement).style.setProperty('--sheet-h', `${(e.target as HTMLElement).offsetHeight}px`)
+      })
+      for (const sec of sheets) {
+        const next = sec.nextElementSibling as HTMLElement | null
+        // a window slides up over the sheet before it, but is not held: it goes on up, so that its frame and its
+        // picture keep moving apart
+        if (!next || sec.matches('.window')) continue
+        sec.classList.add('is-stacked')
+        sec.style.setProperty('--sheet-h', `${sec.offsetHeight}px`)
+        ro.observe(sec)
+        const shade = document.createElement('div')
+        shade.className = 'sheet-shade'
+        sec.append(shade)
+        // where the next one starts, in the page's flow (the sheet itself is held while it is covered)
+        const mark = document.createElement('div')
+        mark.className = 'sheet-mark'
+        mark.setAttribute('aria-hidden', 'true')
+        sec.after(mark)
+        ScrollTrigger.create({
+          trigger: mark, start: 'top bottom', end: 'top top', scrub: true,
+          onUpdate: (st) => sec.style.setProperty('--cover', st.progress.toFixed(3)),
+          // while it shrinks it is drawn once and scaled as a picture, so its type does not shimmer
+          onToggle: (st) => { sec.style.willChange = st.isActive ? 'transform' : '' },
+        })
+      }
+    }
+  }
+}
+
 if (!reduce) {
-  /* ── windows: the photograph stays put; it settles from a slight zoom as the window passes, and the words
-     slide across it the other way ── */
+  /* ── spreads (components/Window.astro): the page goes up over a scene fixed to the screen. The photograph and its
+     cut-out subject drift down together through their margin while the page passes; the headline, between them,
+     rises a little, so the three planes part; on the way out its lines part sideways. As the page comes in, its type
+     is set: the lines rise out of their masks, the light line opens its spacing, the running head's rule draws, the
+     standfirst comes up and the caption is uncovered; scrolling back above the page sets it all back ── */
   gsap.utils.toArray<HTMLElement>('[data-window]').forEach((w) => {
-    const img = w.querySelector<HTMLImageElement>('.window__pic img')
-    const words = w.querySelectorAll<HTMLElement>('[data-window-line]')
-    // the picture is decoded a little before its window arrives, so it is there on the first frame
-    if (img) ScrollTrigger.create({ trigger: w, start: 'top bottom+=120%', once: true, onEnter: () => { img.decode?.().catch(() => {}) } })
+    const imgs = w.querySelectorAll<HTMLImageElement>('.window__pic img, .window__cut img')
+    const words = w.querySelector<HTMLElement>('.window__words')
+    const lines = w.querySelectorAll<HTMLElement>('.window__words .ln')
+    // the pictures are decoded a little before the page arrives, so they are there on its first frame
+    ScrollTrigger.create({ trigger: w, start: 'top bottom+=120%', once: true, onEnter: () => imgs.forEach((i) => i.decode?.().catch(() => {})) })
     const tl = gsap.timeline({ scrollTrigger: { trigger: w, start: 'top bottom', end: 'bottom top', scrub: true } })
-    if (img) tl.fromTo(img, { scale: 1.16 }, { scale: 1, ease: 'none' }, 0)
-    words.forEach((el, i) => {
-      const dir = i % 2 ? 1 : -1
-      tl.fromTo(el, { xPercent: -dir * 9 }, { xPercent: dir * 9, ease: 'none' }, 0)
-    })
-    const note = w.querySelector('.window__note')
-    if (note) tl.fromTo(note, { y: 60, autoAlpha: 0 }, { y: -20, autoAlpha: 1, ease: 'power1.out', duration: 0.35 }, 0.3)
+    tl.fromTo(imgs, { yPercent: -10 }, { yPercent: 10, ease: 'none', duration: 1 }, 0)
+    if (words) tl.fromTo(words, { y: () => innerHeight * 0.07 }, { y: () => -innerHeight * 0.07, ease: 'none', duration: 1 }, 0)
+    lines.forEach((el, i) => tl.fromTo(el, { xPercent: 0 }, { xPercent: (i % 2 ? 1 : -1) * 4, ease: 'power1.in', duration: 0.42 }, 0.58))
+
+    const set = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } })
+    set.fromTo(w.querySelectorAll('.window__words .ln__in'), { yPercent: 112, rotate: 2.5 }, { yPercent: 0, rotate: 0, duration: 1.25, stagger: 0.1 }, 0)
+    set.fromTo(w.querySelectorAll('.window__words .ln--soft .ln__in'), { letterSpacing: '0.3em' }, { letterSpacing: '-0.03em', duration: 1.6, ease: 'power3.out' }, 0)
+    set.fromTo(w.querySelector('.window__rule'), { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'power3.inOut' }, 0.05)
+    set.fromTo(w.querySelectorAll('.window__run > span'), { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, stagger: 0.07 }, 0.12)
+    set.fromTo(w.querySelector('.window__note'), { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.1 }, 0.38)
+    set.fromTo(w.querySelector('.window__cap'), { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power3.inOut' }, 0.5)
+    ScrollTrigger.create({ trigger: w, start: 'top 58%', onEnter: () => set.play(), onLeaveBack: () => set.reverse() })
   })
 
   /* ── pictures that drift inside their frames (the frame clips them): data-parallax="12" moves them 12% ── */
@@ -67,6 +126,23 @@ if (!reduce) {
     gsap.fromTo(el, { yPercent: -d, scale: 1 + d / 50 }, {
       yPercent: d, scale: 1 + d / 50, ease: 'none',
       scrollTrigger: { trigger: el.parentElement || el, start: 'top bottom', end: 'bottom top', scrub: true },
+    })
+  })
+
+  /* ── a cover (components/Cover.astro): as the page goes on, the title sinks back and the subject rises, so they
+     part as the next section comes over them ── */
+  gsap.utils.toArray<HTMLElement>('[data-cover]').forEach((c) => {
+    const tl = gsap.timeline({ scrollTrigger: { trigger: c, start: 'top top', end: 'bottom top', scrub: true } })
+    const title = c.querySelector('.cover__title'), cut = c.querySelector('.cover__cut')
+    if (title) tl.fromTo(title, { y: 0 }, { y: () => innerHeight * 0.16, ease: 'none' }, 0)
+    if (cut) tl.fromTo(cut, { yPercent: 0 }, { yPercent: -7, ease: 'none' }, 0)
+  })
+
+  /* ── the picture at the top of a page lags behind the scroll inside its frame, as the page goes up over it ── */
+  gsap.utils.toArray<HTMLElement>('.ph__media > img').forEach((img) => {
+    gsap.fromTo(img, { yPercent: 0, scale: 1.2 }, {
+      yPercent: 10, scale: 1.2, ease: 'none',
+      scrollTrigger: { trigger: img.parentElement!, start: 0, end: 'bottom top', scrub: true },
     })
   })
 

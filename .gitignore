@@ -12,3 +12,4 @@ shot*.png
 hosting/out/
 hosting/.stage-*/
 server/.data/
+__pycache__/

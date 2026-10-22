@@ -1,7 +1,8 @@
 ---
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
-import PageHead from '../components/PageHead.astro'
+import Cover from '../components/Cover.astro'
+import Window from '../components/Window.astro'
 import SectionHead from '../components/SectionHead.astro'
 import ItemGrid from '../components/ItemGrid.astro'
 import Steps from '../components/Steps.astro'
@@ -13,14 +14,12 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
 ---
 
 <Base title={INDUSTRY_HEAD.title} description={`${INDUSTRY_HEAD.subtitle} ${INDUSTRY_INTRO}`}>
-  <PageHead
-    index="01"
-    eyebrow="The industry"
-    amharic="ኢንዱስትሪው"
-    title={['Ethiopia’s', 'leather', '<em>industry</em>.']}
+  <Cover
+    n="03" kicker="The industry" amharic="ኢንዱስትሪው"
+    title={['Ethiopia’s', 'leather <em>industry</em>.']}
     lede={INDUSTRY_HEAD.subtitle}
-    image="/media/profile/highland-sheep.webp"
-    imageAlt="Two highland sheep on a green hillside, a wide valley and mountains behind them"
+    bg="var(--amber-20)"
+    cut={{ src: '/media/cut/sheep-solo.webp', alt: 'Two highland sheep, a ram with curled horns and a ewe', h: '80svh', x: '0vw', w: 1299, hgt: 880, lapM: false }}
   />
 
   <!-- 02 · introduction -->
@@ -32,7 +31,7 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
   </section>
 
   <!-- 03 · the sector in figures -->
-  <section class="sec sheet lit figures" aria-labelledby="fig-h">
+  <section class="sec sec--brown sheet lit figures" aria-labelledby="fig-h">
     <div class="wrap figures__in">
       <div class="figures__head">
         <p class="label label--rule" data-reveal="fade"><b>03</b> The sector in figures</p>
@@ -44,6 +43,10 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
   </section>
 
   <!-- 04 · highland hides and skins -->
+  <Window image="/media/profile/shepherd.webp" cut="/media/cut/shepherd.webp" alt="A young herder with his flock on a green highland plateau"
+    words={['_The largest herd_', 'in Africa.']} kicker="Livestock" note="Every Ethiopian hide and skin is a by-product of the country’s food: nothing is raised for leather alone."
+    place="--hx:7vw;--hy:17vh;--hy-m:15vh" focus="50% 55%" focusM="50% 55%" />
+
   <section class="sec sec--paper sheet highland" aria-labelledby="hl-h">
     <div class="wrap highland__in">
       <figure class="frame highland__pic" data-reveal="mask">
@@ -59,7 +62,7 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
   </section>
 
   <!-- 05 · the value chain -->
-  <section class="sec sec--hide chain" aria-labelledby="chain-h">
+  <section class="sec sec--paper sec--wheat chain" aria-labelledby="chain-h">
     <div class="wrap">
       <SectionHead index="05" eyebrow="The value chain" amharic="የእሴት ሰንሰለት" title="From the farm to the <em>market</em>." id="chain-h" />
       <Steps items={VALUE_CHAIN} label="The leather value chain, in order" class="mt-xl" ring="var(--ink-1)" />
@@ -67,7 +70,7 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
   </section>
 
   <div class="band" aria-hidden="true">
-    <img src="/media/profile/leather-rolls-wide.webp" alt="" loading="lazy" decoding="async" {...responsive('/media/profile/leather-rolls-wide.webp', '100vw')} />
+    <img src="/media/profile/leather-rolls-wide.webp" alt="" loading="lazy" decoding="async" data-parallax="12" {...responsive('/media/profile/leather-rolls-wide.webp', '100vw')} />
   </div>
 
   <!-- 06 · policy and investment environment -->

@@ -5,7 +5,7 @@ const { class: cls = 'sec--paper sheet' } = Astro.props
 const today = new Date().toISOString().slice(0, 10)
 ---
 
-<section class:list={['appt sec sec--paper', cls]} id="appointment" data-tone="light">
+<section class:list={['appt sec sec--paper', cls]} id="appointment" data-tone="light" data-tab="Appointments">
   <div class="wrap appt__in">
     <div class="appt__text">
       <h2 class="h2" data-reveal>{APPOINTMENT.title}</h2>

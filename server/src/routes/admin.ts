@@ -262,7 +262,7 @@ admin.get('/companies', wrap((req, res) => {
   if (cat) { where.push('category = ?'); p.push(cat) }
   if (dues === 'due') where.push(`(dues_paid_until IS NULL OR dues_paid_until < date('now'))`)
   res.json({
-    items: all(`SELECT c.id, c.slug, c.name, c.category, c.size, c.city, c.region, c.status, c.listed, c.dues_paid_until, c.updated_at,
+    items: all(`SELECT c.id, c.slug, c.name, c.category, c.size, c.city, c.region, c.status, c.listed, c.public_listing, c.dues_paid_until, c.updated_at,
                        (SELECT COUNT(*) FROM users u WHERE u.company_id = c.id AND u.status = 'active' AND u.role = 'member') AS users
                 FROM companies c ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY c.name COLLATE NOCASE LIMIT 1000`, ...p),
   })
@@ -271,6 +271,7 @@ admin.get('/companies', wrap((req, res) => {
 admin.get('/companies/export.csv', wrap((_req, res) => {
   const rows = all(`SELECT * FROM companies WHERE status <> 'archived' ORDER BY name COLLATE NOCASE`).map((c) => ({
     ...c, certifications: fromJson<string[]>(c.certifications, []).join('; '), listed: c.listed ? 'yes' : 'no',
+    public_listing: c.public_listing ? 'yes' : 'no',
   }))
   res.setHeader('Content-Type', 'text/csv; charset=utf-8')
   res.setHeader('Content-Disposition', `attachment; filename="elia-members-${now().slice(0, 10)}.csv"`)
@@ -303,14 +304,14 @@ const COMPANY_COLUMNS: [string, string][] = [
   ['region', 'region'], ['address', 'address'], ['products', 'products'], ['leather_types', 'leather_types'], ['capacity', 'capacity'],
   ['employees', 'employees'], ['export_status', 'export_status'], ['export_markets', 'export_markets'], ['certifications', 'certifications'],
   ['contact_name', 'contact_name'], ['contact_position', 'contact_position'], ['phone', 'phone'], ['email', 'email'], ['website', 'website'],
-  ['member_since', 'member_since'], ['dues_paid_until', 'dues_paid_until'], ['status', 'status'], ['listed', 'listed'], ['slug', 'slug'],
+  ['member_since', 'member_since'], ['dues_paid_until', 'dues_paid_until'], ['status', 'status'], ['listed', 'listed'], ['public_listing', 'public_listing'], ['slug', 'slug'],
 ]
 
 /** what the import expects, as a ready-made spreadsheet */
 admin.get('/companies/template.csv', (_req, res) => {
   res.setHeader('Content-Type', 'text/csv; charset=utf-8')
   res.setHeader('Content-Disposition', 'attachment; filename="elia-members-template.csv"')
-  res.send(csv([{ name: 'Example Tannery PLC', category: 'tannery', size: 'large', city: 'Modjo', region: 'oromia', products: 'Finished sheep and goat leather', certifications: 'EHL; LWG', listed: 'yes' }], COMPANY_COLUMNS))
+  res.send(csv([{ name: 'Example Tannery PLC', category: 'tannery', size: 'large', city: 'Modjo', region: 'oromia', products: 'Finished sheep and goat leather', certifications: 'EHL; LWG', listed: 'yes', public_listing: 'no' }], COMPANY_COLUMNS))
 })
 
 /** A spreadsheet of members (the export's columns, or a subset): new names are added, known ones updated. */
@@ -348,6 +349,8 @@ admin.post('/companies/import', upload.single('file'), wrap((req, res) => {
       if (r.dues_paid_until && /^\d{4}-\d{2}-\d{2}$/.test(r.dues_paid_until)) fields.dues_paid_until = r.dues_paid_until
       if (r.certifications) fields.certifications = r.certifications.split(/[;,]/).map((s) => s.trim().toUpperCase()).filter((s) => ['EHL', 'LWG', 'ISO'].includes(s))
       if (r.listed) fields.listed = /^(1|yes|true|y)$/i.test(r.listed) ? 1 : 0
+      const pub = r.public_listing ?? r.public
+      if (pub) fields.public_listing = /^(1|yes|true|y)$/i.test(pub) ? 1 : 0
       const found = one<{ id: number }>('SELECT id FROM companies WHERE name = ? COLLATE NOCASE OR (slug = ? AND ? <> \'\')', name, r.slug ?? '', r.slug ?? '')
       if (found) {
         if (category) fields.category = category
@@ -390,7 +393,7 @@ admin.put('/companies/:id', wrap((req, res) => {
   const d = parse(adminSchema, req.body)
   const slug = d.slug || c.slug
   if (slug !== c.slug && one('SELECT id FROM companies WHERE slug = ?', slug)) throw new HttpError(422, 'That address is taken.', { slug: 'Taken' })
-  applyToCompany(n, { ...d, slug, listed: d.listed ? 1 : 0 })
+  applyToCompany(n, { ...d, slug, listed: d.listed ? 1 : 0, public_listing: d.public_listing ? 1 : 0 })
   if (d.status !== 'active' && c.status === 'active') {
     // a suspended or archived company's people keep their accounts, but nothing more is shown to them than their status
   }

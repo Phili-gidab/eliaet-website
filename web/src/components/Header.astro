@@ -1,6 +1,6 @@
 ---
 import Logo from './Logo.astro'
-import { NAV, ORG, CONTACT, SOCIAL, PRIMARY_NAV, SHORT_LABEL } from '../copy/site'
+import { NAV, ORG, CONTACT, SOCIAL, PRIMARY_NAV, SHORT_LABEL, FAMILY } from '../copy/site'
 
 interface Props { path: string; overHero?: boolean }
 const { path, overHero = false } = Astro.props
@@ -18,6 +18,18 @@ const pad = (n: number) => String(n).padStart(2, '0')
     <a href="/" class="hdr__logo" aria-label="ELIA home">
       <Logo class="hdr__lockup" />
     </a>
+    <!-- ELIA's initiatives, beside its mark: their initials, and their full names on hover -->
+    <nav class="hdr__fam" aria-label="ELIA’s initiatives">
+      <ul role="list">
+        {FAMILY.map((f) => (
+          <li>
+            <a href={f.to} aria-label={`${f.short}, ${f.name}`} aria-current={isActive(f.to) ? 'page' : undefined}>
+              {f.short}<span class="hdr__tip" aria-hidden="true">{f.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
     <nav class="hdr__nav" aria-label="Main">
       <ul role="list">
         {PRIMARY.map((n) => (
@@ -99,7 +111,8 @@ const pad = (n: number) => String(n).padStart(2, '0')
   }
   .hdr__in {
     pointer-events: auto; position: relative; height: 58px; max-width: 1280px; padding: 0 8px 0 20px;
-    display: flex; align-items: center; gap: clamp(12px, 2vw, 28px); border-radius: 999px;
+    --hgap: clamp(12px, 2vw, 28px);
+    display: flex; align-items: center; gap: var(--hgap); border-radius: 999px;
     width: calc(100% - 2 * var(--gutter)); margin-inline: auto;
   }
   .hdr__in::before {
@@ -123,6 +136,32 @@ const pad = (n: number) => String(n).padStart(2, '0')
   :global(.hide-hdr) .hdr { transform: translateY(-120%); }
   .hdr__logo { display: block; color: var(--cream); flex: none; }
   .hdr__logo :global(.hdr__lockup) { width: clamp(92px, 8vw, 116px); }
+  /* the initiatives: their initials in amber small capitals after a hairline beside the mark, and a name tag under
+     the bar on hover */
+  .hdr__fam { position: relative; flex: none; margin-left: calc(var(--hgap) * -0.4); }
+  .hdr__fam::before {
+    content: ''; position: absolute; left: calc(var(--hgap) * -0.3 - 1px); top: 50%; width: 1px; height: 20px; translate: 0 -50%;
+    background: rgb(255 252 245 / 0.2); transition: background 0.4s;
+  }
+  .hdr__fam ul { display: flex; list-style: none; margin: 0; padding: 0; }
+  .hdr__fam a {
+    position: relative; display: inline-flex; align-items: center; height: 34px; padding: 0 9px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 650; letter-spacing: 0.1em; color: var(--amber); transition: color 0.4s, background 0.25s;
+  }
+  .hdr__fam a:hover, .hdr__fam a:focus-visible { background: rgb(226 160 37 / 0.16); }
+  .hdr__fam a[aria-current] { color: var(--ink); background: var(--amber); }
+  .hdr__tip {
+    position: absolute; left: 50%; top: calc(100% + 18px); translate: -50% -6px; white-space: nowrap; pointer-events: none;
+    padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 500; letter-spacing: 0; color: var(--cream);
+    background: rgb(60 30 22 / 0.92); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.12), 0 16px 34px -16px rgb(0 0 0 / 0.7);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    opacity: 0; transition: opacity 0.2s, translate 0.4s var(--ease);
+  }
+  .hdr__fam a:hover .hdr__tip, .hdr__fam a:focus-visible .hdr__tip { opacity: 1; translate: -50% 0; }
+  :global([data-hdr='light']) .hdr__fam::before { background: rgb(60 30 22 / 0.2); }
+  :global([data-hdr='light']) .hdr__fam a { color: var(--ink); }
+  :global([data-hdr='light']) .hdr__fam a:hover, :global([data-hdr='light']) .hdr__fam a:focus-visible { background: rgb(226 160 37 / 0.3); }
+  :global([data-hdr='light']) .hdr__fam a[aria-current] { background: var(--amber); }
   .hdr__nav { margin-inline: auto; }
   .hdr__nav ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
   .hdr__nav a {
@@ -160,6 +199,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
     .hdr__end, .hdr__nav + .hdr__end { margin-left: auto; }
   }
   @media (max-width: 560px) {
+    .hdr__fam { display: none; }
     .hdr { padding-top: 10px; }
     .hdr__in { height: 54px; padding-left: 16px; }
     .hdr__cta { display: none; }

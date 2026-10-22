@@ -14,7 +14,7 @@ export type Profile = {
   certifications: string[]; contact_name: string | null; contact_position: string | null; phone: string | null; email: string | null
   website: string | null; about: string | null; logo: string | null; logo_file_id: number | null; photos: FileRef[]; updated_at: string
   member_since: number | null
-  status?: string; listed?: boolean; dues_paid_until?: string | null; dues_note?: string | null
+  status?: string; listed?: boolean; public_listing?: boolean; dues_paid_until?: string | null; dues_note?: string | null
 }
 
 const CERT_NAME: Record<string, string> = { EHL: 'Ethiopian Highland Leather', LWG: 'Leather Working Group', ISO: 'ISO' }
