@@ -57,7 +57,9 @@ export const HIGHLIGHTS = [
     title: `${AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair`,
     text: `${AALF_2026.dates}, at the ${AALF_2026.venue}: brings together leather goods manufacturers and technology suppliers, chemical and inputs suppliers, training institutions, trade promotion organizations, etc. from all over the world.`,
     to: '/aalf',
-    image: '/media/studio/aalf-boot.webp',
+    image: '/media/fair/aalf-film.jpg',
+    /** the fair's own film (from the AALF site's hero): the hides come together as Africa, then the fair's mark */
+    video: { av1: '/media/fair/aalf-film-av1.mp4', mp4: '/media/fair/aalf-film.mp4' },
   },
   {
     title: 'Enhancing Ethiopian leather industries',

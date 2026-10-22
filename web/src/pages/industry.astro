@@ -7,6 +7,7 @@ import SectionHead from '../components/SectionHead.astro'
 import ItemGrid from '../components/ItemGrid.astro'
 import Steps from '../components/Steps.astro'
 import FactTable from '../components/FactTable.astro'
+import Sketch from '../components/Sketch.astro'
 import { INDUSTRY_HEAD, INDUSTRY_INTRO, FIGURES, FIGURES_SOURCE, HIGHLAND, VALUE_CHAIN, POLICY, CHALLENGES, OPPORTUNITIES } from '../copy/industry'
 
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
@@ -24,6 +25,8 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
 
   <!-- 02 · introduction -->
   <section class="sec sec--paper intro" aria-label="Introduction">
+    <!-- the largest herd in Africa, sketched in pencil behind the words (from the herder's photograph further down) -->
+    <Sketch name="flock" class="intro__sketch" />
     <div class="wrap grid intro__in">
       <p class="label label--rule intro__label" data-reveal="fade"><b>02</b> Introduction</p>
       <p class="intro__text" data-reveal>{INDUSTRY_INTRO}</p>
@@ -103,7 +106,18 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
 </Base>
 
 <style>
-  .intro__in { row-gap: 24px; }
+  .intro { padding-bottom: calc(clamp(88px, 11vw, 168px) + clamp(60px, 9vw, 150px)); }
+  .intro__in { position: relative; z-index: 1; row-gap: 24px; }
+  /* the herder stands in the empty column left of the words, his flock grazing on under them; the drawing fades out
+     at its ends and its foot, where the photograph was cropped */
+  .intro :global(.intro__sketch) {
+    --sk-w: min(64vw, 1040px);
+    position: absolute; z-index: 0; bottom: calc(var(--radius-l) + 6px); width: var(--sk-w);
+    left: calc((100vw - min(100vw, var(--max))) / 2 + var(--gutter) + 130px - var(--sk-w) * 0.52); --sketch-o: 0.2;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 9%, #000 82%, transparent), linear-gradient(0deg, transparent, #000 14%);
+    -webkit-mask-composite: source-in; mask: linear-gradient(90deg, transparent, #000 9%, #000 82%, transparent), linear-gradient(0deg, transparent, #000 14%);
+    mask-composite: intersect;
+  }
   .intro__label { grid-column: 1 / span 3; margin-top: 1em; }
   .intro__text {
     grid-column: 4 / -1; max-width: 40ch; font-family: var(--f-display); font-size: clamp(1.45rem, 1.05rem + 1.5vw, 2.5rem);
@@ -124,5 +138,7 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
   @media (max-width: 860px) {
     .intro__label, .intro__text { grid-column: 1 / -1; }
     .intro__label { margin-top: 0; }
+    .intro { padding-bottom: calc(46vw + var(--radius-l) + 40px); }
+    .intro :global(.intro__sketch) { --sk-w: 112vw; left: -6vw; --sketch-o: 0.2; }
   }
 </style>

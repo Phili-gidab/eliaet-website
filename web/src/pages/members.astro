@@ -49,7 +49,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
     title={['Members', '<em>directory</em>.']}
     lede={MEMBERS_HEAD.subtitle}
     bg="var(--amber-40)" numeral={String(ORG.members)}
-    cut={{ src: '/media/cut/samra-leather.webp', alt: 'Two hands holding a black leather bag by its handles', h: '94svh', x: '9vw', w: 1080, hgt: 1513, lapM: false }}
+    cut={{ src: '/media/cut/samra-leather.webp', alt: 'Two hands holding a black leather bag by its handles', h: '94svh', x: '9vw', w: 1080, hgt: 1513, lapM: false, fadeTop: true }}
   >
     <div class="row" data-reveal style="--d:.36s">
       <a class="btn" href="/members/login" data-account><span data-account-label>Member Login</span> <Fragment set:html={svg(arrow)} /></a>

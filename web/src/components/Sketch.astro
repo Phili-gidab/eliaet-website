@@ -1,0 +1,59 @@
+---
+/* A pencil sketch, drawn faintly behind a section (tools/sketch.py turns a cut-out into the drawing, and gives the two
+   paths that draw it in). As it comes on screen it is drawn: a mask reveals it along its outline first, then back and
+   forth over it like a hand shading. Less motion: it is simply there. Decoration: out of the reading order. */
+interface Props {
+  /** the drawing's name: web/public/media/sketch/<name>.webp with web/src/data/sketches/<name>.json */
+  name: string
+  class?: string
+  style?: string
+}
+interface Drawing { w: number; h: number; outline: string; fill: string }
+const { name, class: cls, style } = Astro.props
+const all = import.meta.glob<{ default: Drawing }>('../data/sketches/*.json', { eager: true })
+const d = all[`../data/sketches/${name}.json`]?.default
+if (!d) throw new Error(`no sketch called ${name} (tools/sketch.py makes them)`)
+const id = `sketch-${name}`
+---
+
+{d && (
+  <div class:list={['sketch', cls]} style={style} aria-hidden="true" data-sketch>
+    <svg viewBox={`0 0 ${d.w} ${d.h}`} width={d.w} height={d.h}>
+      <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={d.w} height={d.h}>
+        <path class="sketch__o" d={d.outline} pathLength="1" />
+        <path class="sketch__f" d={d.fill} pathLength="1" />
+      </mask>
+      <image data-href={`/media/sketch/${name}.webp`} width={d.w} height={d.h} mask={`url(#${id})`} />
+    </svg>
+  </div>
+)}
+
+<style>
+  .sketch { pointer-events: none; user-select: none; opacity: var(--sketch-o, 0.17); }
+  .sketch svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .sketch__o, .sketch__f { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1; }
+  .sketch__o { stroke-width: 34; }
+  .sketch__f { stroke-width: 96; }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .sketch :is(.sketch__o, .sketch__f) { stroke-dashoffset: 1; }
+    :global(.js) .sketch.is-drawn .sketch__o { stroke-dashoffset: 0; transition: stroke-dashoffset 2.4s cubic-bezier(0.45, 0.05, 0.3, 1); }
+    :global(.js) .sketch.is-drawn .sketch__f { stroke-dashoffset: 0; transition: stroke-dashoffset 3.6s cubic-bezier(0.45, 0.05, 0.35, 1) 1s; }
+  }
+</style>
+
+<script>
+  /* the drawing loads as it comes near, and is drawn once it is a third on screen */
+  for (const el of document.querySelectorAll<HTMLElement>('[data-sketch]')) {
+    const img = el.querySelector('image')
+    new IntersectionObserver((es, io) => {
+      if (!es[0].isIntersecting) return
+      if (img?.dataset.href) { img.setAttribute('href', img.dataset.href); delete img.dataset.href }
+      io.disconnect()
+    }, { rootMargin: '600px 0px' }).observe(el)
+    new IntersectionObserver((es, io) => {
+      if (!es[0].isIntersecting) return
+      el.classList.add('is-drawn')
+      io.disconnect()
+    }, { threshold: 0.3 }).observe(el)
+  }
+</script>

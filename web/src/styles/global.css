@@ -52,6 +52,8 @@
   --radius: 22px;
   --radius-s: 14px;
   --radius-l: clamp(24px, 3vw, 40px);
+  /* the height of a sheet's tab (it stands up above the sheet's top edge, over the foot of the section before) */
+  --tab-h: 44px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -377,7 +379,7 @@ html.lenis, html.lenis body { height: auto; }
   position: relative; isolation: isolate; clip-path: inset(0); min-height: 100vh; min-height: 100svh;
   display: grid; color: var(--cream); background: var(--ink);
   --hx: var(--gutter); --hy: 18vh; --hs: clamp(4.4rem, 1rem + 12vw, 15rem); --hw: 92vw;
-  --soft: var(--cream); --shade: 20 10 6;
+  --soft: var(--cream); --shade: 60 30 22;
 }
 .window--brown { color: var(--ink); background: var(--amber-20); --soft: var(--brown-80); --shade: 255 252 245; }
 .window__pic, .window__cut { position: fixed; left: 0; top: -10vh; width: 100%; height: 120vh; pointer-events: none; }
@@ -393,10 +395,20 @@ html.lenis, html.lenis body { height: auto; }
 }
 /* the pictures load as their page comes near (site.ts adds .is-near); fixed, they would all load with the page */
 .js .window:not(.is-near) :is(.window__pic, .window__cut) img { display: none; }
+/* a veil on the photograph behind the headline, in the brand brown (cream under brown type): deepest where the words
+   stand, gone by the far side, so a busy picture never fights the type. It lies on the photograph only, so a subject
+   cut out in front of the words keeps its light */
+.window__pic::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at var(--veil-x, 26%) 45%, rgb(var(--shade) / 0.55), rgb(var(--shade) / 0.3) 55%, rgb(var(--shade) / 0) 100%),
+    linear-gradient(var(--veil-to, 90deg), rgb(var(--shade) / 0.3), rgb(var(--shade) / 0) 75%);
+}
+.window--end { --veil-x: 74%; --veil-to: 270deg; }
 /* the shade: over the scene, under the page's type, only at the page's top and foot */
 .window::before {
   content: ''; position: fixed; inset: 0; z-index: 3; pointer-events: none;
-  background: linear-gradient(180deg, rgb(var(--shade) / 0.62), rgb(var(--shade) / 0) 28%, rgb(var(--shade) / 0) 58%, rgb(var(--shade) / 0.7));
+  background: linear-gradient(180deg, rgb(var(--shade) / 0.7), rgb(var(--shade) / 0) 28%, rgb(var(--shade) / 0) 58%, rgb(var(--shade) / 0.78));
 }
 
 /* the headline, in the scene */
@@ -411,7 +423,7 @@ html.lenis, html.lenis body { height: auto; }
 .window__words .ln--soft { font-size: 0.42em; font-weight: 480; font-style: italic; font-stretch: 100%; letter-spacing: -0.03em; line-height: 1.05; color: var(--soft); margin-bottom: 0.08em; text-shadow: 0 2px 22px rgb(var(--shade) / 0.55); }
 
 /* the page: its running head at the top, its standfirst and caption at the foot */
-.window__page { position: relative; z-index: 4; display: grid; grid-template-rows: auto 1fr auto; min-height: inherit; padding-top: calc(var(--header-h) + 14px); padding-bottom: calc(var(--radius-l) + 62px); }
+.window__page { position: relative; z-index: 4; display: grid; grid-template-rows: auto 1fr auto; min-height: inherit; padding-top: calc(var(--header-h) + 14px); padding-bottom: calc(var(--radius-l) + var(--tab-h) + 22px); }
 .window__run {
   display: flex; align-items: center; gap: 14px; margin: 0;
   font-size: 11.5px; font-weight: 650; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
@@ -468,7 +480,7 @@ html.lenis, html.lenis body { height: auto; }
 .sheet-tab {
   position: absolute; top: 1px; z-index: 4; transform: translateY(-100%);
   left: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)), calc(var(--radius-l) + 10px));
-  display: inline-flex; align-items: center; gap: 10px; height: 44px; margin: 0; padding: 0 24px;
+  display: inline-flex; align-items: center; gap: 10px; height: var(--tab-h); margin: 0; padding: 0 24px;
   border-radius: 14px 14px 0 0; background: var(--sheet-bg, var(--paper)); color: var(--sheet-fg, var(--ink));
   font-family: var(--f-text); font-size: 14.5px; font-weight: 600; letter-spacing: 0.005em; line-height: 1; white-space: nowrap;
   box-shadow: 0 -14px 26px -20px rgb(60 30 22 / 0.35);
@@ -480,7 +492,7 @@ html.lenis, html.lenis body { height: auto; }
 .sec--amber .sheet-tab::before { border-color: rgb(60 30 22 / 0.45); }
 .sheet-tab .geez { font-weight: 400; font-size: 13px; }
 .sheet-tab b { display: none; }
-@media (max-width: 560px) { .sheet-tab { height: 34px; padding: 0 16px; font-size: 12.5px; } }
+@media (max-width: 560px) { :root { --tab-h: 34px; } .sheet-tab { padding: 0 16px; font-size: 12.5px; } }
 
 .sheet-mark { height: 0; }
 @media (prefers-reduced-motion: no-preference) {

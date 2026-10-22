@@ -23,7 +23,7 @@ const { items, label, class: cls, ring } = Astro.props
 </ol>
 
 <style>
-  :where(.steps) { margin: 0; }
+  /* (no margin rule here: a scoped one would outweigh the mt-* spacing the page gives it; the global reset sets none) */
   .steps { --n: 52px; list-style: none; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 18px; position: relative; }
   .steps::before {
     content: ''; position: absolute; top: calc(var(--n) / 2); left: calc(var(--n) / 2); height: 0;

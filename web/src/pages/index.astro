@@ -99,7 +99,14 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
         {HIGHLIGHTS.map((h, i) => (
           <a class:list={['bento__item', `bento__item--${i}`]} href={h.to}>
             <div class="bento__img" data-open={String((i % 2) * 0.08)}>
-              <img src={h.image} alt="" loading="lazy" decoding="async" style={'focus' in h && h.focus ? `object-position:${h.focus}` : undefined} {...responsive(h.image, '(max-width: 900px) 92vw, 760px')} />
+              {'video' in h && h.video ? (
+                <video class="bento__film" muted playsinline loop preload="none" poster={h.image} aria-hidden="true" data-film>
+                  <source src={h.video.av1} type='video/mp4; codecs="av01.0.04M.08"' />
+                  <source src={h.video.mp4} type="video/mp4" />
+                </video>
+              ) : (
+                <img src={h.image} alt="" loading="lazy" decoding="async" style={'focus' in h && h.focus ? `object-position:${h.focus}` : undefined} {...responsive(h.image, '(max-width: 900px) 92vw, 760px')} />
+              )}
             </div>
             <div class="bento__text">
               <h3 class="bento__h">{h.title}</h3>
@@ -274,8 +281,10 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   .bento__item--3 .bento__text p { color: rgb(255 252 245 / 0.86); }
   .bento__img { position: relative; overflow: hidden; border-radius: var(--radius); min-height: 220px; background: var(--dusk); }
   .bento__item--0 .bento__img { min-height: min(62vh, 620px); }
-  .bento__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
-  .bento__item:hover .bento__img img { transform: scale(1.05); }
+  .bento__img :is(img, video) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
+  .bento__item:hover .bento__img :is(img, video) { transform: scale(1.05); }
+  /* the fair's film: the hides come together as Africa at the left of its frame, the fair's mark at the right */
+  .bento__film { object-position: 46% 50%; background: #faefdb; }
   .bento__text { display: grid; gap: 10px; padding-right: 56px; }
   .bento__h { font-family: var(--f-display); font-weight: 720; font-stretch: 82%; letter-spacing: -0.025em; line-height: 1; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.3rem); }
   .bento__text p { color: var(--brown-80); max-width: 52ch; font-size: 15.5px; }
@@ -350,6 +359,16 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
 
 <script>
   import { reduce } from '../scripts/motion'
+
+  /* the fair's film in its card: it plays while the card is on screen (and its section is not covered), with less
+     motion it stays on its first frame */
+  for (const v of document.querySelectorAll<HTMLVideoElement>('video[data-film]')) {
+    if (reduce) continue
+    let seen = false, covered = false
+    const set = () => { if (seen && !covered) v.play().catch(() => {}); else v.pause() }
+    new IntersectionObserver((es) => { seen = es[0].isIntersecting; set() }, { threshold: 0.25 }).observe(v)
+    v.closest('main > section')?.addEventListener('sheet-covered', (e) => { covered = (e as CustomEvent<boolean>).detail; set() })
+  }
 
   /* the fair's countdown: days, hours, minutes, seconds; hidden without JavaScript and once the fair has opened */
   const box = document.querySelector<HTMLElement>('[data-countdown]')

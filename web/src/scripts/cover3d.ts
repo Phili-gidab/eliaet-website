@@ -17,7 +17,7 @@ const D = Math.PI / 180
    apart, with a gap between them */
 /* the framing: how much of the screen's width and height the pieces take (wide screens; N: narrow ones), and where
    their centre sits (-1..1 across, -1..1 up) */
-const F = { share: 0.4, tall: 0.62, sx: 0.42, sy: 0.56, shareN: 0.88, tallN: 0.84, syN: -0.06 }
+const F = { share: 0.33, tall: 0.5, sx: 0.6, sy: 0.2, shareN: 0.88, tallN: 0.84, syN: -0.06 }
 const LAYOUT = {
   boots: 1,
   left: { x: -0.085, z: 0, turn: -10 },

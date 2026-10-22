@@ -274,7 +274,8 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   /* 06 · outcomes, set large */
   .outcomes__in { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 28px clamp(24px, 3vw, 48px); }
   .outcomes__label { align-self: start; margin-top: 1.4em; }
-  .outcomes__list { list-style: none; margin: 0; padding: 0; }
+  /* its own column, whether or not the label beside it is still there (with motion it goes up into the section's tab) */
+  .outcomes__list { grid-column: 2; list-style: none; margin: 0; padding: 0; }
   .outcomes__list li {
     padding: clamp(14px, 1.6vw, 22px) 0; border-bottom: 1px solid var(--line-dark);
     font-family: var(--f-display); font-size: var(--step-3); line-height: 1.04; letter-spacing: -0.016em; color: var(--ink); text-wrap: balance;
@@ -307,6 +308,7 @@ const OUTCOME_LINKS: Record<string, string> = { 'EHL promotion': '/ehl' }
   }
   @media (max-width: 860px) {
     .outcomes__in { grid-template-columns: 1fr; }
+    .outcomes__list { grid-column: 1; }
     .outcomes__label { margin-top: 0; }
     .past__poster { grid-column: 1 / span 6; }
     .past__text { grid-column: 7 / -1; }

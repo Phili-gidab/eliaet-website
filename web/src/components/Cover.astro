@@ -20,7 +20,12 @@ interface Props {
   /** the subject: a figure cut out of a photograph, the cut's file and what it shows, how tall it stands (CSS
       height) and how far in from the right it stands; on phones the foot laps over its last few lines (its ground and
       shadow), unless lapM is false (a subject with no ground, which the words would cross) */
-  cut?: { src: string; alt: string; h?: string; x?: string; y?: string; w?: number; hgt?: number; lapM?: boolean }
+  cut?: { src: string; alt: string; h?: string; x?: string; y?: string; w?: number; hgt?: number; lapM?: boolean
+    /** the photograph cropped the subject at its top (arms reaching in from above): let it fade in from the page */
+    fadeTop?: boolean
+    /** the subject's own photograph behind it, in a frame it steps out of: the photograph (the cut's size, the cut
+        lying exactly on it) and where the frame's top edge is, from the picture's top */
+    scene?: { src: string; top?: string; bleed?: boolean } }
   /** the leather goods in 3D in front of the title (a still picture where 3D cannot be drawn) */
   goods?: { poster: string; alt: string }
   lines?: Line[]
@@ -49,7 +54,14 @@ const style = `--cv-bg:${bg};${size ? `--cv-hs:${size};` : ''}${cut?.h ? `--cv-h
   </h1>
   {numeral && <p class="cover__num" aria-hidden="true">{numeral}</p>}
   {cut && (
-    <img class="cover__cut" data-cover-subject src={cut.src} alt={cut.alt} width={cut.w} height={cut.hgt} decoding="async" fetchpriority="high" />
+    cut.scene ? (
+      <div class:list={['cover__cut', 'cover__scene', { 'cover__scene--bleed': cut.scene.bleed }]} data-cover-subject style={`aspect-ratio:${cut.w} / ${cut.hgt};--sc-top:${cut.scene.top ?? '34%'}`}>
+        <img class="cover__scene-pic" src={cut.scene.src} alt="" width={cut.w} height={cut.hgt} decoding="async" fetchpriority="high" />
+        <img class="cover__scene-cut" src={cut.src} alt={cut.alt} width={cut.w} height={cut.hgt} decoding="async" fetchpriority="high" />
+      </div>
+    ) : (
+      <img class:list={['cover__cut', { 'cover__cut--fade': cut.fadeTop }]} data-cover-subject src={cut.src} alt={cut.alt} width={cut.w} height={cut.hgt} decoding="async" fetchpriority="high" />
+    )
   )}
   {goods && (
     <div class="cover__goods" data-cover-subject>
@@ -122,7 +134,17 @@ const style = `--cv-bg:${bg};${size ? `--cv-hs:${size};` : ''}${cut?.h ? `--cv-h
     position: absolute; z-index: 2; right: var(--cv-x); bottom: var(--cv-y, 0); height: var(--cv-h); width: auto; max-width: none;
     pointer-events: none; filter: drop-shadow(0 30px 40px rgb(60 30 22 / 0.18));
   }
-  .cover__goods { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+  /* the goods stand behind the title (the type lies over them, as on a cover), clear of the running head */
+  .cover__goods { position: absolute; z-index: 0; inset: 0; pointer-events: none; }
+  .cover__cut--fade { -webkit-mask: linear-gradient(180deg, transparent 0%, #000 34%); mask: linear-gradient(180deg, transparent 0%, #000 34%); }
+  /* the subject in its own landscape: the photograph shows through a frame from below the shoulders down, and the
+     figure, cut from that same photograph and lying exactly on it, rises out of the frame's top edge */
+  .cover__scene { width: auto; }
+  .cover__scene img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cover__scene-pic { clip-path: inset(var(--sc-top) 0 0 0 round var(--radius-l) var(--radius-l) 0 0); }
+  /* or the landscape runs off the page's right edge and foot, half the cover wide, its one free corner rounded */
+  .cover__scene--bleed { right: 0; bottom: 0; height: auto; width: min(54vw, 1060px); filter: drop-shadow(-24px 0 50px rgb(60 30 22 / 0.35)); }
+  .cover__scene--bleed .cover__scene-pic { clip-path: inset(var(--sc-top) 0 0 0 round var(--radius-l) 0 0 0); }
   .cover__gl { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s var(--ease); }
   .cover.has-gl .cover__gl { opacity: 1; }
   .cover__poster { position: absolute; right: 4vw; bottom: 0; height: 80svh; width: auto; opacity: 0; }
@@ -158,7 +180,9 @@ const style = `--cv-bg:${bg};${size ? `--cv-hs:${size};` : ''}${cut?.h ? `--cv-h
 
   /* the foot: the lede, what the page sets in, the cover lines, down the left, clear of the subject */
   .cover__foot {
-    position: relative; z-index: 4; margin-top: auto; padding-top: clamp(28px, 4svh, 48px); padding-bottom: calc(var(--radius-l) + 30px);
+    position: relative; z-index: 4; margin-top: auto; padding-top: clamp(28px, 4svh, 48px);
+    /* clear of the next sheet's rounded edge and the tab that stands up from it */
+    padding-bottom: calc(var(--radius-l) + var(--tab-h) + 30px);
     display: grid; justify-items: start; gap: 22px; pointer-events: none;
   }
   .cover__foot > * { pointer-events: auto; max-width: min(560px, 46vw); }
@@ -198,7 +222,10 @@ const style = `--cv-bg:${bg};${size ? `--cv-hs:${size};` : ''}${cut?.h ? `--cv-h
     .cover__goods { position: relative; inset: auto; flex: none; height: min(50svh, 122vw); margin-top: -10svh; }
     .cover__poster { right: 50%; translate: 50% 0; height: 100%; }
     .cover__cut { position: relative; right: auto; bottom: auto; flex: none; align-self: center; height: min(60svh, 130vw); margin-top: -6svh; }
-    .cover__foot { margin-top: 8px; padding-top: 10px; padding-bottom: calc(var(--radius-l) + 64px); gap: 18px; }
+    .cover__scene { height: auto; width: min(94vw, 520px); margin: -2svh 0 22px; }
+    .cover__scene-pic, .cover__scene--bleed .cover__scene-pic { clip-path: inset(var(--sc-top) 0 0 0 round var(--radius-l)); }
+    .cover__scene--bleed { width: min(94vw, 520px); filter: none; }
+    .cover__foot { margin-top: 8px; padding-top: 10px; padding-bottom: calc(var(--radius-l) + var(--tab-h) + 30px); gap: 18px; }
     .cover--lap .cover__foot { margin-top: -56px; }
     .cover__foot > * { max-width: none; }
     .cover__lines { width: 100%; }
