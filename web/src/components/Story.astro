@@ -1,12 +1,16 @@
 ---
-/* The home page's opening: the film of a tannery at work, inside and out, with its copy played in step.
-   The film is the clock (scripts/story.ts): each chapter's words come in at their moment in the film and leave
-   before the next; the last chapter (the page's h1, the buttons) stays on the film's final frame.
-   As the page scrolls on, the film steps back into a panel and the next section slides over it. */
+/* The home page's opening. It starts on the page colour with the ELIA mark cut out of it: through the mark, the
+   film of a tannery at work. Scrolling zooms through the mark's dot until the film fills the screen (the door,
+   scripts/story.ts); the film then plays on with its copy in step. The film is the clock: each chapter's words come
+   in at their moment and leave before the next; the last chapter (the page's h1, the buttons) stays on the film's
+   final frame, which never stands still: it drifts, follows the pointer, and its chimney keeps smoking.
+   As the page scrolls on, the film steps back into a panel and the next section slides over it.
+   Without the script, or for less motion, there is no door: the film's last frame and the last chapter. */
 import Film from './Film.astro'
 import { STORY, HERO, PINS } from '../copy/home'
 import { ORG } from '../copy/site'
 import { AALF_2026 } from '../copy/aalf'
+import { E, DOT } from '../brand/logo'
 
 const words = (html: string) =>
   html
@@ -27,34 +31,61 @@ const beats = JSON.stringify({
 const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the world.</em>')
 ---
 
-<section class="story" aria-labelledby="story-title" data-story data-beats={beats}>
+<script is:inline>
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.dataset.hdr = 'light'
+</script>
+<section class="story" aria-labelledby="story-title" data-story data-beats={beats} data-tone="dark">
   <div class="story__stage" data-story-stage>
-    <Film
-      class="story__film"
-      manual
-      toggle={false}
-      loop={false}
-      formats="av1,vp9,h264"
-      wide={{ base: '/film/tannery', sizes: [960, 1600] }}
-      tall={{ base: '/film/tannery-m', sizes: [540, 720] }}
-      poster="/film/tannery-start-1600.webp"
-      posterTall="/film/tannery-m-start-720.webp"
-      label="A film of a tannery at work: drums turning, hides moving through the machines and over an overhead conveyor, a table of finished leather goods, then out through the loading door to the tannery's yard in the Ethiopian highlands."
-    />
-    <picture class="story__end" aria-hidden="true">
-      <source media="(orientation: portrait) and (max-width: 900px)" srcset="/film/tannery-m-end-720.webp" />
-      <img src="/film/tannery-end-1600.webp" alt="" decoding="async" fetchpriority="low" />
-    </picture>
-    <div class="story__shade" aria-hidden="true"></div>
+    <!-- the film and what rides on it: under the door until it opens -->
+    <div class="story__view" data-story-view>
+      <Film
+        class="story__film"
+        manual
+        toggle={false}
+        loop={false}
+        formats="av1,vp9,h264"
+        wide={{ base: '/film/tannery', sizes: [960, 1600] }}
+        tall={{ base: '/film/tannery-m', sizes: [540, 720] }}
+        poster="/film/tannery-start-1600.webp"
+        posterTall="/film/tannery-m-start-720.webp"
+        label="A film of a tannery at work: drums turning, hides moving through the machines and over an overhead conveyor, a table of finished leather goods, then out through the loading door to the tannery's yard in the Ethiopian highlands."
+      />
+      <picture class="story__end" aria-hidden="true">
+        <source media="(orientation: portrait) and (max-width: 900px)" srcset="/film/tannery-m-end-720.webp" />
+        <img src="/film/tannery-end-1600.webp" alt="" decoding="async" fetchpriority="low" />
+      </picture>
+      <canvas class="story__smoke" data-smoke aria-hidden="true"></canvas>
+      <div class="story__shade" aria-hidden="true"></div>
 
-    <div class="story__pins" aria-hidden="true" data-pins="/film/pins.json">
-      {PINS.map((p) => (
-        <div class="pin" data-pin={p.id}>
-          <i class="pin__dot"></i>
-          <span class="pin__stem"></span>
-          <span class="pin__tag">{p.n && <b>{p.n}</b>}{p.label}</span>
-        </div>
-      ))}
+      <div class="story__pins" aria-hidden="true" data-pins="/film/pins.json">
+        {PINS.map((p) => (
+          <div class="pin" data-pin={p.id}>
+            <i class="pin__dot"></i>
+            <span class="pin__stem"></span>
+            <span class="pin__tag">{p.n && <b>{p.n}</b>}{p.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- the door: the page colour with the ELIA mark cut out of it (story.ts places the mark and zooms it) -->
+    <svg class="story__door" data-door aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="story-door-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+          <rect width="100%" height="100%" fill="#fff" />
+          <g data-door-mark transform="scale(0)"><path d={E} fill="#000" /><circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill="#000" /></g>
+        </mask>
+      </defs>
+      <rect class="story__door-fill" width="100%" height="100%" mask="url(#story-door-cut)" />
+      <g class="story__door-edge" data-door-edge transform="scale(0)">
+        <path d={E} vector-effect="non-scaling-stroke" />
+        <circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} vector-effect="non-scaling-stroke" />
+      </g>
+    </svg>
+    <div class="story__hello wrap" data-door-text aria-hidden="true">
+      <p class="story__name"><span>Ethiopian Leather</span> <span>Industries Association</span></p>
+      <p class="story__amh geez" lang="am">{ORG.amharic}</p>
+      <p class="story__cue"><span>Scroll to enter</span><i></i></p>
     </div>
 
     <div class="story__copy wrap">
@@ -97,30 +128,82 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
 </section>
 
 <style>
-  .story { position: relative; height: 130svh; background: var(--ink); }
+  /* the stage stays on screen while the door opens (--door screens of scrolling, set by story.ts) and a little after */
+  .story { position: relative; height: calc(130svh + var(--door, 0) * 100svh); background: var(--ink); }
+  /* the door is there from the first paint (with the script and motion), so nothing jumps when the script arrives:
+     the page colour and the name first, the mark as soon as the script has placed it */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .story { --door: 1.15; background: var(--paper); }
+    :global(.js) .story .story__door { display: block; }
+    :global(.js) .story .story__hello { display: grid; }
+    :global(.js) .story:not(.is-open) .story__copy, :global(.js) .story:not(.is-open) .rail, :global(.js) .story:not(.is-open) .story__pins { opacity: 0; visibility: hidden; }
+  }
   .story__stage {
     position: sticky; top: 0; height: 100svh; overflow: hidden; color: var(--cream); isolation: isolate;
     transform-origin: 50% 0; will-change: transform;
     transform: scale(calc(1 - var(--away, 0) * 0.07)); border-radius: calc(var(--away, 0) * 36px);
   }
   .story__stage::after {
-    content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: #000; opacity: calc(var(--away, 0) * 0.55);
+    content: ''; position: absolute; inset: 0; z-index: 8; pointer-events: none; background: #000; opacity: calc(var(--away, 0) * 0.55);
   }
+  .story__view { position: absolute; inset: 0; z-index: 0; transform: scale(var(--view-s, 1)); transform-origin: 50% 50%; }
   .story :global(.story__film) { position: absolute; inset: 0; z-index: 0; }
-  .story__end { position: absolute; inset: 0; z-index: 1; opacity: 0; transition: opacity 1.2s var(--ease); }
+  .story__end { position: absolute; inset: -3%; z-index: 1; opacity: 0; transition: opacity 1.2s var(--ease); }
   .story__end img { width: 100%; height: 100%; object-fit: cover; }
   .story.is-end .story__end { opacity: 1; }
+  .story__smoke { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s var(--ease); }
+  .story.is-end .story__smoke.is-on { opacity: 1; }
+  /* once the living frame is drawn, the picture under it rests */
+  .story__view:has(.story__smoke.is-on) .story__end img { animation: none; }
+  /* where the words sit, a neutral shadow (the film's own colours elsewhere) */
   .story__shade {
-    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
     background:
-      linear-gradient(180deg, rgb(60 30 22 / 0.55) 0%, rgb(60 30 22 / 0) 20%),
-      linear-gradient(0deg, rgb(60 30 22 / 0.92) 0%, rgb(60 30 22 / 0.6) 22%, rgb(60 30 22 / 0) 50%),
-      radial-gradient(110% 85% at 0% 100%, rgb(60 30 22 / 0.72), transparent 66%);
+      linear-gradient(180deg, rgb(10 7 5 / 0.42) 0%, rgb(10 7 5 / 0) 18%),
+      linear-gradient(0deg, rgb(10 7 5 / 0.66) 0%, rgb(10 7 5 / 0.28) 24%, rgb(10 7 5 / 0) 46%),
+      radial-gradient(85% 70% at 0% 100%, rgb(10 7 5 / 0.5), transparent 62%);
   }
+
+  /* the final frame never stands still: a slow drift, and (story.ts) it follows the pointer, and the chimney smokes */
+  @media (prefers-reduced-motion: no-preference) {
+    .story.is-end .story__end img { animation: story-drift 28s ease-in-out infinite alternate; }
+    .story__end { transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px), 0); }
+    .story.is-end .story__copy { transform: translate3d(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 5px), 0); }
+  }
+  @keyframes story-drift {
+    from { transform: scale(1.02) translate3d(0, 0, 0); }
+    to { transform: scale(1.09) translate3d(-1.2%, -1.4%, 0); }
+  }
+
+  /* the door: the page colour, with the mark cut out of it; an amber hairline traces the cut until the zoom begins */
+  .story__door { position: absolute; inset: 0; z-index: 6; width: 100%; height: 100%; display: none; pointer-events: none; }
+  .story.is-open .story__door { visibility: hidden; }
+  .story__door-fill { fill: var(--paper); }
+  .story__door-edge { fill: none; stroke: var(--amber); stroke-width: 1.4; opacity: var(--edge, 1); }
+  .story__hello {
+    position: absolute; inset: auto 0 0; z-index: 7; display: none; grid-template-columns: 1fr auto; align-items: end; gap: 12px 40px;
+    padding-bottom: clamp(26px, 5vh, 54px); color: var(--ink); opacity: var(--hello, 1); transform: translateY(calc((1 - var(--hello, 1)) * -40px));
+  }
+  .story.is-open .story__hello { visibility: hidden; }
+  .story__name {
+    grid-column: 1; font-family: var(--f-display); font-weight: 760; font-stretch: 78%; letter-spacing: -0.03em; line-height: 0.92;
+    font-size: clamp(2rem, 1rem + 3.2vw, 4.4rem); color: var(--ink);
+  }
+  .story__name span { display: block; }
+  .story__amh { grid-column: 1; font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.2rem); color: var(--taupe); }
+  .story__cue {
+    grid-column: 2; grid-row: 1 / span 2; justify-self: end; display: grid; justify-items: center; gap: 12px;
+    font-size: 13px; font-weight: 560; letter-spacing: 0.02em; color: var(--taupe);
+  }
+  .story__cue i { position: relative; display: block; width: 1px; height: 54px; background: rgb(60 30 22 / 0.16); overflow: hidden; }
+  .story__cue i::after { content: ''; position: absolute; inset: 0; background: var(--ink); transform: translateY(-100%); animation: story-cue 2.4s var(--ease-in-out) infinite; }
+  @keyframes story-cue { 0% { transform: translateY(-100%); } 55% { transform: translateY(0); } 100% { transform: translateY(100%); } }
+  @media (prefers-reduced-motion: reduce) { .story__cue i::after { animation: none; transform: none; } }
+
 
   /* the pins: a lit dot on the thing, a hairline up from it, its name on a small glass tag. They ride on the film
      (scripts/story.ts moves them frame by frame) and come and go with what they name. */
-  .story__pins { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; transition: opacity 1s var(--ease); }
+  .story__pins { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; transition: opacity 1s var(--ease); }
   .pin { position: absolute; left: 0; top: 0; --stem: 46px; will-change: transform; }
   .pin__dot {
     position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%;
@@ -137,7 +220,7 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     position: absolute; left: -1px; bottom: calc(var(--stem) + 9px); display: inline-flex; align-items: center; gap: 0.75em;
     padding: 6px 11px 6px 9px; border-radius: 8px; white-space: nowrap;
     font-family: var(--f-mono); font-size: 11px; font-weight: 450; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream);
-    background: rgb(60 30 22 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16);
+    background: rgb(20 14 10 / 0.42); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.16);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     opacity: 0; transform: translateY(6px); transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
   }
@@ -151,7 +234,8 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
 
   /* the chapters share one place, bottom left, above the rail */
   .story__copy {
-    position: absolute; inset: auto 0 0; z-index: 3; display: grid; padding-bottom: clamp(108px, 15vh, 156px);
+    position: absolute; inset: auto 0 0; z-index: 5; display: grid; padding-bottom: clamp(108px, 15vh, 156px);
+    transition: opacity 0.8s var(--ease), transform 1.2s var(--ease);
   }
   .ch { grid-area: 1 / 1; align-self: end; max-width: min(820px, 92vw); pointer-events: none; }
   .ch.on { pointer-events: auto; }
@@ -163,7 +247,16 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   }
   .ch__title :global(em) { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.02em; color: var(--amber); }
   .ch__title--final { font-size: clamp(3.2rem, 1.2rem + 7vw, 8.6rem); }
-  .ch__line { margin-top: 20px; max-width: 46ch; font-size: var(--step-1); line-height: 1.45; color: rgb(255 252 245 / 0.84); text-wrap: pretty; }
+  /* the last line takes the light: a slow amber sheen runs across it */
+  @media (prefers-reduced-motion: no-preference) {
+    .ch--final.on .ch__title--final :global(em) {
+      background: linear-gradient(100deg, var(--amber) 0%, var(--amber) 38%, #fff1cf 48%, var(--amber) 58%, var(--amber) 100%) 0 0 / 260% 100%;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      animation: story-sheen 7s var(--ease-in-out) 1.6s infinite;
+    }
+  }
+  @keyframes story-sheen { 0% { background-position: 100% 0; } 45%, 100% { background-position: 0% 0; } }
+  .ch__line { margin-top: 20px; max-width: 46ch; font-size: var(--step-1); line-height: 1.45; color: rgb(255 252 245 / 0.86); text-wrap: pretty; }
   .ch__pill { margin-bottom: 22px; }
   .ch__ctas { margin-top: 30px; }
 
@@ -181,17 +274,23 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   :global(.js) .ch.on .ch__ctas { opacity: 1; transform: none; transition-delay: 0.5s; }
   :global(.js) .ch.gone :global(.w) { opacity: 0; transform: translateY(-0.3em); filter: blur(10px); transition-delay: calc(var(--i) * 0.02s); }
   :global(.js) .ch.gone .ch__label, :global(.js) .ch.gone .ch__line { opacity: 0; transform: translateY(-8px); }
+  /* the final title lands bigger: each word drops in from above its line */
+  :global(.js) .ch--final :global(.w) { transform: translateY(-0.5em) rotate(-3deg); transform-origin: 0 100%; }
+  :global(.js) .ch--final.on :global(.w) { transition-duration: 0.6s, 1.1s, 0.6s; transition-timing-function: var(--ease), var(--spring), var(--ease); }
   @media (prefers-reduced-motion: reduce) {
     :global(.js) .ch :global(.w), :global(.js) .ch .ch__label, :global(.js) .ch .ch__line, :global(.js) .ch .ch__ctas, :global(.js) .ch .ch__pill { transition: opacity 0.4s linear; transform: none; filter: none; }
   }
   /* without the script the last chapter simply stands */
   :global(html:not(.js)) .ch:not(.ch--final) { display: none; }
 
-  /* the rail: one segment per chapter; each fills with its part of the film; a click goes there */
-  .rail { position: absolute; left: 0; right: 0; bottom: clamp(22px, 4vh, 40px); z-index: 4; display: flex; align-items: center; gap: 14px; margin-inline: auto; }
+  /* the rail: one segment per chapter; each fills with its part of the film; a click goes there. Once the film is
+     over, it steps back and the replay button stays */
+  .rail { position: absolute; left: 0; right: 0; bottom: clamp(22px, 4vh, 40px); z-index: 5; display: flex; align-items: center; gap: 14px; margin-inline: auto; transition: opacity 0.8s var(--ease); }
+  .story.is-end .rail__list { opacity: 0.35; transition: opacity 1.2s var(--ease) 1.2s; }
+  .story.is-end .rail__list:hover, .story.is-end .rail__list:focus-within { opacity: 1; transition-delay: 0s; }
   .rail__list { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .rail__seg { display: grid; gap: 10px; width: 100%; text-align: left; padding: 8px 0; }
-  .rail__lbl { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 252 245 / 0.5); transition: color 0.4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rail__lbl { font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 252 245 / 0.55); transition: color 0.4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rail__lbl b { color: rgb(226 160 37 / 0.85); font-weight: 500; margin-right: 6px; transition: color 0.4s; }
   .rail__bar { position: relative; display: block; height: 2px; border-radius: 2px; background: rgb(255 252 245 / 0.18); overflow: hidden; }
   .rail__bar i { position: absolute; inset: 0; background: var(--amber); transform-origin: left; transform: scaleX(var(--p, 0)); box-shadow: 0 0 12px var(--amber); }
@@ -199,10 +298,10 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .rail__seg.on .rail__lbl b { color: var(--amber); }
   .rail__btn {
     flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-    background: rgb(60 30 22 / 0.45); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgb(20 14 10 / 0.45); box-shadow: inset 0 0 0 1px rgb(255 252 245 / 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     transition: background 0.25s, transform 0.4s var(--spring);
   }
-  .rail__btn:hover { background: rgb(60 30 22 / 0.7); transform: scale(1.06); }
+  .rail__btn:hover { background: rgb(20 14 10 / 0.7); transform: scale(1.06); }
   .rail__btn svg { width: 18px; height: 18px; grid-area: 1 / 1; }
   .rail__btn .i-play, .rail__btn .i-replay { display: none; }
   .story[data-state='paused'] .rail__btn .i-pause { display: none; }
@@ -210,15 +309,14 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
   .story.is-end .rail__btn .i-pause, .story.is-end .rail__btn .i-play { display: none; }
   .story.is-end .rail__btn .i-replay { display: block; }
 
-  /* the brand film plays first on a first visit: everything waits behind it */
+  /* the brand film plays first on a first visit (other pages): everything waits behind it */
   :global(.intro-on) .story__copy, :global(.intro-on) .rail { opacity: 0; }
-  .story__copy, .rail { transition: opacity 1s var(--ease); }
 
   @media (max-width: 900px) and (orientation: portrait) {
     .story__shade {
       background:
-        linear-gradient(180deg, rgb(60 30 22 / 0.7) 0%, rgb(60 30 22 / 0) 22%),
-        linear-gradient(0deg, rgb(60 30 22 / 0.95) 0%, rgb(60 30 22 / 0.75) 30%, rgb(60 30 22 / 0) 58%);
+        linear-gradient(180deg, rgb(10 7 5 / 0.5) 0%, rgb(10 7 5 / 0) 22%),
+        linear-gradient(0deg, rgb(10 7 5 / 0.82) 0%, rgb(10 7 5 / 0.5) 30%, rgb(10 7 5 / 0) 58%);
     }
     .story__copy { padding-bottom: 96px; }
     .ch__title { font-size: clamp(2.7rem, 12vw, 4.2rem); }
@@ -232,6 +330,8 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     .rail__lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .rail__seg { position: relative; }
     .rail__list { gap: 6px; }
+    .story__hello { grid-template-columns: 1fr; }
+    .story__cue { grid-column: 1; grid-row: auto; justify-self: start; display: none; }
   }
   @media (max-width: 560px) {
     .ch__ctas { flex-wrap: nowrap; gap: 8px; }

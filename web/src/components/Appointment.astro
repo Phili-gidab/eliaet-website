@@ -1,15 +1,14 @@
 ---
 import { APPOINTMENT } from '../copy/home'
-interface Props { index?: string }
-const { index = '06' } = Astro.props
+interface Props { class?: string }
+const { class: cls = 'sec--paper sheet' } = Astro.props
 const today = new Date().toISOString().slice(0, 10)
 ---
 
-<section class="appt sec sec--paper sheet" id="appointment">
+<section class:list={['appt sec sec--paper', cls]} id="appointment" data-tone="light">
   <div class="wrap appt__in">
     <div class="appt__text">
-      <p class="label label--rule" data-reveal="fade"><b>{index}</b> {APPOINTMENT.eyebrow}</p>
-      <h2 class="h2 mt-m" data-reveal>{APPOINTMENT.title.replace(/\.$/, '')}<em>.</em></h2>
+      <h2 class="h2" data-reveal>{APPOINTMENT.title}</h2>
       <p class="body mt-m" data-reveal style="--d:.1s">{APPOINTMENT.text}</p>
     </div>
     <form class="form appt__form card" action="/api/appointments" method="post" data-form="appointment"

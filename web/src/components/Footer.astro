@@ -7,21 +7,20 @@ const social = SOCIAL.filter((s) => s.href)
 const year = new Date().getFullYear()
 ---
 
-<footer class="ftr sheet lit" data-footer>
+<footer class="ftr sheet" data-footer data-tone="dark">
   <div class="wrap">
     {newsletter && (
       <>
         <div class="ftr__news">
-          <div>
-            <p class="label"><b>ዜና</b> Newsletter</p>
-            <h2 class="h3 mt-s">{SUBSCRIBE.title}<em>.</em></h2>
-            <p class="ftr__note">{SUBSCRIBE.text}</p>
-          </div>
+          <h2 class="h2 ftr__title">{SUBSCRIBE.title}.</h2>
           <form class="ftr__form" action="/api/forms/subscribe" method="post" data-form="subscribe" data-ok="Thank you. You are subscribed; a confirmation is on its way to your inbox." novalidate>
-            <label class="sr-only" for="ftr-email">E-mail address</label>
-            <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
-            <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <button class="btn" type="submit">Subscribe <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+            <p class="ftr__note">{SUBSCRIBE.text}</p>
+            <div class="ftr__field">
+              <label class="sr-only" for="ftr-email">E-mail address</label>
+              <input id="ftr-email" name="email" type="email" autocomplete="email" required placeholder="Your e-mail address" />
+              <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <button class="btn" type="submit">Subscribe</button>
+            </div>
             <p class="ftr__msg" role="status" aria-live="polite" data-form-msg></p>
           </form>
         </div>
@@ -65,7 +64,7 @@ const year = new Date().getFullYear()
   <!-- the brand line, pressed into a strap of chestnut hide (styles/leather.css) -->
   <div class="ftr__strap hide hide--chestnut stitched" aria-hidden="true">
     <div class="wrap">
-      <p class="ftr__giant"><span class="t-press">From the highlands,</span> <em class="t-press">to the world.</em></p>
+      <p class="ftr__giant"><span class="t-press ftr__g1"></span> <span class="t-press ftr__g2"></span></p>
     </div>
   </div>
 
@@ -82,7 +81,8 @@ const year = new Date().getFullYear()
 </footer>
 
 <style>
-  .ftr { background: var(--ink-1); color: var(--bone); padding-block: clamp(72px, 9vw, 128px) 36px; overflow: hidden; }
+  .ftr { background: var(--ink); color: var(--bone); padding-block: clamp(72px, 9vw, 128px) 36px; overflow: hidden; }
+  .ftr.sheet { box-shadow: none; }
   /* the strap: a band of hide across the whole width, stitched along both edges, the line pressed into it */
   .ftr__strap {
     --stitch-in: 14px; margin-top: clamp(56px, 8vw, 120px); padding-block: clamp(44px, 6vw, 84px);
@@ -94,20 +94,31 @@ const year = new Date().getFullYear()
     font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.03em;
     word-spacing: 0.04em; line-height: 0.95; font-size: clamp(2.8rem, 7.3vw, 6.5rem); white-space: nowrap;
   }
-  .ftr__giant em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em; }
+  /* the line is drawn from the stylesheet (it is the brand line again, pressed into the leather: decoration, out of
+     the reading order like the strap itself) */
+  .ftr__g1::before { content: 'From the highlands,'; }
+  .ftr__g2::before { content: 'to the world.'; }
+  .ftr__g2 { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em; }
   @media (max-width: 760px) { .ftr__giant { white-space: normal; font-size: clamp(2.8rem, 15vw, 5rem); line-height: 1.02; } }
-  .ftr__news { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(28px, 6vw, 96px); align-items: end; }
-  .ftr__news .h3 { color: var(--cream); max-width: 16ch; }
-  .ftr__note { margin-top: 16px; max-width: 44ch; color: var(--muted); }
-  .ftr__form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; position: relative; }
-  .ftr__form input[type='email'] {
-    height: 56px; padding: 0 22px; border-radius: 999px; border: 0; background: rgb(255 252 245 / 0.05); color: var(--cream);
-    box-shadow: inset 0 0 0 1px var(--line-2); font-size: 16px; transition: box-shadow 0.25s, background 0.25s;
+  .ftr__news { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px clamp(28px, 6vw, 96px); align-items: end; }
+  .ftr__title { color: var(--cream); max-width: 11ch; }
+  .ftr__note { max-width: 46ch; color: var(--muted); font-size: 15.5px; }
+  .ftr__form { display: grid; gap: 22px; }
+  /* one long line to write on, the button at its end */
+  .ftr__field {
+    position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px;
+    padding-bottom: 12px; border-bottom: 1px solid rgb(255 252 245 / 0.28); transition: border-color 0.3s;
   }
-  .ftr__form input[type='email']:focus { outline: none; background: rgb(255 252 245 / 0.08); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.7), 0 0 0 4px rgb(226 160 37 / 0.12); }
-  .ftr__form input::placeholder { color: rgb(255 252 245 / 0.38); }
-  .ftr__form .btn { min-height: 56px; }
-  .ftr__msg { grid-column: 1 / -1; min-height: 1.4em; font-size: 14px; color: var(--amber); padding-left: 22px; }
+  .ftr__field:focus-within { border-color: var(--amber); }
+  .ftr__field input[type='email'] {
+    min-width: 0; height: 58px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--cream);
+    font-family: var(--f-display); font-weight: 500; font-stretch: 90%; font-size: clamp(1.3rem, 1rem + 1.1vw, 2rem); letter-spacing: -0.01em;
+  }
+  .ftr__field input[type='email']:focus { outline: none; }
+  .ftr__field:focus-within:has(input:focus-visible) { box-shadow: 0 2px 0 0 var(--amber); }
+  .ftr__field input::placeholder { color: rgb(255 252 245 / 0.4); }
+  .ftr__field .btn { min-height: 52px; }
+  .ftr__msg { min-height: 1.4em; font-size: 14px; color: var(--amber); }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .ftr__stitch { margin-block: clamp(48px, 7vw, 88px) clamp(40px, 5vw, 64px); }
   .ftr__lockup { display: block; width: min(100%, 880px); margin-bottom: clamp(44px, 5vw, 72px); }
@@ -133,7 +144,6 @@ const year = new Date().getFullYear()
   }
   @media (max-width: 760px) {
     .ftr__news { grid-template-columns: 1fr; }
-    .ftr__form { grid-template-columns: 1fr; }
     .ftr__links { margin-left: 0; }
   }
   @media (max-width: 480px) {

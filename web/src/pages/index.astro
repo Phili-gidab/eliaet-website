@@ -2,7 +2,6 @@
 import { responsive } from '../lib/media'
 import Base from '../layouts/Base.astro'
 import Story from '../components/Story.astro'
-import SectionHead from '../components/SectionHead.astro'
 import Appointment from '../components/Appointment.astro'
 import Stage3D from '../components/Stage3D.astro'
 import { PIECES } from '../copy/stage'
@@ -16,104 +15,123 @@ import { posts, html } from '../data/cms'
 /* the latest three posts as built; the server puts the current three in their place on every visit */
 const news = html.posts(posts({ limit: 3 }))
 const sectorKeys = Object.keys(SECTORS) as SectorKey[]
-const logos = [...BRANDS, ...PARTNERS].filter((p) => p.logo)
-const swatch: Record<string, string> = { raw: 'raw', wetblue: 'wetblue', crust: 'crust', finished: 'finished' }
+const rowA = [...BRANDS, ...PARTNERS.filter((p) => p.kind !== 'Government office')].filter((p) => p.logo)
+const rowB = PARTNERS.filter((p) => p.kind === 'Government office' && p.logo)
 const pad = (n: number) => String(n).padStart(2, '0')
 const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 November 2026'
+/* the fair in pictures: a reel that keeps moving */
+const reel = [
+  { src: '/media/AALF-model-5.webp', alt: 'A model in a tan leather jacket at the fair’s fashion show', r: 1 },
+  { src: '/media/fair/components.webp', alt: 'Buyers looking over leather samples at an exhibitor’s stand', r: 960 / 660 },
+  { src: '/media/profile/fair-hall.webp', alt: 'The exhibition hall from above, its stands laid out in rows', r: 1600 / 1134 },
+  { src: '/media/AALF-model-3.webp', alt: 'A model seated with a leather ball, from the fair’s fashion zone', r: 1 },
+  { src: '/media/fair/aisle.webp', alt: 'Visitors filling an aisle between the stands', r: 960 / 660 },
+  { src: '/media/profile/fair-stand.webp', alt: 'Exhibitors showing their leather goods to visitors', r: 1600 / 1134 },
+  { src: '/media/fair/lounge-wide.webp', alt: 'Business meetings in the fair’s B2B lounge', r: 1800 / 1125 },
+]
+const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" /></svg>'
 ---
 
-<Base overHero bodyClass="home" description={HERO.lede}>
+<Base overHero bodyClass="home" description={HERO.lede} intro={false}>
 
-  <!-- 01 · the film, its copy in step -->
+  <!-- the door, then the film, its copy in step -->
   <Story />
 
-  <!-- 02 · who we are -->
-  <section class="sec sheet lit about">
+  <!-- who we are -->
+  <section class="sec sec--paper sheet about" data-tone="light" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about__grid">
-        <div class="about__head">
-          <p class="label" data-reveal="fade"><b>02</b> {ABOUT.eyebrow}</p>
-          <h2 class="h1 about__title mt-m words" data-reveal="fade">
-            <span class="w" style="--i:0">Ethiopian</span>
-            <span class="w inlay" style="--i:1;background-image:url(/media/studio/inlay-stitch.webp)" aria-hidden="true"></span>
-            <span class="w" style="--i:2"><em>Leather</em></span>
-            <span class="w" style="--i:3">Industries</span>
-            <span class="w inlay" style="--i:4;background-image:url(/media/studio/inlay-boots.webp)" aria-hidden="true"></span>
-            <span class="w" style="--i:5">Association</span>
-          </h2>
-        </div>
+        <h2 class="h1 about__title words" id="about-title" data-reveal="fade">
+          <span class="w" style="--i:0">Ethiopian</span>
+          <span class="w inlay" style="--i:1;background-image:url(/media/studio/inlay-stitch.webp)" aria-hidden="true"></span>
+          <span class="w" style="--i:2">Leather</span>
+          <span class="w" style="--i:3">Industries</span>
+          <span class="w inlay" style="--i:4;background-image:url(/media/studio/inlay-boots.webp)" aria-hidden="true"></span>
+          <span class="w" style="--i:5">Association</span>
+        </h2>
         <div class="about__side">
-          <div class="about__count card" data-reveal>
-            <span class="figure-num about__num"><span data-count={ABOUT.count.value}>{ABOUT.count.value}</span></span>
-            <span class="about__countlbl">{ABOUT.count.label.map((l) => <span>{l}</span>)}</span>
-            <span class="pill about__since"><i></i>Since {ORG.founded}</span>
-          </div>
+          <p class="about__count" data-reveal>
+            <span class="figure-num about__num" data-count={ABOUT.count.value}>{ABOUT.count.value}</span>
+            <span class="about__countlbl">leather manufacturing industries, one association since {ORG.founded}</span>
+          </p>
           <div class="body about__body" data-reveal style="--d:.1s">{ABOUT.body.map((p) => <p>{p}</p>)}</div>
         </div>
       </div>
-      <ol class="pillars" role="list">
-        {PILLARS.map((p, i) => (
-          <li class="pillar card" data-reveal style={`--d:${i * 0.08}s`}>
-            <span class="label"><b>{pad(i + 1)}</b> {p.label}</span>
-            <p>{p.text}</p>
-          </li>
-        ))}
-      </ol>
+
       <ul class="sectors" role="list">
         {sectorKeys.map((k, i) => (
           <li data-reveal style={`--d:${i * 0.08}s`}>
-            <a class="sector card" href="/members#at-a-glance">
-              <span class="sector__top"><span class="label">{SECTORS[k].scale}</span><span class="sector__go" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></span></span>
+            <a class="sector" href="/members#at-a-glance">
               <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span>
-              <span class="sector__name">{SECTORS[k].plural} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
+              <span class="sector__name">{SECTORS[k].plural}</span>
+              <span class="sector__scale">{SECTORS[k].scale} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
             </a>
           </li>
         ))}
       </ul>
-    </div>
-  </section>
 
-  <!-- 03 · how leather is made: stills from the film, a strip to scroll through -->
-  <section class="sec sec--hide process">
-    <div class="wrap">
-      <SectionHead index="03" eyebrow="From hide to leather" amharic="ከጥሬ ቆዳ እስከ ያለቀ ቆዳ" title="Four stages, <em>one</em> material." intro="How a by-product of Ethiopia’s food culture becomes a material that the world’s shoe, bag and garment makers buy." />
-    </div>
-    <div class="strip" data-strip>
-      <ol class="strip__track" role="list" tabindex="0" aria-label="The four stages, from hide to leather (scrolls sideways)">
-        {PROCESS.map((s, i) => (
-          <li class="stage card" data-reveal style={`--d:${i * 0.08}s`}>
-            <div class:list={['stage__pic', `sw--${swatch[s.key]}`]}>
-              <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" {...responsive(`/media/film/stage-${s.key}.webp`, '(max-width: 900px) 260px, 404px')} />
-              <span class="stage__n figure-num" aria-hidden="true">{pad(i + 1)}</span>
-              <span class="geez stage__am" lang="am">{s.amharic}</span>
-            </div>
-            <div class="stage__text">
-              <span class="label">{s.name}</span>
-              <h3 class="h3">{s.title}</h3>
-              <p>{s.text}</p>
-            </div>
-          </li>
+      <div class="pillars">
+        {PILLARS.map((p, i) => (
+          <div class="pillar" data-reveal style={`--d:${i * 0.08}s`}>
+            <h3 class="pillar__h">{p.label}</h3>
+            <p>{p.text}</p>
+          </div>
         ))}
-      </ol>
-      <div class="strip__nav wrap" aria-hidden="true">
-        <span class="strip__bar"><i></i></span>
-        <button type="button" class="strip__btn" data-strip-prev tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></button>
-        <button type="button" class="strip__btn" data-strip-next tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></button>
       </div>
     </div>
   </section>
 
-  <!-- 04 · what we do: a bento of the programmes -->
-  <section class="sec sheet lit highlights" style="--lit-x:20%">
+  <!-- a window onto the highlands -->
+  <section class="window window--hills" data-window data-tone="dark" aria-label="The Ethiopian highlands">
+    <div class="window__pic"><img src="/media/profile/highland-sheep.webp" alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind" loading="lazy" decoding="async" /></div>
+    <div class="wrap window__in">
+      <p class="window__words" aria-hidden="true"><span class="ln" data-window-line>From the</span><span class="ln" data-window-line>highlands,</span></p>
+      <p class="window__note">Highland sheepskin is thin and light, yet strong and durable: the start of Ethiopian leather.</p>
+    </div>
+  </section>
+
+  <!-- how leather is made: the four colours of a hide's life, one panel each; on a wide screen they slide by as the
+       page scrolls -->
+  <section class="process" data-process data-tone="dark" aria-labelledby="process-title">
+    <div class="process__track" data-process-track>
+      <header class="process__intro">
+        <p class="process__am geez" lang="am">ከጥሬ ቆዳ እስከ ያለቀ ቆዳ</p>
+        <h2 class="process__title" id="process-title">Four stages, one material.</h2>
+        <p class="process__lede">How a by-product of Ethiopia’s food culture becomes a material that the world’s shoe, bag and garment makers buy.</p>
+        <p class="process__hint" aria-hidden="true"><span>From raw hide to finished leather</span><Fragment set:html={arrow} /></p>
+      </header>
+      {PROCESS.map((s, i) => (
+        <article class:list={['process__panel', `process__panel--${s.key}`]} aria-labelledby={`stage-${s.key}`}>
+          <div class="process__pic">
+            <img src={`/media/film/stage-${s.key}.webp`} alt="" loading="lazy" decoding="async" data-panel-img {...responsive(`/media/film/stage-${s.key}.webp`, '(max-width: 999px) 92vw, 520px')} />
+          </div>
+          <div class="process__text">
+            <span class="process__n" aria-hidden="true">{pad(i + 1)}</span>
+            <p class="process__name">{s.name} <span class="geez" lang="am">{s.amharic}</span></p>
+            <h3 class="process__h" id={`stage-${s.key}`}>{s.title}</h3>
+            <p class="process__p">{s.text}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+    <div class="process__bar" aria-hidden="true"><i data-process-bar></i></div>
+  </section>
+
+  <!-- what we do -->
+  <section class="sec sec--paper sec--mist programmes" data-tone="light" aria-labelledby="prog-title">
     <div class="wrap">
-      <SectionHead index="04" eyebrow="What we do" amharic="የምንሰራው" title="Programmes that open <em>markets</em>." />
+      <div class="head">
+        <h2 class="h1 head__title" id="prog-title" data-reveal>Programmes that open markets.</h2>
+        <a class="link head__link" href="/programs" data-reveal>All projects and programs <Fragment set:html={arrow} /></a>
+      </div>
       <div class="bento">
         {HIGHLIGHTS.map((h, i) => (
-          <a class:list={['bento__item', 'card', `bento__item--${i}`]} href={h.to} data-reveal style={`--d:${(i % 2) * 0.1}s`}>
-            <div class="bento__img"><img src={h.image} alt="" loading="lazy" decoding="async" style={'focus' in h && h.focus ? `object-position:${h.focus}` : undefined} {...responsive(h.image, '(max-width: 900px) 88vw, 760px')} /></div>
+          <a class:list={['bento__item', `bento__item--${i}`]} href={h.to}>
+            <div class="bento__img" data-open={String((i % 2) * 0.08)}>
+              <img src={h.image} alt="" loading="lazy" decoding="async" style={'focus' in h && h.focus ? `object-position:${h.focus}` : undefined} {...responsive(h.image, '(max-width: 900px) 92vw, 760px')} />
+            </div>
             <div class="bento__text">
-              <span class="label"><b>{pad(i + 1)}</b></span>
-              <h3 class="h3">{h.title}</h3>
+              <h3 class="bento__h">{h.title}</h3>
               <p>{h.text}</p>
             </div>
             <span class="bento__go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="1.8" /></svg></span>
@@ -123,25 +141,25 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
     </div>
   </section>
 
-  <!-- 05 · why Ethiopian leather -->
-  <section class="sec sec--paper sheet why">
+  <!-- why Ethiopian leather -->
+  <section class="sec sec--paper why" data-tone="light" aria-labelledby="why-title">
     <div class="wrap why__in">
       <div class="why__text">
-        <p class="label label--rule" data-reveal="fade"><b>05</b> {WHY.eyebrow}</p>
-        <h2 class="h2 mt-m" data-reveal set:html={WHY.title.replace('Ethiopian leather', '<em>Ethiopian leather</em>')} />
+        <h2 class="h1 why__title" id="why-title" data-reveal>{WHY.title}</h2>
         <p class="body mt-m" data-reveal style="--d:.1s">{WHY.intro}</p>
         <ol class="why__points" role="list">
           {WHY.points.map((p, i) => (
             <li data-reveal style={`--d:${i * 0.08}s`}>
               <span class="figure-num why__fig">{p.figure.value}</span>
-              <span class="label why__figlbl">{p.figure.label}</span>
-              <h3 class="why__h">{p.title}</h3>
-              <p>{p.text}</p>
+              <div>
+                <h3 class="why__h">{p.title}</h3>
+                <p>{p.text}</p>
+              </div>
             </li>
           ))}
         </ol>
         <div class="row mt-l" data-reveal>
-          <a class="btn btn--dark" href="/invest">Invest and Source in Ethiopia <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
+          <a class="btn btn--dark" href="/invest">Invest and source in Ethiopia</a>
           <a class="btn btn--ghost" href="/industry">The industry in figures</a>
         </div>
       </div>
@@ -151,211 +169,298 @@ const [fairDays, fairMonth, fairYear] = AALF_2026.dates.split(' ') // '12–15 N
     </div>
   </section>
 
-  <!-- 06 · the fair -->
-  <section class="sec sec--saddle sheet aalf-band">
-    <div class="wrap aalf-band__in">
-      <div>
-        <p class="label label--rule" data-reveal="fade"><b>06</b> {AALF_2026.edition} · All Africa Leather Fair {fairYear}</p>
-        <h2 class="h1 mt-m aalf-band__title" data-reveal><span class="t-foil">{fairDays}</span> <em class="t-foil">{fairMonth}</em></h2>
-        <p class="lede mt-m" data-reveal style="--d:.1s">{AALF_2026.venue}, {AALF_2026.city}. {AALF_2026.cobrand}.</p>
-        <div class="row mt-l" data-reveal style="--d:.18s">
-          <a class="btn" href={AALF_2026.register} target="_blank" rel="noopener">Register <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
-          <a class="btn btn--ghost" href="/aalf">About the fair</a>
-        </div>
-      </div>
-      <div class="aalf-band__count card" data-countdown={AALF_2026.start} data-reveal style="--d:.12s" hidden>
-        <span class="label">Opens in</span>
-        <div class="aalf-band__units">
-          <span><b class="figure-num" data-unit="d">–</b><i>days</i></span>
-          <span><b class="figure-num" data-unit="h">–</b><i>hours</i></span>
-          <span><b class="figure-num" data-unit="m">–</b><i>min</i></span>
-        </div>
-      </div>
+  <!-- a window onto the fair: to the world -->
+  <section class="window window--world" data-window data-tone="dark" aria-label="The All Africa Leather Fair">
+    <div class="window__pic"><img src="/media/profile/fair-hall.webp" alt="The All Africa Leather Fair’s exhibition hall from above, its stands laid out in rows under the lights" loading="lazy" decoding="async" /></div>
+    <div class="wrap window__in window__in--end">
+      <p class="window__words" aria-hidden="true"><span class="ln" data-window-line>to the</span><span class="ln" data-window-line>world.</span></p>
+      <p class="window__note">Every year the All Africa Leather Fair brings buyers from around the world to Ethiopian makers.</p>
     </div>
   </section>
 
-  <!-- 07 · news -->
-  <section class="sec sheet lit news">
-    <div class="wrap">
-      <SectionHead index="07" eyebrow="News · Events" amharic="ዜና" title="From the <em>sector</em>." />
-      <div class="news-grid news__grid">
-        <template data-cms="home-news"></template><Fragment set:html={news} /><template data-cms-end="home-news"></template>
+  <!-- the fair, on amber -->
+  <section class="sec sec--amber fair" data-tone="light" aria-labelledby="fair-title">
+    <div class="wrap fair__in">
+      <p class="fair__kicker" data-reveal="fade">The {AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair</p>
+      <h2 class="fair__date" id="fair-title">
+        <span class="fair__days" data-reveal>{fairDays}</span>
+        <span class="fair__month" data-reveal style="--d:.08s">{fairMonth} {fairYear}</span>
+      </h2>
+      <div class="fair__side">
+        <div class="fair__count" data-countdown={AALF_2026.start} hidden>
+          <p class="fair__opens">The fair opens in</p>
+          <div class="fair__units">
+            <span><b class="figure-num" data-unit="d">–</b><i>days</i></span>
+            <span><b class="figure-num" data-unit="h">–</b><i>hours</i></span>
+            <span><b class="figure-num" data-unit="m">–</b><i>minutes</i></span>
+            <span><b class="figure-num" data-unit="s">–</b><i>seconds</i></span>
+          </div>
+        </div>
+        <p class="fair__where" data-reveal>{AALF_2026.venue}, {AALF_2026.city}. {AALF_2026.cobrand}.</p>
+        <div class="row" data-reveal style="--d:.12s">
+          <a class="btn btn--dark" href={AALF_2026.register} target="_blank" rel="noopener">Register for the fair</a>
+          <a class="btn btn--line" href="/aalf">About the fair</a>
+        </div>
       </div>
-      <a class="link mt-l news__all" href="/news">All news <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></a>
     </div>
-  </section>
-
-  <!-- 08 · appointment -->
-  <Appointment index="08" />
-
-  <!-- 09 · partners: a row that keeps moving -->
-  <section class="sec sec--tight partners">
-    <div class="wrap partners__head">
-      <p class="label" data-reveal="fade"><b>09</b> Partners and brands</p>
-    </div>
-    <div class="marquee partners__row" style="--dur:60s;--gap:12px" data-label="Partners and brands">
+    <div class="marquee fair__reel" data-marquee data-speed="34" data-label="Pictures from the fair" style="--gap:14px">
       {[0, 1].map((k) => (
         <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
-          {logos.map((p) => (
-            <li class="logo-tile" title={p.name}><img src={p.logo} alt={k === 0 ? p.name : ''} loading="lazy" decoding="async" /></li>
+          {reel.map((p) => (
+            <li class="fair__pic" style={`--r:${p.r.toFixed(3)}`}>
+              <img src={p.src} alt={k === 0 ? p.alt : ''} loading="lazy" decoding="async" {...responsive(p.src, '420px')} />
+            </li>
           ))}
         </ul>
       ))}
     </div>
   </section>
+
+  <!-- news -->
+  <section class="sec sec--paper news" data-tone="light" aria-labelledby="news-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="h1 head__title" id="news-title" data-reveal>From the sector.</h2>
+        <a class="link head__link" href="/news" data-reveal>All news, events and publications <Fragment set:html={arrow} /></a>
+      </div>
+      <div class="news-grid news__grid">
+        <template data-cms="home-news"></template><Fragment set:html={news} /><template data-cms-end="home-news"></template>
+      </div>
+    </div>
+  </section>
+
+  <!-- appointment -->
+  <Appointment class="sec--mist" />
+
+  <!-- partners: two rows that keep moving, the other way from each other -->
+  <section class="sec sec--paper partners" data-tone="light" aria-labelledby="partners-title">
+    <div class="wrap partners__head">
+      <h2 class="partners__title" id="partners-title">Working with</h2>
+      <p class="partners__sub">Development partners, government offices and the sector’s own brands.</p>
+    </div>
+    <div class="marquee partners__row" data-marquee data-speed="38" data-label="Partners and brands" style="--gap:clamp(48px, 6vw, 96px)">
+      {[0, 1].map((k) => (
+        <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
+          {rowA.map((p) => <li class="plogo" title={p.name}><img src={p.logo} alt={k === 0 ? p.name : ''} loading="lazy" decoding="async" /></li>)}
+        </ul>
+      ))}
+    </div>
+    {rowB.length > 0 && (
+      <div class="marquee partners__row" data-marquee="right" data-speed="30" data-label="Government offices" style="--gap:clamp(48px, 6vw, 96px)">
+        {[0, 1].map((k) => (
+          <ul class="marquee__track" role="list" aria-hidden={k === 1 ? 'true' : undefined}>
+            {rowB.map((p) => <li class="plogo" title={p.name}><img src={p.logo} alt={k === 0 ? p.name : ''} loading="lazy" decoding="async" /></li>)}
+          </ul>
+        ))}
+      </div>
+    )}
+  </section>
 </Base>
 
 <style>
+  /* a section's head: a big title, a quiet link at its end */
+  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 18px 40px; }
+  .head__title { max-width: 13ch; }
+  .head__link { color: var(--ink); }
+
   /* who we are */
-  .about__grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
-  .about__title { max-width: 12ch; }
+  .about { padding-top: clamp(96px, 12vw, 180px); }
+  .about__grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: clamp(28px, 5vw, 96px); align-items: end; }
+  .about__title { font-size: clamp(3rem, 1.4rem + 5vw, 6.8rem); }
   .about__title :global(.inlay) { width: 1.5em; height: 0.78em; }
-  .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 10px 18px; padding: clamp(22px, 2.6vw, 32px); }
-  .about__num { grid-row: span 2; font-size: clamp(5rem, 2rem + 9vw, 10.5rem); color: var(--amber); text-shadow: 0 0 60px rgb(226 160 37 / 0.25); }
-  .about__countlbl { display: grid; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); align-self: end; }
-  .about__since { justify-self: start; align-self: start; }
-  .about__body { margin-top: clamp(28px, 3vw, 40px); }
-  .pillars { list-style: none; margin: clamp(56px, 7vw, 104px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .pillar { padding: clamp(22px, 2.4vw, 30px); display: grid; gap: 18px; align-content: start; }
-  .pillar p { color: var(--bone); font-size: 15.5px; }
-  .sectors { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .sector { display: grid; gap: 10px; padding: 22px 24px 24px; min-height: 100%; }
-  .sector__top { display: flex; justify-content: space-between; align-items: center; }
-  .sector__num { font-size: clamp(3.2rem, 2rem + 3.4vw, 5.2rem); color: var(--cream); margin-top: 18px; }
-  .sector__name { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; font-size: 1.5rem; line-height: 1.05; letter-spacing: -0.02em; }
-  .sector__name .geez { font-size: 0.8rem; color: var(--muted); margin-left: 6px; white-space: nowrap; font-weight: 400; }
-  .sector__go { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--amber); background: rgb(226 160 37 / 0.1); transition: transform 0.4s var(--spring), background 0.3s; }
-  .sector:hover .sector__go { transform: rotate(-45deg); background: rgb(226 160 37 / 0.2); }
+  .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 18px; }
+  .about__num { font-size: clamp(5rem, 2rem + 8vw, 9.5rem); color: var(--ink); }
+  .about__countlbl { max-width: 15ch; padding-bottom: 0.6em; font-size: 15px; line-height: 1.35; color: var(--taupe); }
+  .about__body { margin-top: clamp(24px, 3vw, 36px); }
+  .sectors { list-style: none; margin: clamp(64px, 8vw, 120px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line-dark); }
+  .sectors li + li { border-left: 1px solid var(--line-dark); }
+  .sector { position: relative; display: grid; gap: 8px; padding: clamp(24px, 3vw, 40px) clamp(18px, 2.4vw, 36px) clamp(26px, 3vw, 40px); height: 100%; transition: background 0.4s var(--ease); }
+  .sector::after { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 3px; background: var(--amber); transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease); }
+  .sector:hover { background: rgb(226 160 37 / 0.08); }
+  .sector:hover::after { transform: scaleX(1); }
+  .sector__num { font-size: clamp(4rem, 2rem + 5vw, 7.5rem); color: var(--ink); }
+  .sector__name { font-family: var(--f-display); font-weight: 650; font-stretch: 85%; font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .sector__scale { font-size: 14.5px; color: var(--taupe); }
+  .sector__scale .geez { margin-left: 4px; }
+  .pillars { margin-top: clamp(56px, 7vw, 96px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px); }
+  .pillar { display: grid; gap: 14px; align-content: start; padding-top: 22px; border-top: 1px solid var(--ink); }
+  .pillar__h { font-family: var(--f-display); font-weight: 650; font-stretch: 88%; font-size: 1.35rem; letter-spacing: -0.015em; }
+  .pillar p { color: var(--brown-80); font-size: 15.5px; }
   @media (max-width: 900px) {
-    .about__grid, .pillars, .sectors { grid-template-columns: 1fr; }
+    .about__grid, .pillars { grid-template-columns: 1fr; }
+    .sectors { grid-template-columns: 1fr; }
+    .sectors li + li { border-left: 0; border-top: 1px solid var(--line-dark); }
   }
 
-  /* how leather is made: a strip of stills from the film */
-  .process { overflow: hidden; }
-  .strip { margin-top: clamp(40px, 5vw, 72px); }
-  .strip__track {
-    list-style: none; margin: 0; padding: 4px max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter))) 24px;
-    display: grid; grid-auto-flow: column; grid-auto-columns: clamp(270px, 30vw, 420px); gap: 14px;
-    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)));
-    scrollbar-width: none; overscroll-behavior-x: contain;
-  }
-  .strip__track::-webkit-scrollbar { display: none; }
-  .stage { scroll-snap-align: start; display: grid; grid-template-rows: auto 1fr; }
-  .stage__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; margin: 8px 8px 0; border-radius: calc(var(--radius) - 6px); }
-  .stage__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.6s var(--ease); }
-  .stage:hover .stage__pic img { transform: scale(1.05); }
-  .stage__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(60 30 22 / 0.7), transparent 45%); }
-  .stage__n { position: absolute; z-index: 1; left: 18px; bottom: 12px; font-size: 4.2rem; color: rgb(255 252 245 / 0.92); }
-  .stage__am { position: absolute; z-index: 1; right: 18px; bottom: 20px; font-size: 1.1rem; color: rgb(255 252 245 / 0.8); }
-  .stage__text { padding: 20px 22px 26px; display: grid; gap: 12px; align-content: start; }
-  .stage .h3 { font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.9rem); }
-  .stage p { color: var(--bone); font-size: 15px; }
-  .sw--raw { background: linear-gradient(150deg, #d9b8a0, #b08772 55%, #8d6754); }
-  .sw--wetblue { background: linear-gradient(150deg, #a9c1c6, #7f9ea6 55%, #5f7f88); }
-  .sw--crust { background: linear-gradient(150deg, #d2a06a, #b07a44 55%, #8b5a2f); }
-  .sw--finished { background: linear-gradient(150deg, #8a4a24, #5e2f17 55%, #3a1c0e); }
-  .strip__nav { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-  .strip__bar { flex: 1; height: 2px; border-radius: 2px; background: var(--line-2); position: relative; overflow: hidden; }
-  .strip__bar i { position: absolute; inset: 0; background: var(--amber); transform-origin: left; transform: scaleX(var(--sp, 0.25)); transition: transform 0.3s; }
-  .strip__btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 252 245 / 0.06); box-shadow: inset 0 0 0 1px var(--line-2); transition: background 0.25s; }
-  .strip__btn:hover { background: rgb(255 252 245 / 0.12); }
+  /* the windows */
+  .window__in { display: grid; gap: clamp(28px, 4vw, 56px); }
+  .window__in--end { justify-items: end; text-align: right; }
+  .window--world .window__pic img { object-position: 50% 70%; }
+  .window--world { align-content: start; padding-top: 18svh; }
 
-  /* what we do: a bento */
-  .bento { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
-  .bento__item { display: grid; grid-template-rows: 1fr auto; min-height: 340px; }
-  .bento__item--0 { grid-column: span 7; grid-row: span 2; min-height: 620px; }
-  .bento__item--1 { grid-column: span 5; }
-  .bento__item--2 { grid-column: span 5; }
-  .bento__item--3 { grid-column: span 12; grid-template-columns: 1.2fr 1fr; grid-template-rows: auto; min-height: 300px; }
-  .bento__img { position: relative; overflow: hidden; margin: 8px 8px 0; border-radius: calc(var(--radius) - 6px); min-height: 160px; }
-  .bento__item--3 .bento__img { margin: 8px; }
+  /* how leather is made: the four colours of a hide's life */
+  .process { position: relative; background: var(--brand-taupe); color: var(--cream); }
+  .process__track { display: grid; }
+  .process__intro { display: grid; align-content: center; gap: 28px; padding: clamp(96px, 12vw, 160px) var(--gutter) clamp(64px, 8vw, 110px); background: var(--brand-taupe); }
+  .process__am { font-size: 1.05rem; color: rgb(255 252 245 / 0.97); }
+  .process__title { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.04em; line-height: 0.86; font-size: clamp(3.4rem, 1.4rem + 6.6vw, 8.6rem); max-width: 7.5ch; }
+  .process__lede { max-width: 36ch; font-size: var(--step-1); line-height: 1.45; color: rgb(255 252 245 / 0.92); }
+  .process__hint { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 560; color: rgb(255 252 245 / 0.9); }
+  .process__hint :global(svg) { width: 22px; height: 22px; }
+  .process__panel { --fg: var(--ink); --num: rgb(60 30 22 / 0.7); display: grid; gap: clamp(24px, 3vw, 40px); padding: clamp(56px, 8vw, 96px) var(--gutter); color: var(--fg); }
+  .process__panel--raw { background: var(--raw); }
+  .process__panel--wetblue { background: var(--wetblue-1); }
+  .process__panel--crust { background: var(--crust); }
+  .process__panel--finished { background: var(--finished); --fg: var(--cream); --num: rgb(255 252 245 / 0.55); }
+  .process__pic { position: relative; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 5; width: min(100%, 520px); box-shadow: 0 40px 80px -40px rgb(30 15 10 / 0.6); }
+  .process__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; scale: 1.18; }
+  .process__text { display: grid; gap: 16px; align-content: center; max-width: 34rem; }
+  .process__n { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.05em; line-height: 0.78; font-size: clamp(6rem, 3rem + 9vw, 14rem); color: var(--num); }
+  .process__name { font-size: 15px; font-weight: 600; }
+  .process__name .geez { margin-left: 8px; font-weight: 400; }
+  .process__h { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; letter-spacing: -0.03em; line-height: 0.95; font-size: clamp(2.2rem, 1.4rem + 2.6vw, 4rem); }
+  .process__p { font-size: 1.06rem; line-height: 1.55; max-width: 40ch; }
+  .process__bar { display: none; }
+  /* wide screens: the panels side by side, slid past by the scroll (the page's script pins the section) */
+  .process.is-pinned { height: 100svh; overflow: hidden; }
+  .process.is-pinned .process__track { display: flex; height: 100%; width: max-content; will-change: transform; }
+  .process.is-pinned .process__intro { flex: none; width: min(48vw, 760px); height: 100%; padding: calc(var(--header-h) + 24px) clamp(40px, 5vw, 96px) 64px max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter))); }
+  .process.is-pinned .process__panel { flex: none; width: max(76vw, 980px); height: 100%; grid-template-columns: auto minmax(0, 1fr); align-items: center; padding: calc(var(--header-h) + 24px) clamp(48px, 6vw, 110px) 64px; }
+  .process.is-pinned .process__pic { width: auto; height: min(68svh, 660px); }
+  .process.is-pinned .process__bar { display: block; position: absolute; left: var(--gutter); right: var(--gutter); bottom: 28px; height: 2px; border-radius: 2px; background: rgb(255 252 245 / 0.25); overflow: hidden; }
+  .process.is-pinned .process__bar i { position: absolute; inset: 0; background: var(--cream); transform-origin: left; transform: scaleX(0); }
+
+  /* what we do */
+  .programmes .head { margin-bottom: clamp(40px, 5vw, 72px); }
+  .bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
+  .bento__item { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 18px; color: var(--ink); }
+  .bento__item--0 { grid-column: span 7; grid-row: span 2; }
+  .bento__item--1, .bento__item--2 { grid-column: span 5; }
+  .bento__item--3 { grid-column: span 12; grid-template-columns: 1.3fr 1fr; grid-template-rows: auto; align-items: end; gap: clamp(20px, 3vw, 48px); }
+  .bento__img { position: relative; overflow: hidden; border-radius: var(--radius); min-height: 220px; background: var(--dusk); }
+  .bento__item--0 .bento__img { min-height: min(62vh, 620px); }
+  .bento__item--3 .bento__img { min-height: 360px; }
   .bento__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
-  .bento__item:hover .bento__img img { transform: scale(1.04); }
-  .bento__text { padding: 20px 24px 26px; display: grid; gap: 12px; align-content: end; }
-  .bento__text p { color: var(--bone); max-width: 52ch; font-size: 15.5px; }
-  .bento__go { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-    background: rgb(60 30 22 / 0.5); box-shadow: inset 0 0 0 1px var(--line-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.45s var(--spring), background 0.3s, color 0.3s; }
+  .bento__item:hover .bento__img img { transform: scale(1.05); }
+  .bento__text { display: grid; gap: 10px; padding-right: 56px; }
+  .bento__h { font-family: var(--f-display); font-weight: 720; font-stretch: 82%; letter-spacing: -0.025em; line-height: 1; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.3rem); }
+  .bento__text p { color: var(--brown-80); max-width: 52ch; font-size: 15.5px; }
+  .bento__go {
+    position: absolute; top: 16px; right: 16px; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+    color: var(--ink); background: var(--paper); transition: transform 0.45s var(--spring), background 0.3s;
+  }
   .bento__go svg { width: 18px; height: 18px; }
-  .bento__item:hover .bento__go { transform: scale(1.08); background: var(--amber); color: var(--ink); }
+  .bento__item:hover .bento__go { transform: scale(1.1) rotate(45deg); background: var(--amber); }
   @media (max-width: 960px) {
-    .bento__item--0, .bento__item--1, .bento__item--2 { grid-column: span 12; min-height: 420px; grid-row: auto; }
-    .bento__item--3 { grid-template-columns: 1fr; grid-template-rows: 1fr auto; min-height: 420px; }
+    .bento__item--0, .bento__item--1, .bento__item--2 { grid-column: span 12; grid-row: auto; }
+    .bento__item--0 .bento__img { min-height: 360px; }
+    .bento__item--3 { grid-template-columns: 1fr; }
   }
 
   /* why */
-  .why__in { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(36px, 6vw, 110px); align-items: start; }
-  .why__text .h2 { max-width: 15ch; }
-  .why__points { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; display: grid; gap: 12px; }
-  .why__points li { display: grid; grid-template-columns: minmax(96px, 0.3fr) 1fr; gap: 4px 24px; padding: 22px 24px; border-radius: var(--radius); background: rgb(255 255 255 / 0.45); box-shadow: inset 0 0 0 1px var(--line-dark); }
-  .why__fig { grid-row: span 3; font-size: clamp(2.6rem, 1.8rem + 2.4vw, 4rem); color: var(--taupe); }
-  .why__figlbl { margin-top: -2px; }
-  .why__h { font-family: var(--f-display); font-weight: 600; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.5rem; line-height: 1.1; }
+  .why__in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(36px, 6vw, 110px); align-items: start; }
+  .why__title { max-width: 11ch; font-size: clamp(2.8rem, 1.4rem + 4.4vw, 6rem); }
+  .why__points { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); }
+  .why__points li { display: grid; grid-template-columns: minmax(120px, 0.32fr) 1fr; gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line-dark); }
+  .why__fig { font-size: clamp(2.8rem, 1.8rem + 2.6vw, 4.4rem); color: var(--ink); }
+  .why__h { font-family: var(--f-display); font-weight: 650; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.45rem; line-height: 1.1; margin-bottom: 8px; }
   .why__points p { color: var(--brown-80); font-size: 15.5px; }
-  .why__stage { position: sticky; top: 96px; }
+  .why__stage { position: sticky; top: 104px; }
   @media (max-width: 960px) { .why__in { grid-template-columns: 1fr; } .why__stage { position: static; max-width: 560px; } }
-  @media (max-width: 480px) { .why__points li { grid-template-columns: 1fr; } .why__fig { grid-row: auto; } }
+  @media (max-width: 480px) { .why__points li { grid-template-columns: 1fr; gap: 8px; } }
 
-  /* the fair */
-  .aalf-band__in { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
-  .aalf-band__title { font-size: clamp(3.4rem, 1.6rem + 7vw, 8.4rem); }
-  .aalf-band__title em { display: block; }
-  .aalf-band__count { padding: clamp(24px, 3vw, 36px); background: rgb(60 30 22 / 0.45); }
-  .aalf-band__units { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .aalf-band__units span { display: grid; gap: 6px; }
-  .aalf-band__units b { font-size: clamp(2.8rem, 1.8rem + 3vw, 4.4rem); color: var(--amber); }
-  .aalf-band__units i { font-style: normal; font-family: var(--f-mono); font-weight: 520; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  @media (max-width: 860px) { .aalf-band__in { grid-template-columns: 1fr; } }
+  /* the fair: amber, the date as big as the page allows */
+  .fair { padding-bottom: clamp(56px, 7vw, 96px); overflow: hidden; }
+  .fair__in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 24px clamp(32px, 5vw, 80px); align-items: end; }
+  .fair__kicker { grid-column: 1 / -1; font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.4rem); font-weight: 600; letter-spacing: -0.01em; }
+  .fair__date { display: grid; font-family: var(--f-display); letter-spacing: -0.05em; color: var(--ink); }
+  .fair__days { font-weight: 800; font-stretch: 75%; line-height: 0.8; font-size: clamp(6rem, 1rem + 17vw, 19rem); }
+  .fair__month { font-weight: 300; font-style: italic; font-stretch: 88%; line-height: 1; font-size: clamp(2.4rem, 1rem + 4.6vw, 5.6rem); letter-spacing: -0.035em; margin-top: 0.1em; }
+  .fair__side { display: grid; gap: 28px; padding-bottom: 0.6em; }
+  .fair__opens { font-size: 14.5px; font-weight: 600; margin-bottom: 12px; }
+  .fair__units { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1.5px solid var(--ink); }
+  .fair__units span { display: grid; gap: 6px; padding-top: 14px; }
+  .fair__units span + span { padding-left: 14px; border-left: 1px solid rgb(60 30 22 / 0.25); }
+  .fair__units b { font-size: clamp(2.4rem, 1.6rem + 2.2vw, 3.8rem); color: var(--ink); display: inline-block; }
+  .fair__units b.tick { animation: fair-tick 0.5s var(--ease); }
+  @keyframes fair-tick { from { transform: translateY(-0.28em); opacity: 0.2; } }
+  .fair__units i { font-style: normal; font-size: 13px; font-weight: 560; color: var(--ink); }
+  .fair__where { font-size: 1.06rem; line-height: 1.5; max-width: 36ch; color: var(--ink); }
+  .btn--line { --bg: transparent; --fg: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .btn--line:hover { --bg: rgb(60 30 22 / 0.08); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .fair__reel { margin-top: clamp(48px, 6vw, 88px); mask-image: none; }
+  .fair__pic { flex: none; height: clamp(200px, 22vw, 300px); aspect-ratio: var(--r); border-radius: var(--radius-s); overflow: hidden; background: rgb(60 30 22 / 0.15); }
+  .fair__pic img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 860px) { .fair__in { grid-template-columns: 1fr; } .fair__units span + span { padding-left: 10px; } }
 
   /* news */
-  .news__grid { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  .news__all { color: var(--amber); }
+  .news .head { margin-bottom: clamp(40px, 5vw, 72px); }
+  .news__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
   @media (max-width: 960px) { .news__grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 620px) { .news__grid { grid-template-columns: 1fr; } }
 
-  /* partners */
-  .partners { background: var(--ink); border-top: 1px solid var(--line); }
-  .partners__row { margin-top: 28px; }
-  .logo-tile { flex: none; display: grid; place-items: center; width: 190px; aspect-ratio: 3 / 2; border-radius: var(--radius-s); background: var(--paper); padding: 16px 22px; }
-  .logo-tile img { max-height: 60px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.05); opacity: 0.8; transition: filter 0.3s, opacity 0.3s; }
-  .logo-tile:hover img { filter: none; opacity: 1; }
-  @media (max-width: 560px) { .logo-tile { width: 140px; padding: 12px 14px; } .logo-tile img { max-height: 44px; } }
+  /* partners: the logos as they are, no boxes, in two rows that move */
+  .partners { padding-bottom: clamp(120px, 14vw, 200px); }
+  .partners__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 40px; margin-bottom: clamp(36px, 4vw, 60px); }
+  .partners__title { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; letter-spacing: -0.03em; font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); line-height: 1; }
+  .partners__sub { color: var(--brown-80); max-width: 40ch; }
+  .partners__row + .partners__row { margin-top: clamp(28px, 3vw, 44px); }
+  .plogo { flex: none; display: flex; align-items: center; }
+  .plogo img { height: clamp(52px, 5vw, 76px); width: auto; max-width: 200px; object-fit: contain; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.1); opacity: 0.72; transition: filter 0.4s, opacity 0.4s; }
+  .plogo:hover img { filter: none; opacity: 1; }
 </style>
 
 <script>
-  // the film strip: the bar shows where in it you are; the arrows step one card
-  document.querySelectorAll<HTMLElement>('[data-strip]').forEach((strip) => {
-    const track = strip.querySelector<HTMLElement>('.strip__track')!
-    const bar = strip.querySelector<HTMLElement>('.strip__bar')
-    const step = (d: number) => {
-      const card = track.querySelector<HTMLElement>('li')
-      track.scrollBy({ left: d * ((card?.offsetWidth ?? 300) + 14), behavior: 'smooth' })
-    }
-    strip.querySelector('[data-strip-prev]')?.addEventListener('click', () => step(-1))
-    strip.querySelector('[data-strip-next]')?.addEventListener('click', () => step(1))
-    const upd = () => {
-      const max = track.scrollWidth - track.clientWidth
-      const vis = track.clientWidth / track.scrollWidth
-      const p = max > 0 ? track.scrollLeft / max : 1
-      bar?.style.setProperty('--sp', String(Math.min(1, vis + (1 - vis) * p)))
-    }
-    track.addEventListener('scroll', upd, { passive: true })
-    addEventListener('resize', upd)
-    upd()
-  })
+  import { gsap, ScrollTrigger, reduce } from '../scripts/motion'
 
-  // the fair's countdown: days, hours, minutes; hidden without JavaScript and once the fair has opened
+  /* how leather is made: on a wide screen the section holds still while its panels slide past, each picture
+     drifting inside its frame */
+  const proc = document.querySelector<HTMLElement>('[data-process]')
+  if (proc && !reduce) {
+    const mm = gsap.matchMedia()
+    mm.add('(min-width: 1000px) and (min-height: 600px)', () => {
+      const track = proc.querySelector<HTMLElement>('[data-process-track]')!
+      const bar = proc.querySelector<HTMLElement>('[data-process-bar]')
+      proc.classList.add('is-pinned')
+      const dist = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth)
+      const slide = gsap.to(track, {
+        x: () => -dist(), ease: 'none',
+        scrollTrigger: {
+          trigger: proc, start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
+          onUpdate: (st) => { if (bar) bar.style.transform = `scaleX(${st.progress.toFixed(4)})` },
+        },
+      })
+      proc.querySelectorAll<HTMLElement>('[data-panel-img]').forEach((img) => {
+        gsap.fromTo(img, { xPercent: -7 }, {
+          xPercent: 7, ease: 'none',
+          scrollTrigger: { trigger: img.closest('.process__panel'), containerAnimation: slide, start: 'left right', end: 'right left', scrub: true },
+        })
+      })
+      ScrollTrigger.refresh()
+      return () => { proc.classList.remove('is-pinned'); gsap.set(track, { clearProps: 'transform' }) }
+    })
+  }
+
+  /* the fair's countdown: days, hours, minutes, seconds; hidden without JavaScript and once the fair has opened */
   const box = document.querySelector<HTMLElement>('[data-countdown]')
   if (box) {
     const start = Date.parse(box.dataset.countdown!)
+    const els: Record<string, HTMLElement | null> = {}
+    for (const k of ['d', 'h', 'm', 's']) els[k] = box.querySelector<HTMLElement>(`[data-unit="${k}"]`)
     const tick = () => {
       const ms = start - Date.now()
       if (!(ms > 0)) { box.hidden = true; return false }
       box.hidden = false
-      const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4)
-      const set = (k: string, v: number) => { const el = box.querySelector(`[data-unit="${k}"]`); if (el) el.textContent = String(v).padStart(2, '0') }
-      set('d', d); set('h', h); set('m', m)
+      const v = { d: Math.floor(ms / 864e5), h: Math.floor((ms % 864e5) / 36e5), m: Math.floor((ms % 36e5) / 6e4), s: Math.floor((ms % 6e4) / 1e3) }
+      for (const [k, n] of Object.entries(v)) {
+        const el = els[k]
+        const t = String(n).padStart(2, '0')
+        if (!el || el.textContent === t) continue
+        el.textContent = t
+        if (!reduce && k !== 's') { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick') }
+      }
       return true
     }
-    if (tick()) setInterval(tick, 30000)
+    if (tick()) setInterval(tick, 1000)
   }
 </script>

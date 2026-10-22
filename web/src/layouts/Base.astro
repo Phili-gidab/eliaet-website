@@ -13,6 +13,7 @@ import Header from '../components/Header.astro'
 import Loader from '../components/Loader.astro'
 import Footer from '../components/Footer.astro'
 import LeatherDefs from '../components/LeatherDefs.astro'
+import Motion from '../components/Motion.astro'
 import { ORG } from '../copy/site'
 import { brief } from '../../../shared/markdown'
 
@@ -32,6 +33,8 @@ interface Props {
   section?: string
   /** the footer's newsletter sign-up (off on pages with a newsletter section of their own) */
   newsletter?: boolean
+  /** the logo loader on the first page of a visit (the home page opens on the logo itself instead) */
+  intro?: boolean
 }
 const {
   title,
@@ -44,6 +47,7 @@ const {
   noindex = false,
   section,
   newsletter = true,
+  intro = true,
 } = Astro.props
 // pages are built as files (about.html) but served at clean addresses (/about), which is what search engines should see
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/$/, '') || '/'
@@ -53,10 +57,12 @@ const canonical = canonicalPath ? site + canonicalPath : new URL(path, Astro.sit
 const ogImage = imageRaw ?? new URL(image, Astro.site).toString()
 // a search result shows about 160 characters (a template's '@@description@@' is cut the same way by the server)
 const metaDescription = description.includes('@@') ? description : brief(description)
+// the header's tone before the scripts arrive: the inner pages open on a light page head (the home page sets its own)
+const hdrTone = !noindex && !overHero ? 'light' : undefined
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-hdr={hdrTone}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -85,13 +91,14 @@ const metaDescription = description.includes('@@') ? description : brief(descrip
   </head>
   <body class={bodyClass}>
     <LeatherDefs />
-    <Loader />
+    {intro && <Loader />}
     <a class="skip" href="#main">Skip to content</a>
     <Header path={section ?? path} overHero={overHero} />
     <main id="main">
       <slot />
     </main>
     <Footer newsletter={newsletter && !noindex} />
+    {!noindex && <Motion />}
     <script>
       import '../scripts/site'
     </script>

@@ -33,21 +33,8 @@
   .hide--tan { --hide-img: url('/media/leather/tan-m.webp'); }
 }
 
-/* the saddle-brown sections are a real hide now (not one that holds a form): their soft amber light stays on top,
-   and a veil of the section's own colour calms the grain, so the words on it stay as clear as before */
-.sec--saddle { --hide-img: url('/media/leather/saddle.webp'); }
-@media (min-resolution: 1.5dppx) and (min-width: 701px) { .sec--saddle { --hide-img: url('/media/leather/saddle-2x.webp'); } }
-@media (max-width: 700px) { .sec--saddle { --hide-img: url('/media/leather/saddle-m.webp'); } }
-.sec--saddle:not(:has(form)).is-near, html:not(.js) .sec--saddle:not(:has(form)) {
-  background-image:
-    radial-gradient(120% 90% at 85% 0%, rgb(226 160 37 / 0.13), transparent 55%),
-    linear-gradient(rgb(62 38 32 / 0.45), rgb(62 38 32 / 0.45)),
-    var(--hide-img);
-  background-size: 100% 100%, 100% 100%, var(--hide-size) var(--hide-size);
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-position: center;
-}
-.sec--saddle:not(:has(form)).grain::after { display: none; }       /* the hide has its own grain */
+/* the sections that were saddle-brown hide are taupe now (styles/global.css): the leather stays in the footer's
+   strap and the smaller pieces */
 
 /* stitching along a panel's edge: amber thread, a few millimetres in */
 .stitched { position: relative; }

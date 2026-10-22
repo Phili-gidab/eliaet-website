@@ -39,6 +39,14 @@
   --line: rgb(255 252 245 / 0.1);
   --line-2: rgb(255 252 245 / 0.18);
   --line-dark: rgb(60 30 22 / 0.14);
+  /* the light surfaces between the page colour's sections: taupe's own tints (the guide's main second colour) */
+  --mist: #e9e6e5;
+  --dusk: #d3cccb;
+  /* the four colours of a hide's life (the process): raw, wet-blue, crust, finished */
+  --raw: #dcc6b4;
+  --wetblue-1: #9db8bf;
+  --crust: #c58e57;
+  --finished: #4d2617;
 
   --f-text: 'Roboto Variable', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --f-display: var(--f-text);
@@ -116,28 +124,50 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); }
 .sec { position: relative; padding-block: clamp(88px, 11vw, 168px); }
 .sec--tight { padding-block: clamp(56px, 7vw, 104px); }
-.sec--hide { background: var(--ink-1); }
-.sec--saddle { background: radial-gradient(120% 90% at 85% 0%, rgb(226 160 37 / 0.14), transparent 55%), var(--saddle); }
+.sec--hide { background: var(--brand-taupe); }
+.sec--saddle { background: radial-gradient(120% 90% at 85% 0%, rgb(255 236 200 / 0.16), transparent 55%), var(--brand-taupe); }
 .sec--paper { background: var(--paper); color: var(--ink); color-scheme: light; }
 .sec--paper ::selection { background: var(--ink); color: var(--paper); }
+/* the brand guide's order: the page colour is the main surface, taupe's tints go between, taupe itself carries one
+   mid-tone band, amber is a surface once (the fair), and brown is kept for the type, the film and the footer */
+.sec--paper.sec--mist { background: var(--mist); }
+.sec--taupe { background: var(--brand-taupe); color: var(--cream); }
+.sec--amber { background: var(--brand-amber); color: var(--ink); color-scheme: light; }
+.sec--amber ::selection { background: var(--ink); color: var(--amber); }
+
+/* the darker sections of the inner pages are taupe (the brand guide's main second colour), not brown: on it the
+   small accents turn to a warm cream (amber would not read), and panels are a veil of the page colour */
+.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber),
+.sheet:not(.sec--paper, .sec--amber, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber) {
+  --amber: #fff1d9; --gold: #fff1d9; --amber-hi: #ffffff; --glow: rgb(255 240 214 / 0.14);
+  --muted: rgb(255 252 245 / 0.95); --bone: rgb(255 252 245 / 0.97);
+  --ink-1: rgb(255 252 245 / 0.07); --line: rgb(255 252 245 / 0.18); --line-2: rgb(255 252 245 / 0.3);
+}
+/* the label's little box, on taupe: a shade darker than the section, so its cream figure reads */
+:is(.sec--hide, .sec--saddle, .sec--taupe, .grain:not(.sec--paper, .sec--amber), .sheet:not(.sec--paper, .sec--amber, .ftr), main > .ph ~ .sec:not(.sec--paper, .sec--amber)) .label b {
+  background: rgb(60 30 22 / 0.24); box-shadow: inset 0 0 0 1px rgb(255 241 217 / 0.32);
+}
+/* on the taupe-20 surfaces the small taupe type is set a shade deeper, to read */
+.sec--paper.sec--mist { --taupe: #66544e; }
 
 /* sheets: a section that slides in over the one before it, its top corners rounded like a panel */
 .sheet {
   position: relative; z-index: 2; isolation: isolate;
   margin-top: calc(var(--radius-l) * -1);
   border-radius: var(--radius-l) var(--radius-l) 0 0;
-  box-shadow: 0 -1px 0 var(--line-2), 0 -40px 80px -30px rgb(0 0 0 / 0.75);
+  box-shadow: 0 -1px 0 var(--line-2), 0 -30px 60px -36px rgb(0 0 0 / 0.4);
 }
-.sheet:not(.sec--paper, .sec--hide, .sec--saddle) { background: var(--ink); }
-.sec--paper.sheet { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.75); }
+.sheet:not(.sec--paper, .sec--hide, .sec--saddle, .sec--taupe, .sec--amber) { background: var(--brand-taupe); }
+.ftr.sheet { background: var(--ink); }
+.sec--paper.sheet { box-shadow: 0 -30px 60px -34px rgb(0 0 0 / 0.5); }
 
 /* inner pages: every section after the page head slides in over the one before it, like a sheet */
 main > .ph ~ .sec {
   z-index: 1; isolation: isolate; margin-top: calc(var(--radius-l) * -1);
-  border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: 0 -1px 0 var(--line), 0 -40px 80px -30px rgb(0 0 0 / 0.6);
+  border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: 0 -1px 0 var(--line), 0 -30px 60px -36px rgb(0 0 0 / 0.36);
 }
-main > .ph ~ .sec:not(.sec--paper, .sec--hide, .sec--saddle) { background-color: var(--ink); }
-main > .ph ~ .sec.sec--paper { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.6); }
+main > .ph ~ .sec:not(.sec--paper, .sec--hide, .sec--saddle, .sec--amber) { background-color: var(--brand-taupe); }
+main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(0 0 0 / 0.36); }
 .ftr.sheet { margin-top: calc(var(--radius-l) * -1); }
 
 /* the light: a soft amber pool behind a section's top, like the sun through a window */
@@ -153,7 +183,7 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.6); 
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.35; mix-blend-mode: overlay;
   background-image: url('/media/texture/grain.webp'); background-size: 220px;
 }
-.grain:not(.sec--paper, .sec--hide, .sec--saddle, .sheet) { background-color: var(--ink); }
+.grain:not(.sec--paper, .sec--hide, .sec--saddle, .sheet) { background-color: var(--brand-taupe); }
 
 /* ── type ───────────────────────────────────────────────────────────────── */
 .display, .h1, .h2, .h3 {
@@ -197,6 +227,7 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.6); 
 }
 .label .geez { letter-spacing: 0.02em; text-transform: none; font-size: 12.5px; opacity: 0.85; }
 .sec--paper .label .geez { opacity: 1; } /* on paper the dimmed Ge'ez would not read */
+:is(.sec--hide, .sec--saddle, .sec--taupe, .grain, .sheet, main > .ph ~ .sec) .label .geez { opacity: 1; }
 .sec--paper .label { color: var(--taupe); }
 .sec--paper .label b { color: var(--ink); background: var(--paper-2); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.6); }
 .label--rule::before { content: none; }
@@ -216,7 +247,7 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -40px 80px -30px rgb(0 0 0 / 0.6); 
 
 /* ── buttons ────────────────────────────────────────────────────────────── */
 .btn {
-  --bg: var(--amber); --fg: var(--ink);
+  --bg: var(--brand-amber); --fg: var(--ink);
   position: relative; display: inline-flex; align-items: center; gap: 0.6em; min-height: 50px; padding: 0 1.35em;
   font-family: var(--f-text); font-weight: 600; font-size: 15px; letter-spacing: 0;
   color: var(--fg); background: var(--bg); border-radius: 999px; isolation: isolate; overflow: hidden; white-space: nowrap;
@@ -302,12 +333,39 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: inse
   background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
 }
 
-/* an endless row (logos, pictures): the list is doubled in the markup; reduce motion: it stands still and scrolls */
+/* an endless row (logos, pictures): the list is doubled in the markup; reduce motion: it stands still and scrolls.
+   With the motion script (scripts/motion.ts) it runs on GSAP instead and quickens with the scroll. */
 .marquee { --dur: 48s; display: flex; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
 .marquee__track { display: flex; flex: none; gap: var(--gap, 14px); padding-right: var(--gap, 14px); animation: marquee var(--dur) linear infinite; }
 .marquee:hover .marquee__track { animation-play-state: paused; }
+.marquee.is-js .marquee__track { animation: none; will-change: transform; }
 @keyframes marquee { to { transform: translateX(-100%); } }
 @media (prefers-reduced-motion: reduce) { .marquee { overflow-x: auto; } .marquee__track { animation: none; } }
+
+/* ── smooth scrolling (Lenis, scripts/motion.ts) ───────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* ── a window onto a still photograph: the picture stays put while the page slides past it (it is fixed to the
+   screen and clipped to the window, which works on phones too, unlike a fixed background) ── */
+.window { position: relative; isolation: isolate; clip-path: inset(0); min-height: 112svh; display: grid; align-content: center; color: var(--cream); background: var(--ink); }
+.window__pic { position: fixed; left: 0; top: 0; width: 100%; height: 100vh; height: 100lvh; z-index: -1; pointer-events: none; }
+.window__pic img { width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 55%; }
+.window__pic::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(12 8 6 / 0.42), rgb(12 8 6 / 0.08) 38%, rgb(12 8 6 / 0.1) 60%, rgb(12 8 6 / 0.5)); }
+.window__words {
+  font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.045em; line-height: 0.84;
+  font-size: clamp(4.2rem, 1rem + 13.5vw, 16rem); white-space: nowrap; text-shadow: 0 12px 80px rgb(0 0 0 / 0.3);
+}
+.window__words .ln { display: block; }
+.window__words em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.04em; color: var(--amber-hi); }
+.window__note { max-width: 34ch; font-size: var(--step-1); line-height: 1.4; color: var(--cream); text-shadow: 0 1px 2px rgb(0 0 0 / 0.6), 0 0 30px rgb(0 0 0 / 0.55); }
+@media (max-width: 700px) {
+  .window { min-height: 92svh; align-content: end; padding-bottom: 9svh; }
+  .window__pic::after { background: linear-gradient(180deg, rgb(12 8 6 / 0.35), rgb(12 8 6 / 0) 30%, rgb(12 8 6 / 0.2) 50%, rgb(12 8 6 / 0.72)); }
+  .window__words { white-space: normal; font-size: clamp(3.6rem, 19vw, 6rem); }
+}
 
 /* hr */
 .rule { height: 1px; background: var(--line); border: 0; margin: 0; }
