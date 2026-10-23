@@ -3,9 +3,9 @@
    the right item. Secretariat accounts only (the server checks every request). */
 import { useEffect, useState } from 'preact/hooks'
 import { api, session, loginUrl, type User } from '../api'
-import { Loading, Msg, useLoad } from '../ui'
+import { Loading, Msg, useLoad, initials } from '../ui'
 import { SignOut } from '../Dashboard'
-import { useRoute } from './kit'
+import { useRoute, AIcon } from './kit'
 import { Overview } from './Overview'
 import { Inquiries } from './Inquiries'
 import { Applications, AccessRequests, Changes } from './Approvals'
@@ -63,10 +63,14 @@ export function Admin() {
 
   return (
     <div class={`admin${navOpen ? ' nav-open' : ''}`}>
+      {/* the side: who is signed in, the parts of the back office with what is waiting in each, the way out */}
       <aside class="anav" aria-label="Back office">
         <div class="anav__me">
-          <p class="anav__name">{me.name}</p>
-          <p class="anav__role">ELIA Secretariat</p>
+          <span class="anav__av" aria-hidden="true">{initials(me.name)}</span>
+          <div>
+            <p class="anav__name">{me.name}</p>
+            <p class="anav__role">ELIA Secretariat</p>
+          </div>
         </div>
         {NAV.map((g) => (
           <div class="anav__group">
@@ -74,14 +78,19 @@ export function Admin() {
             <ul role="list">
               {g.items.map(([k, l, c]) => {
                 const n = c && ov.data ? Number(ov.data[c]) : 0
-                return <li><a href={`#${k}`} aria-current={s === k ? 'page' : undefined}>{l}{n > 0 && <span class="anav__n" aria-label={`${n} to do`}>{n}</span>}</a></li>
+                return (
+                  <li><a href={`#${k}`} aria-current={s === k ? 'page' : undefined}>
+                    <span class="anav__i">{AIcon[k]}</span><span class="anav__l">{l}</span>
+                    {n > 0 && <span class="anav__n" aria-label={`${n} to do`}>{n}</span>}
+                  </a></li>
+                )
               })}
             </ul>
           </div>
         ))}
         <div class="anav__end">
-          <a href="/members/directory">Members directory</a>
-          <a href="/" target="_blank" rel="noopener">The website ↗</a>
+          <a href="/members/directory"><span class="anav__i">{AIcon.directory}</span><span class="anav__l">Members directory</span></a>
+          <a href="/" target="_blank" rel="noopener"><span class="anav__i">{AIcon.site}</span><span class="anav__l">The website</span></a>
           <SignOut />
         </div>
       </aside>
@@ -91,7 +100,7 @@ export function Admin() {
         {ov.error && <Msg kind="err">{ov.error}</Msg>}
         {opts && (
           <>
-            {(s === 'overview' || !known) && <Overview data={ov.data!} />}
+            {(s === 'overview' || !known) && <Overview data={ov.data!} me={me} />}
             {s === 'inquiries' && <Inquiries id={route.id} opts={opts} />}
             {s === 'applications' && <Applications id={route.id} opts={opts} />}
             {s === 'access' && <AccessRequests id={route.id} />}

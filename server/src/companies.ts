@@ -131,12 +131,15 @@ export function directory(o: DirectoryQuery) {
 /** The fields of `next` that differ from the company now (for a member's proposed change). */
 export function diff(current: Row, next: Partial<Profile> & { logo_file_id?: number | null; photos?: number[] }) {
   const out: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(next)) {
+  for (const [k, nv] of Object.entries(next)) {
     let cur: unknown = current[k]
+    let v: unknown = nv
     if (k === 'certifications' || k === 'photos') cur = fromJson(current[k], [])
+    // an address in other letter case is the same address (the form writes them in small letters; some on file are not)
+    if (k === 'email' && typeof cur === 'string' && typeof v === 'string' && cur.toLowerCase() === v.toLowerCase()) v = cur
     const a = JSON.stringify(cur ?? (Array.isArray(v) ? [] : null)), b = JSON.stringify(v ?? (Array.isArray(cur) ? [] : null))
     const blank = (x: unknown) => x === null || x === '' || x === undefined
-    if (a !== b && !(blank(cur) && blank(v))) out[k] = v
+    if (a !== b && !(blank(cur) && blank(v))) out[k] = nv
   }
   return out
 }

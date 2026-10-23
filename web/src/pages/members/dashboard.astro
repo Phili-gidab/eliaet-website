@@ -3,6 +3,7 @@ import App from '../../layouts/App.astro'
 import { Dashboard } from '../../app/Dashboard'
 ---
 
-<App title="Member dashboard" heading="Member dashboard" eyebrow="Members’ area">
+<!-- no page head: the dashboard opens on the company at a glance (app/Dashboard.tsx), which carries the page title -->
+<App title="Member dashboard">
   <Dashboard client:only="preact"><p slot="fallback" class="loading">Loading…</p></Dashboard>
 </App>

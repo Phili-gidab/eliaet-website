@@ -90,3 +90,24 @@ export function Facts({ rows }: { rows: [string, ComponentChildren][] }) {
 }
 
 export const mailto = (e?: string | null) => (e ? <a href={`mailto:${e}`}>{e}</a> : null)
+
+/* the back office's line icons (24 × 24, drawn in the text colour) */
+const c = (x: number, y: number, r: number) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`
+const ic = (d: string) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+export const AIcon: Record<string, ReturnType<typeof ic>> = {
+  overview: ic('M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z'),
+  inquiries: ic('M4 13l2.5-7h11L20 13v6H4zM4 13h5l1 2.5h4l1-2.5h5'),
+  applications: ic('M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7zm0 0v4h4M12 11v6M9 14h6'),
+  access: ic(`${c(8, 12, 4)}M12 12h9M18 12v3M15.5 12v2`),
+  changes: ic('M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4'),
+  companies: ic('M4 20V9l6-3v14M10 20V4l10 4v12M2 20h20M14 11h2M14 15h2M6.5 12h1M6.5 16h1'),
+  people: ic(`${c(9, 8, 3.5)}M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.8.7 3 2.5 3.5 5.2`),
+  posts: ic('M5 4h12v16H7a2 2 0 0 1-2-2zM17 8h3v10a2 2 0 0 1-2 2M8.5 8h5M8.5 12h5M8.5 16h3'),
+  events: ic('M4 7h16v13H4zM4 11h16M8 4v5M16 4v5'),
+  publications: ic('M5 4h9a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h9'),
+  notices: ic('M4 10v4h3l7 4V6l-7 4zM17.5 9a3 3 0 0 1 0 6M7.5 14l1.5 5h2.5l-1-5'),
+  opportunities: ic('M4 8h16v11H4zM9 8V5h6v3M4 13h16'),
+  subscribers: ic('M4 6h16v12H4zM4 7l8 6 8-6'),
+  directory: ic(`${c(11, 11, 6.5)}M16 16l4.5 4.5`),
+  site: ic('M7 17 17 7M9 7h8v8'),
+}

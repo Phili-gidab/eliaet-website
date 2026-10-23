@@ -26,7 +26,8 @@ const { title, heading, eyebrow = 'Members’ area', lede, width = 'wide' } = As
       </div>
     )}
   </section>
-  <section class="sec sec--paper sheet appsec">
+  <!-- the wide pages (the directory, a profile, the dashboard) work on a warm grey desk, their panels in cream on it -->
+  <section class:list={['sec sec--paper sheet appsec', { 'sec--mist appsec--desk': width === 'wide' }]}>
     <div class:list={['wrap', `appsec__in--${width}`]}>
       <slot />
     </div>

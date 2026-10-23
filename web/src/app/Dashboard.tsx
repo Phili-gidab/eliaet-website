@@ -1,9 +1,11 @@
 /* The member dashboard (the content document): My Profile (edit company details, products and photos; reviewed by
    the Secretariat before they show), Member Notices, Member Documents, Opportunities, Membership Status, and the
-   account: the company's people and the password. */
+   account: the company's people and the password. Above the tabs, the company at a glance: its membership, its dues
+   and where its profile stands. What the tabs show is loaded once here and shared. */
 import { useEffect, useRef, useState } from 'preact/hooks'
+import type { ComponentChildren } from 'preact'
 import { api, session, loginUrl, day, bytes, type User } from './api'
-import { Field, Area, Select, Checks, Msg, Btn, Loading, Empty, useLoad, useSend, useFocusInvalid, Icon } from './ui'
+import { Field, Area, Select, Checks, Msg, Btn, Loading, Empty, useLoad, useSend, useFocusInvalid, Icon, initials } from './ui'
 import { ProfileView, type Profile, type FileRef } from './Company'
 import { REGIONS, EXPORT_STATUS, CERTIFICATIONS } from '../../../shared/options'
 import { markdown } from '../../../shared/markdown'
@@ -22,6 +24,19 @@ const hashTab = (): Tab => {
   return (TABS.find(([k]) => k === h)?.[0] ?? 'profile') as Tab
 }
 const entries = <T extends object>(o: T) => Object.entries(o) as [string, string][]
+/** today in Addis Ababa */
+const todayIso = () => new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10)
+const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000)
+
+type MeResp = {
+  company: Profile | null
+  pending: { id: number; fields: string[]; data: Record<string, unknown> & { photos?: FileRef[]; logo?: string | null }; created_at: string } | null
+  lastDecision: { status: 'approved' | 'rejected'; note: string | null; decided_at: string } | null
+  usersPerCompany: number
+}
+type Notice = { id: number; title: string; kind: string; kindLabel: string; body: string; published_on: string; file: FileRef | null }
+type Opp = { id: number; title: string; kind: string; kindLabel: string; body: string; deadline: string | null; link_url: string | null; file: FileRef | null; published_on: string; closed: boolean }
+type Loaded<T> = ReturnType<typeof useLoad<T>>
 
 export function Dashboard() {
   const [me, setMe] = useState<User | null | undefined>(undefined)
@@ -32,39 +47,47 @@ export function Dashboard() {
     addEventListener('hashchange', f)
     return () => removeEventListener('hashchange', f)
   }, [])
+  const member = !!me && me.role === 'member'
+  const mine = useLoad(() => (member ? api<MeResp>('/member/me') : Promise.resolve(null)), [member])
+  const notices = useLoad(() => (member ? api<{ items: Notice[] }>('/member/me/notices') : Promise.resolve(null)), [member])
+  const opps = useLoad(() => (member ? api<{ items: Opp[] }>('/member/me/opportunities') : Promise.resolve(null)), [member])
+
   if (me === undefined) return <Loading />
   if (!me) return <Msg kind="err">The members’ area could not be reached. Please reload the page.</Msg>
   if (me.role === 'secretariat') {
     return (
       <div class="dash">
+        <h1 class="sr-only">Member dashboard</h1>
         <Msg kind="info">You are signed in as the ELIA Secretariat. Members’ profiles, notices, documents and opportunities are managed in the back office.</Msg>
         <p class="row"><a class="btn btn--dark" href="/admin">Open the back office {Icon.arrow}</a><a class="btn btn--ghost" href="/members/directory">The directory</a></p>
       </div>
     )
   }
+  const open = opps.data?.items.filter((o) => !o.closed).length ?? 0
+  const count: Partial<Record<Tab, ComponentChildren>> = {
+    notices: notices.data?.items.length || null,
+    opportunities: open || null,
+    profile: mine.data?.pending ? <span class="dtabs__wait" title="Changes waiting for review" /> : null,
+    membership: mine.data?.company && duesState(mine.data.company).due ? <span class="dtabs__wait" title="Renewal is due" /> : null,
+  }
   return (
     <div class="dash">
-      <header class="dash__head">
-        <div>
-          <p class="dash__hi">Welcome, <b>{me.name}</b></p>
-          <p class="dash__co">{me.company ? me.company.name : 'Not linked to a member company yet'}</p>
-        </div>
-        <div class="row">
-          <a class="btn btn--ghost btn--sm" href="/members/directory">{Icon.search} Find a member</a>
-          <SignOut />
-        </div>
-      </header>
+      <Hero me={me} mine={mine.data} />
       <nav class="dtabs" aria-label="Dashboard">
-        {TABS.map(([k, l]) => <a href={`#${k}`} aria-current={tab === k ? 'page' : undefined}>{l}</a>)}
+        {TABS.map(([k, l]) => (
+          <a href={`#${k}`} aria-current={tab === k ? 'page' : undefined}>
+            {l}{count[k] != null && (typeof count[k] === 'number' ? <span class="dtabs__n">{count[k]}</span> : count[k])}
+          </a>
+        ))}
       </nav>
       <section class="dash__panel" aria-labelledby="dash-h">
         {/* the tab's name heads its panel (for screen readers, which also find the items' headings under it) */}
         <h2 class="sr-only" id="dash-h">{TABS.find(([k]) => k === tab)?.[1]}</h2>
-        {tab === 'profile' && <MyProfile />}
-        {tab === 'notices' && <Notices />}
+        {tab === 'profile' && <MyProfile mine={mine} />}
+        {tab === 'notices' && <Notices list={notices} />}
         {tab === 'documents' && <Documents />}
-        {tab === 'opportunities' && <Opportunities />}
-        {tab === 'membership' && <Membership />}
+        {tab === 'opportunities' && <Opportunities list={opps} />}
+        {tab === 'membership' && <Membership mine={mine} />}
         {tab === 'account' && <Account me={me} />}
       </section>
     </div>
@@ -81,14 +104,46 @@ export function SignOut({ small = true }: { small?: boolean }) {
   return <Btn kind="ghost" small={small} busy={busy} onClick={out}>Sign out</Btn>
 }
 
-/* ---- my profile ---- */
-
-type MeResp = {
-  company: Profile | null
-  pending: { id: number; fields: string[]; data: Record<string, unknown> & { photos?: FileRef[]; logo?: string | null }; created_at: string } | null
-  lastDecision: { status: 'approved' | 'rejected'; note: string | null; decided_at: string } | null
-  usersPerCompany: number
+/** where a company's dues stand: paid until when, due, or due soon (45 days) */
+function duesState(c: Profile) {
+  const until = c.dues_paid_until ?? null
+  if (!until) return { until, due: false, soon: false, left: null as number | null }
+  const left = daysBetween(todayIso(), until)
+  return { until, due: left < 0, soon: left >= 0 && left <= 45, left }
 }
+
+/* ---- the company at a glance ---- */
+
+function Hero({ me, mine }: { me: User; mine: MeResp | null }) {
+  const c = mine?.company ?? null
+  const dues = c ? duesState(c) : null
+  const status = !c ? null : c.status === 'active' ? 'Active member' : c.status === 'suspended' ? 'Membership suspended' : 'Membership archived'
+  return (
+    <header class="dhero">
+      <div class="dhero__main">
+        <p class="dhero__hi">Welcome back, {me.name.split(/\s+/)[0]}</p>
+        <h1 class="dhero__co">{me.company?.name ?? c?.name ?? 'Your company'}</h1>
+        {c ? (
+          <ul class="dhero__facts" role="list">
+            <li><span class={`dot dot--${c.status === 'active' ? 'ok' : 'no'}`} aria-hidden="true" />{status}{c.member_since ? `, since ${c.member_since}` : ''}</li>
+            <li>{dues!.due ? <b class="dhero__warn">Renewal is due</b> : dues!.until ? <>Dues paid until {day(dues!.until)}</> : 'Dues not on file'}</li>
+            <li>{mine?.pending ? <a href="#profile">Profile changes waiting for review</a> : <>Profile {c.listed === false ? 'not listed' : 'published'}</>}</li>
+          </ul>
+        ) : mine && <p class="dhero__note">Not linked to a member company yet.</p>}
+      </div>
+      <div class="dhero__side">
+        <span class="dhero__logo" aria-hidden="true">{c?.logo ? <img src={c.logo} alt="" /> : <span class="mono">{initials(me.company?.name ?? me.name)}</span>}</span>
+        <div class="dhero__do">
+          {c && <a class="btn btn--sm" href={`/members/company/${c.slug}`}>My public profile {Icon.out}</a>}
+          <a class="btn btn--ghost btn--sm" href="/members/directory">{Icon.search} Find a member</a>
+          <SignOut />
+        </div>
+      </div>
+    </header>
+  )
+}
+
+/* ---- my profile ---- */
 
 const FIELD_NAMES: Record<string, string> = {
   name: 'company name', year_established: 'year established', city: 'city', region: 'region', address: 'address', lat: 'map pin', lng: 'map pin',
@@ -98,8 +153,8 @@ const FIELD_NAMES: Record<string, string> = {
 }
 const fieldList = (f: string[]) => [...new Set(f.map((k) => FIELD_NAMES[k] ?? k))].join(', ')
 
-function MyProfile() {
-  const { data, error, loading, reload } = useLoad(() => api<MeResp>('/member/me'), [])
+function MyProfile({ mine }: { mine: Loaded<MeResp | null> }) {
+  const { data, error, loading, reload } = mine
   const [preview, setPreview] = useState(false)
   if (loading && !data) return <Loading />
   if (error) return <Msg kind="err">{error}</Msg>
@@ -141,6 +196,19 @@ function WithdrawBtn({ onDone }: { onDone: () => void }) {
   return <Btn kind="ghost" small busy={busy} onClick={() => confirm('Withdraw the changes waiting for review?') && run(() => api('/member/me/company/withdraw', { method: 'POST' })).then(onDone)}>Withdraw them</Btn>
 }
 
+/** one part of the profile form: its name and what it is for on the left, its fields on the right */
+function Part({ id, title, text, children }: { id: string; title: string; text: string; children: ComponentChildren }) {
+  return (
+    <section class="pform__part full" aria-labelledby={`pf-${id}`}>
+      <div class="pform__side">
+        <h3 class="pform__h" id={`pf-${id}`}>{title}</h3>
+        <p class="pform__about">{text}</p>
+      </div>
+      <fieldset class="pform__fields" aria-labelledby={`pf-${id}`}>{children}</fieldset>
+    </section>
+  )
+}
+
 function ProfileForm({ c, v, onSent }: { c: Profile; v: Profile; onSent: () => void }) {
   const form = useRef<HTMLFormElement>(null)
   const { busy, msg, errors, run } = useSend()
@@ -170,45 +238,40 @@ function ProfileForm({ c, v, onSent }: { c: Profile; v: Profile; onSent: () => v
 
   return (
     <form ref={form} class="form pform" onSubmit={submit} noValidate>
-      <fieldset class="pform__part full">
-        <legend>Company</legend>
+      <Part id="company" title="Company" text="Your company’s name, history and size, as other members see them.">
         <Field label="Company name" name="name" defaultValue={val('name')} required maxLength={200} errors={errors} full />
         <p class="pform__fixed full"><span>Category</span>{c.categoryLabel}<span>Size</span>{c.sizeLabel ?? 'Not set'}</p>
         <Field label="Year established" name="year_established" type="number" inputMode="numeric" min={1900} max={new Date().getFullYear()} defaultValue={val('year_established')} errors={errors} optional />
         <Field label="Employees" name="employees" type="number" inputMode="numeric" min={0} defaultValue={val('employees')} errors={errors} optional hint="Permanent staff" />
         <Area label="About the company" name="about" defaultValue={val('about')} maxLength={2000} rows={4} errors={errors} optional />
-      </fieldset>
+      </Part>
 
-      <fieldset class="pform__part full">
-        <legend>Products and markets</legend>
+      <Part id="products" title="Products and markets" text="What you make and where you sell it. Buyers ELIA refers to you read this first.">
         <Area label="Main products" name="products" defaultValue={val('products')} maxLength={600} rows={3} errors={errors} optional />
         <Field label="Leather types" name="leather_types" defaultValue={val('leather_types')} maxLength={300} errors={errors} optional hint="e.g. sheepskin, goatskin, cowhide; wet-blue, crust, finished" full />
         <Field label="Production capacity" name="capacity" defaultValue={val('capacity')} maxLength={160} errors={errors} optional hint="Monthly output: pairs, square feet or pieces" />
         <Select label="Export capability" name="export_status" options={entries(EXPORT_STATUS)} empty="Not said" defaultValue={val('export_status')} errors={errors} optional />
         <Field label="Export markets" name="export_markets" defaultValue={val('export_markets')} maxLength={400} errors={errors} optional hint="Countries currently served" full />
         <Checks label="Certifications" name="certifications" options={entries(CERTIFICATIONS)} value={v.certifications ?? []} errors={errors} />
-      </fieldset>
+      </Part>
 
-      <fieldset class="pform__part full">
-        <legend>Location</legend>
+      <Part id="location" title="Location" text="Where to find you. A map pin shows your place on a map in your profile.">
         <Select label="Region" name="region" options={entries(REGIONS)} empty="Choose…" defaultValue={val('region')} errors={errors} optional />
         <Field label="City" name="city" defaultValue={val('city')} maxLength={80} errors={errors} optional />
         <Field label="Address" name="address" defaultValue={val('address')} maxLength={240} errors={errors} optional full />
         <Field label="Map pin: latitude" name="lat" inputMode="decimal" defaultValue={val('lat')} errors={errors} optional hint="e.g. 8.5899" />
         <Field label="Map pin: longitude" name="lng" inputMode="decimal" defaultValue={val('lng')} errors={errors} optional hint="e.g. 39.1262" />
-      </fieldset>
+      </Part>
 
-      <fieldset class="pform__part full">
-        <legend>Contact</legend>
+      <Part id="contact" title="Contact" text="Who members and buyers should reach, and how.">
         <Field label="Contact person" name="contact_name" defaultValue={val('contact_name')} maxLength={120} errors={errors} optional />
         <Field label="Position" name="contact_position" defaultValue={val('contact_position')} maxLength={120} errors={errors} optional />
         <Field label="Phone" name="phone" type="tel" defaultValue={val('phone')} maxLength={80} errors={errors} optional />
         <Field label="E-mail" name="email" type="email" defaultValue={val('email')} maxLength={160} errors={errors} optional />
         <Field label="Website" name="website" inputMode="url" defaultValue={val('website')} maxLength={400} errors={errors} optional full />
-      </fieldset>
+      </Part>
 
-      <fieldset class="pform__part full">
-        <legend>Logo and photos</legend>
+      <Part id="pictures" title="Logo and photos" text="Your logo, and up to four photos of your products or your factory.">
         <div class="pform__logo full">
           <span class="pform__logoimg">{v.logo && !logoGone && !logoNew ? <img src={v.logo} alt="Your logo" /> : logoNew ? <span class="pform__new">{logoNew.name}</span> : <span class="pform__none">No logo</span>}</span>
           <label class="btn btn--ghost btn--sm pform__file">
@@ -234,9 +297,10 @@ function ProfileForm({ c, v, onSent }: { c: Profile; v: Profile; onSent: () => v
           <p class="hint">PNG, JPG or WebP, up to 4 MB each; four photos at most.</p>
           {errors.photos && <span class="err">{errors.photos}</span>}
         </div>
-      </fieldset>
+      </Part>
 
-      <div class="form__end full">
+      {/* stays in reach at the foot of the screen while the form is long */}
+      <div class="form__end full pform__send">
         <Btn type="submit" busy={busy}>Send for review {Icon.arrow}</Btn>
         <Msg kind={msg?.kind ?? 'info'}>{msg?.text}</Msg>
       </div>
@@ -246,20 +310,35 @@ function ProfileForm({ c, v, onSent }: { c: Profile; v: Profile; onSent: () => v
 
 /* ---- what ELIA shares with members ---- */
 
-type Notice = { id: number; title: string; kind: string; kindLabel: string; body: string; published_on: string; file: FileRef | null }
-function Notices() {
-  const { data, error, loading } = useLoad(() => api<{ items: Notice[] }>('/member/me/notices'), [])
-  if (loading) return <Loading />
+/** a date as a calendar leaf: the day large, the month and year under it */
+function Leaf({ iso }: { iso: string }) {
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return null
+  return (
+    <time class="leaf" datetime={iso.slice(0, 10)}>
+      <b>{d.getUTCDate()}</b>
+      <span>{d.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' })}</span>
+      <span>{d.getUTCFullYear()}</span>
+    </time>
+  )
+}
+
+function Notices({ list }: { list: Loaded<{ items: Notice[] } | null> }) {
+  const { data, error, loading } = list
+  if (loading && !data) return <Loading />
   if (error) return <Msg kind="err">{error}</Msg>
   if (!data?.items.length) return <Empty title="No notices yet.">Circulars, policy updates and meeting invitations from ELIA appear here.</Empty>
   return (
     <ul class="feed" role="list">
       {data.items.map((n) => (
         <li class="feed__item">
-          <p class="feed__meta"><span class="tag tag--soft">{n.kindLabel}</span><time datetime={n.published_on}>{day(n.published_on)}</time></p>
-          <h3 class="feed__t">{n.title}</h3>
-          {n.body && <div class="prose feed__body" dangerouslySetInnerHTML={{ __html: markdown(n.body) }} />}
-          {n.file && <p><a class="filelink" href={n.file.url} target="_blank" rel="noopener">{Icon.file} {n.file.name} <span>{bytes(n.file.size)}</span></a></p>}
+          <Leaf iso={n.published_on} />
+          <div class="feed__main">
+            <p class="feed__meta"><span class="tag tag--soft">{n.kindLabel}</span></p>
+            <h3 class="feed__t">{n.title}</h3>
+            {n.body && <div class="prose feed__body" dangerouslySetInnerHTML={{ __html: markdown(n.body) }} />}
+            {n.file && <p><a class="filelink" href={n.file.url} target="_blank" rel="noopener">{Icon.file} {n.file.name} <span>{bytes(n.file.size)}</span></a></p>}
+          </div>
         </li>
       ))}
     </ul>
@@ -273,57 +352,69 @@ function Documents() {
   if (error) return <Msg kind="err">{error}</Msg>
   if (!data?.items.length) return <Empty title="No members-only documents yet.">Reports, market studies and presentations for members appear here.</Empty>
   return (
-    <ul class="pub-list" role="list">
+    <ul class="docs" role="list">
       {data.items.map((d) => (
-        <li class="pub">
-          <div class="pub__text"><h3 class="pub__title">{d.title}</h3>{d.summary && <p class="pub__sum">{d.summary}</p>}</div>
-          <span class="pub__meta"><span class="pill pub__type">{d.type}</span>{d.year && <span class="label">{d.year}</span>}</span>
-          {d.file ? <a class="pub__get" href={d.file.url} target="_blank" rel="noopener">Download · {bytes(d.file.size)} {Icon.down}</a>
-            : d.link_url ? <a class="pub__get" href={d.link_url} target="_blank" rel="noopener">Open {Icon.out}</a> : <span class="pub__soon">Coming soon</span>}
+        <li class="doc">
+          <span class="doc__i" aria-hidden="true">{Icon.file}</span>
+          <div class="doc__text">
+            <h3 class="doc__t">{d.title}</h3>
+            <p class="doc__meta"><span class="tag tag--soft">{d.type}</span>{d.year && <span>{d.year}</span>}</p>
+            {d.summary && <p class="doc__sum">{d.summary}</p>}
+          </div>
+          {d.file ? <a class="btn btn--ghost btn--sm doc__get" href={d.file.url} target="_blank" rel="noopener">Download · {bytes(d.file.size)} {Icon.down}</a>
+            : d.link_url ? <a class="btn btn--ghost btn--sm doc__get" href={d.link_url} target="_blank" rel="noopener">Open {Icon.out}</a> : <span class="doc__soon">Coming soon</span>}
         </li>
       ))}
     </ul>
   )
 }
 
-type Opp = { id: number; title: string; kind: string; kindLabel: string; body: string; deadline: string | null; link_url: string | null; file: FileRef | null; published_on: string; closed: boolean }
-function Opportunities() {
-  const { data, error, loading } = useLoad(() => api<{ items: Opp[] }>('/member/me/opportunities'), [])
-  if (loading) return <Loading />
+function Opportunities({ list }: { list: Loaded<{ items: Opp[] } | null> }) {
+  const { data, error, loading } = list
+  if (loading && !data) return <Loading />
   if (error) return <Msg kind="err">{error}</Msg>
   if (!data?.items.length) return <Empty title="No opportunities at the moment.">Buyer inquiries, trade fair calls and training announcements shared by ELIA appear here.</Empty>
+  const today = todayIso()
   return (
     <ul class="feed" role="list">
-      {data.items.map((o) => (
-        <li class={`feed__item${o.closed ? ' is-closed' : ''}`}>
-          <p class="feed__meta">
-            <span class="tag tag--soft">{o.kindLabel}</span><time datetime={o.published_on}>{day(o.published_on)}</time>
-            {o.deadline && <span class={`feed__due${o.closed ? ' is-closed' : ''}`}>{o.closed ? 'Closed' : 'Deadline'} {day(o.deadline)}</span>}
-          </p>
-          <h3 class="feed__t">{o.title}</h3>
-          {o.body && <div class="prose feed__body" dangerouslySetInnerHTML={{ __html: markdown(o.body) }} />}
-          <p class="row">
-            {o.link_url && <a class="btn btn--ghost btn--sm" href={o.link_url} target="_blank" rel="noopener">Details {Icon.out}</a>}
-            {o.file && <a class="filelink" href={o.file.url} target="_blank" rel="noopener">{Icon.file} {o.file.name} <span>{bytes(o.file.size)}</span></a>}
-          </p>
-        </li>
-      ))}
+      {data.items.map((o) => {
+        const left = o.deadline && !o.closed ? daysBetween(today, o.deadline) : null
+        return (
+          <li class={`feed__item${o.closed ? ' is-closed' : ''}`}>
+            <Leaf iso={o.published_on} />
+            <div class="feed__main">
+              <p class="feed__meta">
+                <span class="tag tag--soft">{o.kindLabel}</span>
+                {o.deadline && <span class={`feed__due${o.closed ? ' is-closed' : left !== null && left <= 7 ? ' is-near' : ''}`}>
+                  {o.closed ? `Closed ${day(o.deadline)}` : `Deadline ${day(o.deadline)}${left !== null ? left === 0 ? ', today' : left === 1 ? ', tomorrow' : `, in ${left} days` : ''}`}
+                </span>}
+              </p>
+              <h3 class="feed__t">{o.title}</h3>
+              {o.body && <div class="prose feed__body" dangerouslySetInnerHTML={{ __html: markdown(o.body) }} />}
+              <p class="row">
+                {o.link_url && <a class="btn btn--ghost btn--sm" href={o.link_url} target="_blank" rel="noopener">Details {Icon.out}</a>}
+                {o.file && <a class="filelink" href={o.file.url} target="_blank" rel="noopener">{Icon.file} {o.file.name} <span>{bytes(o.file.size)}</span></a>}
+              </p>
+            </div>
+          </li>
+        )
+      })}
     </ul>
   )
 }
 
 /* ---- membership status: renewal date and dues ---- */
 
-function Membership() {
-  const { data, error, loading } = useLoad(() => api<MeResp>('/member/me'), [])
-  if (loading) return <Loading />
+function Membership({ mine }: { mine: Loaded<MeResp | null> }) {
+  const { data, error, loading } = mine
+  if (loading && !data) return <Loading />
   if (error) return <Msg kind="err">{error}</Msg>
   const c = data?.company
   if (!c) return <Msg kind="info">Your account is not linked to a member company yet.</Msg>
-  const today = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10)
-  const due = c.dues_paid_until ? c.dues_paid_until < today : null
-  const soon = c.dues_paid_until && !due ? (Date.parse(c.dues_paid_until) - Date.parse(today)) / 86400000 <= 45 : false
+  const { until, due, soon, left } = duesState(c)
   const status = c.status === 'active' ? 'Active' : c.status === 'suspended' ? 'Suspended' : 'Archived'
+  // how much of the year paid for is left (a year's dues, counted back from the date they run to)
+  const share = left === null ? 0 : Math.max(0, Math.min(1, left / 365))
   return (
     <div class="ms">
       <dl class="ms__grid">
@@ -331,9 +422,14 @@ function Membership() {
         <div class="ms__card"><dt>Member since</dt><dd>{c.member_since ?? 'Not on file'}</dd></div>
         <div class={`ms__card${due ? ' is-due' : soon ? ' is-soon' : ''}`}>
           <dt>Dues paid until</dt>
-          <dd>{c.dues_paid_until ? day(c.dues_paid_until) : 'Not on file'}</dd>
+          <dd>{until ? day(until) : 'Not on file'}</dd>
+          {until && (
+            <div class="ms__bar" role="img" aria-label={due ? 'Renewal is due' : `${left} days until renewal`}>
+              <span style={`width:${(share * 100).toFixed(1)}%`} />
+            </div>
+          )}
           {due && <p class="ms__note">Renewal is due.</p>}
-          {soon && <p class="ms__note">Renewal comes up soon.</p>}
+          {!due && left !== null && <p class={`ms__note${soon ? '' : ' ms__note--quiet'}`}>{left === 0 ? 'Renewal is today.' : `${left} days until renewal.`}</p>}
         </div>
       </dl>
       {c.dues_note && <p class="ms__dues"><b>From the Secretariat:</b> {c.dues_note}</p>}
@@ -385,9 +481,20 @@ function Account({ me }: { me: User }) {
         {t && (
           <ul class="people" role="list">
             {t.users.map((u) => (
-              <li><b>{u.name}{u.id === me.id && ' (you)'}</b><span>{[u.position, u.email].filter(Boolean).join(' · ')}</span><span class="people__s">{u.status !== 'active' ? 'No longer active' : u.last_login_at ? `Last signed in ${day(u.last_login_at.slice(0, 10))}` : 'Not signed in yet'}</span></li>
+              <li>
+                <span class="people__av" aria-hidden="true">{initials(u.name)}</span>
+                <span class="people__who">
+                  <b>{u.name}{u.id === me.id && ' (you)'}</b><span>{[u.position, u.email].filter(Boolean).join(' · ')}</span>
+                  <span class="people__s">{u.status !== 'active' ? 'No longer active' : u.last_login_at ? `Last signed in ${day(u.last_login_at.slice(0, 10))}` : 'Not signed in yet'}</span>
+                </span>
+              </li>
             ))}
-            {t.pending.map((u) => <li class="is-wait"><b>{u.name}</b><span>{[u.position, u.email].filter(Boolean).join(' · ')}</span><span class="people__s">Waiting for approval</span></li>)}
+            {t.pending.map((u) => (
+              <li class="is-wait">
+                <span class="people__av" aria-hidden="true">{initials(u.name)}</span>
+                <span class="people__who"><b>{u.name}</b><span>{[u.position, u.email].filter(Boolean).join(' · ')}</span><span class="people__s">Waiting for approval</span></span>
+              </li>
+            ))}
           </ul>
         )}
         {t && room > 0 && (
