@@ -20,7 +20,9 @@ interface Props {
   /** the spread's number on the page */
   n?: number
   /** the headline's place in the scene, as CSS custom properties: --hx --hy (and --hx-m --hy-m on phones), --hs
-      (its size), --hw (how wide it may go). Measured from the left (or right, with align end) and the top */
+      (its size; --hs-m on phones), --hw (how wide it may go). Measured from the left (or right, with align end) and
+      the top. On a phone the scene shows about a quarter of a wide photograph's width: set the crop (focusM) and the
+      headline's place so the headline does not lie over a face, and the subject is whole */
   place?: string
   align?: 'start' | 'end'
   /** where the photograph is held when the screen crops it (object-position); on phones too, with focusM */

@@ -439,14 +439,15 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (max-width: 700px) {
   .window { --hs: clamp(3.4rem, 17.5vw, 6rem); --hw: calc(100vw - 2 * var(--gutter)); }
-  .window__words { left: var(--hx-m, var(--gutter)); top: var(--hy-m, 17vh); }
+  .window__words { left: var(--hx-m, var(--gutter)); top: var(--hy-m, 17vh); font-size: var(--hs-m, var(--hs)); }
   .window--end .window__words { right: var(--hx-m, var(--gutter)); }
   .window__words .ln__in { white-space: normal; }
   .window__pic img, .window__cut img { object-position: var(--focus-m); }
   /* where a phone's crop leaves no room round the subject, the headline lies over it instead */
   .window--nocut-m .window__cut { display: none; }
-  .window__run { gap: 10px; font-size: 10.5px; letter-spacing: 0.12em; }
-  .window__kicker { display: none; }
+  /* the running head scrolls with the page across the headline, which a phone's narrow scene leaves no room round:
+     on a phone the spread is its headline, its subject and its standfirst */
+  .window__run { visibility: hidden; }
   .window__foot, .window--start .window__foot { flex-direction: column; align-items: start; gap: 14px; }
   .window__cap { font-size: 11.5px; }
 }
@@ -525,7 +526,13 @@ html.lenis, html.lenis body { height: auto; }
 
 /* ── the thread (scripts/stitch.ts, the home page): saddle stitching down the sheets' left edge, sewn as they pass
    (its own class names: .seam and .stitch are the cards' and rules' stitched edges) ── */
-.thread { position: absolute; z-index: 5; top: 0; left: clamp(8px, 1.5vw, 28px); width: 24px; pointer-events: none; overflow: visible; }
+/* in the middle of the page's left margin (the gutter, or more where the page is centred on a wide screen); where
+   that margin is too narrow to leave room either side of it, not at all (also when a window is narrowed) */
+.thread {
+  position: absolute; z-index: 5; top: 0; width: 24px; pointer-events: none; overflow: visible;
+  left: calc(max(var(--gutter), (100vw - var(--max)) / 2 + var(--gutter)) / 2 - 12px);
+}
+@media (max-width: 1099px) { .thread { display: none; } }
 .thread path { fill: none; stroke-linecap: round; }
 .thread__reveal { stroke: #fff; stroke-width: 30; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
 .thread__line { stroke: var(--thread, var(--amber)); stroke-width: 2; stroke-dasharray: 9 7; }

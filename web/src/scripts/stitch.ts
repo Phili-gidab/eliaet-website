@@ -2,12 +2,12 @@
    at the same place, so it reads as one thread sewn down the whole page (the brand line's journey: from the
    highlands, through the workshop and the fair, to the world). Each sheet's stretch sews itself as the sheet passes:
    a mask uncovers the stitches from the top down with the scroll, a small amber needle at its end. Amber on the
-   dark and on cream, brown on amber. Less motion: the seam is simply there. Phones: none (no room at the edge). */
+   dark and on cream, brown on amber. Less motion: the seam is simply there. Narrower screens: none (styles/global.css: the margin leaves no room). */
 import { gsap, ScrollTrigger, reduce } from './motion'
 
 const NS = 'http://www.w3.org/2000/svg'
 const sheets = [...document.querySelectorAll<HTMLElement>('main > section.sec')]
-if (sheets.length && matchMedia('(min-width: 640px)').matches) {
+if (sheets.length && matchMedia('(min-width: 1100px)').matches) {
   sheets.forEach((sec, i) => {
     const svg = document.createElementNS(NS, 'svg')
     svg.classList.add('thread')

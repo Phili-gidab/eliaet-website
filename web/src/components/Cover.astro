@@ -246,5 +246,7 @@ const style = `--cv-bg:${bg};${size ? `--cv-hs:${size};` : ''}${cut?.h ? `--cv-h
     .cover__lines ol { column-gap: 16px; }
     .cover__lines a { font-size: 13.5px; padding: 8px 0; gap: 10px; }
     .cover__num { font-size: 46vw; right: 50%; translate: 50% 0; top: calc(var(--header-h) + 24svh); bottom: auto; }
+    /* (a cover of type alone has no picture for its numeral to stand behind: on a phone it would only crowd the title) */
+    .cover--type .cover__num { display: none; }
   }
 </style>
