@@ -347,8 +347,9 @@ const today = new Date().toISOString().slice(0, 10)
   .ledger__dl a:hover { background-size: 100% 1px; color: var(--amber); }
   .ph-forms { margin-top: clamp(28px, 3vw, 40px); }
 
-  /* 02 · the map */
-  .map__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: end; }
+  /* 02 · the map. The words stand level with the map's top, not its foot: the section is held while the forms slide
+     up over it, and what sits at its foot is covered first */
+  .map__in { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 1.8vw, 28px); row-gap: 40px; align-items: start; }
   .map__text { grid-column: 1 / span 4; }
   .map__title { margin-top: 22px; max-width: 12ch; }
   .map__addr { margin-top: 24px; max-width: 34ch; }
