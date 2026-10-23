@@ -7,9 +7,9 @@ import { NAV } from '../copy/site'
 const pad = (n: number) => String(n).padStart(2, '0')
 const fromNav = (to: string) => {
   const i = NAV.findIndex((n) => n.to === to)
-  return { label: NAV[i].label, to, amharic: NAV[i].amharic, n: pad(i + 1) }
+  return { label: NAV[i].label, to, n: pad(i + 1) }
 }
-const LINKS = [{ label: 'Home', to: '/', amharic: 'መነሻ', n: '00' }, fromNav('/members'), fromNav('/contact')]
+const LINKS = [{ label: 'Home', to: '/', n: '00' }, fromNav('/members'), fromNav('/contact')]
 const arrow = 'M4 12h15m-6-6 6 6-6 6'
 ---
 
@@ -33,7 +33,6 @@ const arrow = 'M4 12h15m-6-6 6 6-6 6'
                   <a href={l.to}>
                     <span class="nf__n">{l.n}</span>
                     <span class="nf__t">{l.label}</span>
-                    {l.amharic && <span class="nf__am geez" lang="am">{l.amharic}</span>}
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d={arrow} fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
                   </a>
                 </li>

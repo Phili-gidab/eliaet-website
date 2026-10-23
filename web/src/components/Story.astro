@@ -80,19 +80,18 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     </svg>
     <div class="story__hello wrap" data-door-text aria-hidden="true">
       <p class="story__name"><span>Ethiopian Leather</span> <span>Industries Association</span></p>
-      <p class="story__amh geez" lang="am">{ORG.amharic}</p>
     </div>
 
     <div class="story__copy wrap">
       {STORY.chapters.map((c, i) => (
         <article class="ch" data-ch={c.id} aria-hidden="true">
-          <p class="label ch__label"><b>{pad(i + 1)}</b> {c.label}{c.amharic && <span class="geez" lang="am">{c.amharic}</span>}</p>
+          <p class="label ch__label"><b>{pad(i + 1)}</b> {c.label}</p>
           <p class="ch__title" set:html={words(c.title)} />
           <p class="ch__line">{c.line}</p>
         </article>
       ))}
       <article class="ch ch--final" data-ch={STORY.final.id}>
-        <p class="pill ch__pill"><i></i>{ORG.name} <span class="geez" lang="am">{ORG.amharic}</span></p>
+        <p class="pill ch__pill"><i></i>{ORG.name}</p>
         <h1 class="ch__title ch__title--final" id="story-title" set:html={words(finalTitle)} />
         <p class="ch__line ch__lede">{HERO.lede}</p>
         <div class="row ch__ctas">
@@ -195,7 +194,6 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     font-size: clamp(2rem, 1rem + 3.2vw, 4.4rem); color: var(--ink);
   }
   .story__name span { display: block; }
-  .story__amh { grid-column: 1; font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.2rem); color: var(--taupe); }
 
 
   /* the pins: a lit dot on the thing, a hairline up from it, its name on a small glass tag. They ride on the film
@@ -319,7 +317,6 @@ const finalTitle = HERO.title.join(' ').replace('to the world.', '<em>to the wor
     .ch__title { font-size: clamp(2.7rem, 12vw, 4.2rem); }
     .ch__title--final { font-size: clamp(2.9rem, 13vw, 4.6rem); }
     .ch__line { font-size: 1rem; margin-top: 14px; }
-    .ch__pill .geez { display: none; }
     .pin { --stem: 34px; }
     .pin__tag { font-size: 10px; padding: 5px 9px 5px 8px; letter-spacing: 0.1em; }
     .ch__dates { display: none; }

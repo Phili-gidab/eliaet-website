@@ -45,7 +45,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
   description={`${MEMBERS_HEAD.subtitle} ${TOTAL_MEMBERS} member companies: ${SECTOR_TOTALS.tannery} tanneries, ${SECTOR_TOTALS.footwear} shoe manufacturers and ${SECTOR_TOTALS['leather-goods']} other leather product manufacturers.`}
 >
   <Cover
-    n="02" kicker="Members" amharic="አባላት"
+    n="02" kicker="Members"
     title={['Members', '<em>directory</em>.']}
     lede={MEMBERS_HEAD.subtitle}
     bg="var(--amber-40)" numeral={String(ORG.members)}
@@ -78,7 +78,7 @@ const svg = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=
             <div class="band">
               <div class="band__head" data-reveal style="--d:.05s">
                 <p class="band__n figure-num">{b.total}</p>
-                <p class="band__name">{SECTORS[b.key].plural}<span class="band__am geez" lang="am">{SECTORS[b.key].amharic}</span></p>
+                <p class="band__name">{SECTORS[b.key].plural}</p>
                 <p class="band__mix">
                   {b.mix.map((x, i) => <>{i > 0 && <span class="band__dot">·</span>}<span class={`mix mix--${x.size[0]}`}>{x.n} {x.size}</span></>)}
                 </p>

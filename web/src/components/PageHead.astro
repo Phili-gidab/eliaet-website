@@ -6,7 +6,6 @@ import Film from './Film.astro'
 interface Props {
   index?: string
   eyebrow: string
-  amharic?: string
   title: string[]
   lede?: string
   image?: string
@@ -21,13 +20,13 @@ interface Props {
   /** the page colour's light grey-taupe by default (the brand guide's taupe 20), or the page colour, or brown */
   tone?: 'dark' | 'paper' | 'mist'
 }
-const { index = '01', eyebrow, amharic, title, lede, image, imageAlt = '', film, tone = 'mist' } = Astro.props
+const { index = '01', eyebrow, title, lede, image, imageAlt = '', film, tone = 'mist' } = Astro.props
 ---
 
 <section class:list={['ph', tone === 'dark' ? 'lit' : 'sec--paper', { 'sec--mist': tone === 'mist', 'ph--img': image || film }]} data-tone={tone === 'dark' ? 'dark' : 'light'}>
   <div class="ph__in wrap">
     <div class="ph__text">
-      <p class="label label--rule" data-reveal="fade"><b>{index}</b> {eyebrow}{amharic && <span class="geez" lang="am">{amharic}</span>}</p>
+      <p class="label label--rule" data-reveal="fade"><b>{index}</b> {eyebrow}</p>
       <h1 class="h1 lines ph__title">
         {/* a space between the lines, so the heading reads as words (to search engines, screen readers, a copy) */}
         {title.map((t, i) => <Fragment><span class="ln" style={`--i:${i}`}><span set:html={t} /></span>{i < title.length - 1 && ' '}</Fragment>)}

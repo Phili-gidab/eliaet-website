@@ -3,8 +3,7 @@
    guide shows, on the guide's page colour #fffcf5. The dark sections are the brand brown, the light ones the page
    colour; amber is the light in the dark sections, and on light ones only marks, rules and fills (as text on cream
    it would not read). Sections slide in like sheets over the picture; cards sit on the page like panels.
-   Type: Roboto throughout (the brand face), using its width axis for the display titles; Noto Sans Ethiopic for
-   the Ge'ez, as in the brand lockup. */
+   Type: Roboto throughout (the brand face), using its width axis for the display titles. */
 
 :root {
   /* the brand palette and its tints (left to right in the guide) */
@@ -44,7 +43,6 @@
   --f-display: var(--f-text);
   --f-serif: var(--f-text);
   --f-mono: var(--f-text);
-  --f-geez: 'Noto Sans Ethiopic Variable', 'Nyala', 'Abyssinica SIL', sans-serif;
 
   --gutter: clamp(18px, 4vw, 64px);
   --max: 1440px;
@@ -99,7 +97,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
 ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
-:lang(am), .geez { font-family: var(--f-geez); }
 
 ::selection { background: var(--amber); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
@@ -243,9 +240,6 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(60 30 22 / 0.3
   color: var(--amber); font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
   background: rgb(226 160 37 / 0.1); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.3);
 }
-.label .geez { letter-spacing: 0.02em; text-transform: none; font-size: 12.5px; opacity: 0.85; }
-.sec--paper .label .geez { opacity: 1; } /* on paper the dimmed Ge'ez would not read */
-:is(.sec--hide, .sec--saddle, .sec--taupe, .grain, .sheet, main > .ph ~ .sec) .label .geez { opacity: 1; }
 .sec--paper .label { color: var(--taupe); }
 .sec--paper .label b { color: var(--ink); background: var(--paper-2); box-shadow: inset 0 0 0 1px rgb(226 160 37 / 0.6); }
 .label--rule::before { content: none; }
@@ -259,7 +253,6 @@ main > .ph ~ .sec.sec--paper { box-shadow: 0 -30px 60px -36px rgb(60 30 22 / 0.3
   background: rgb(255 252 245 / 0.07); box-shadow: inset 0 0 0 1px var(--line-2);
   backdrop-filter: blur(10px) saturate(1.3); -webkit-backdrop-filter: blur(10px) saturate(1.3);
 }
-.stamp .geez, .pill .geez { font-size: 12px; letter-spacing: 0.02em; text-transform: none; opacity: 0.8; }
 .stamp i, .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); font-style: normal; }
 .sec--paper .stamp, .sec--paper .pill { color: var(--ink); background: rgb(60 30 22 / 0.05); box-shadow: inset 0 0 0 1px rgb(60 30 22 / 0.14); backdrop-filter: none; -webkit-backdrop-filter: none; }
 
@@ -490,7 +483,6 @@ html.lenis, html.lenis body { height: auto; }
   border-radius: 9px 9px 0 0; pointer-events: none;
 }
 .sec--amber .sheet-tab::before { border-color: rgb(60 30 22 / 0.45); }
-.sheet-tab .geez { font-weight: 400; font-size: 13px; }
 .sheet-tab b { display: none; }
 @media (max-width: 560px) { :root { --tab-h: 34px; } .sheet-tab { padding: 0 16px; font-size: 12.5px; } }
 

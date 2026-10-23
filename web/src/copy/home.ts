@@ -15,22 +15,22 @@ export const STORY = {
   end: 20,
   chapters: [
     {
-      id: 'drums', t0: 0, t1: 3.4, in: 0.15, out: 3.3, label: 'The drum house', amharic: 'ዌት ብሉ',
+      id: 'drums', t0: 0, t1: 3.4, in: 0.15, out: 3.3, label: 'The drum house',
       title: 'Hides become <em>leather</em> here.',
       line: 'In tanneries across Ethiopia, hides from the largest herd in Africa are tanned in drums like these.',
     },
     {
-      id: 'process', t0: 3.4, t1: 7.4, in: 3.5, out: 7.3, label: 'Under one roof', amharic: 'ክረስት',
+      id: 'process', t0: 3.4, t1: 7.4, in: 3.5, out: 7.3, label: 'Under one roof',
       title: 'Every stage, <em>one</em> craft.',
       line: 'Wringing, splitting, shaving, drying, finishing: the know-how to carry a hide all the way to finished leather.',
     },
     {
-      id: 'craft', t0: 7.4, t1: 12, in: 7.6, out: 11.9, label: 'Made in Ethiopia', amharic: 'ያለቀ ቆዳ',
+      id: 'craft', t0: 7.4, t1: 12, in: 7.6, out: 11.9, label: 'Made in Ethiopia',
       title: 'Leather the <em>world</em> wears.',
       line: 'Shoes, bags, garments and gloves, cut and sewn by Ethiopian manufacturers.',
     },
     {
-      id: 'world', t0: 12, t1: 16, in: 12.1, out: 15.9, label: 'Out of the door', amharic: '',
+      id: 'world', t0: 12, t1: 16, in: 12.1, out: 15.9, label: 'Out of the door',
       title: 'Out to <em>market</em>.',
       line: 'Finished leather and leather goods leave the tannery for buyers in Europe, Asia, North America and Africa.',
     },

@@ -66,17 +66,17 @@ const pad = (n: number) => String(n).padStart(2, '0')
     </div>
     <nav class="menu__nav" aria-label="All pages">
       <ol role="list">
-        <li style="--i:0"><a href="/" aria-current={path === '/' ? 'page' : undefined}><span class="menu__n">00</span><span class="menu__t">Home</span><span class="menu__am geez" lang="am">መነሻ</span></a></li>
+        <li style="--i:0"><a href="/" aria-current={path === '/' ? 'page' : undefined}><span class="menu__n">00</span><span class="menu__t">Home</span></a></li>
         {NAV.map((n, i) => (
           <li style={`--i:${i + 1}`}>
             <a href={n.to} aria-current={isActive(n.to) ? 'page' : undefined}>
               <span class="menu__n">{pad(i + 1)}</span>
               <span class="menu__t">{n.label}</span>
-              {n.amharic ? <span class="menu__am geez" lang="am">{n.amharic}</span> : n.note && <span class="menu__am">{n.note}</span>}
+              {n.note && <span class="menu__am">{n.note}</span>}
             </a>
           </li>
         ))}
-        <li style={`--i:${NAV.length + 1}`}><a href="/members#apply"><span class="menu__n">{pad(NAV.length + 1)}</span><span class="menu__t">Become a member</span><span class="menu__am geez" lang="am">አባልነት</span></a></li>
+        <li style={`--i:${NAV.length + 1}`}><a href="/members#apply"><span class="menu__n">{pad(NAV.length + 1)}</span><span class="menu__t">Become a member</span></a></li>
         <li style={`--i:${NAV.length + 2}`}><a href="/members/login" data-account aria-current={path.startsWith('/members/') ? 'page' : undefined}><span class="menu__n">{pad(NAV.length + 2)}</span><span class="menu__t" data-account-label>Member login</span></a></li>
       </ol>
     </nav>

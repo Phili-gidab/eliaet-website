@@ -14,7 +14,7 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
 
 <Base title="About" description={`${ABOUT_HEAD.subtitle} ${WHO.body[0]}`}>
   <Cover
-    n="01" kicker={ABOUT_HEAD.title} amharic="ስለ እኛ"
+    n="01" kicker={ABOUT_HEAD.title}
     title={['The national voice', 'of Ethiopia’s leather', '<em>industry</em>.']}
     size="clamp(3rem, 1rem + 6.4vw, 8.2rem)"
     lede={`Since ${ORG.founded}: the association of the country’s tanneries, footwear manufacturers, and leather goods and garment producers.`}
@@ -55,7 +55,7 @@ const initials = PRESIDENT.name.split(' ').map((w) => w[0]).join('')
 
   <section class="sec sec--brown sheet lit" id="what-we-do" aria-labelledby="what-h">
     <div class="wrap">
-      <SectionHead index="04" eyebrow="What we do" amharic="የምንሰራው" title="Six ways we work for the <em>sector</em>." id="what-h" />
+      <SectionHead index="04" eyebrow="What we do" title="Six ways we work for the <em>sector</em>." id="what-h" />
       <ItemGrid items={WHAT_WE_DO} cols={3} class="mt-xl" />
     </div>
   </section>

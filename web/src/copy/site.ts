@@ -4,7 +4,6 @@
 export const ORG = {
   name: 'Ethiopian Leather Industries Association',
   short: 'ELIA',
-  amharic: 'የኢትዮጵያ ቆዳ ኢንዱስትሪዎች ማህበር', // as spelled in the brand guide's lockup
   founded: 1994,
   members: 194,
   tagline: 'Promoting export of leather, shoes and leather goods and garment, protecting the rights of members, and assisting businesses to improve.',
@@ -48,19 +47,19 @@ export const SOCIAL: { label: string; short: string; href: string }[] = [
   { label: 'YouTube', short: 'Yt', href: '' },
 ]
 
-export type NavItem = { label: string; to: string; amharic?: string; note?: string }
+export type NavItem = { label: string; to: string; note?: string }
 
 export const NAV: NavItem[] = [
-  { label: 'About', to: '/about', amharic: 'ስለ እኛ' },
-  { label: 'Members', to: '/members', amharic: 'አባላት', note: '194' },
-  { label: 'The Industry', to: '/industry', amharic: 'ኢንዱስትሪው' },
-  { label: 'Programs', to: '/programs', amharic: 'ፕሮግራሞች' },
-  { label: 'Invest & Source', to: '/invest', amharic: 'ኢንቨስትመንት' },
+  { label: 'About', to: '/about' },
+  { label: 'Members', to: '/members', note: '194' },
+  { label: 'The Industry', to: '/industry' },
+  { label: 'Programs', to: '/programs' },
+  { label: 'Invest & Source', to: '/invest' },
   { label: 'Leather Fair', to: '/aalf', note: 'AALF' },
   { label: 'Highland Leather', to: '/ehl', note: 'EHL' },
   { label: 'ELDSC', to: '/eldsc' },
-  { label: 'News & Events', to: '/news', amharic: 'ዜና' },
-  { label: 'Contact', to: '/contact', amharic: 'አድራሻ' },
+  { label: 'News & Events', to: '/news' },
+  { label: 'Contact', to: '/contact' },
 ]
 
 /** the header's own links (the rest are in the menu) */

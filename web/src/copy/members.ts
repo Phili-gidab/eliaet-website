@@ -5,25 +5,22 @@
 export type SectorKey = 'tannery' | 'footwear' | 'leather-goods'
 export type SizeKey = 'large' | 'medium' | 'small'
 
-export const SECTORS: Record<SectorKey, { label: string; plural: string; amharic: string; intro: string; scale: string }> = {
+export const SECTORS: Record<SectorKey, { label: string; plural: string; intro: string; scale: string }> = {
   tannery: {
     label: 'Tannery',
     plural: 'Tanneries',
-    amharic: 'ቆዳ ፋብሪካ',
     intro: 'Tanneries are fascinating places where the magic of transforming animal hides into luxurious leather unfolds.',
     scale: 'Mainly large-scale',
   },
   footwear: {
     label: 'Shoe manufacturer',
     plural: 'Shoe manufacturers',
-    amharic: 'ጫማ',
     intro: 'Ethiopia has a vibrant shoe manufacturing industry, and several companies contribute to this sector.',
     scale: 'Medium and small-scale',
   },
   'leather-goods': {
     label: 'Leather products',
     plural: 'Leather product manufacturers',
-    amharic: 'የቆዳ ውጤቶች',
     intro: 'Leather products encompass a wide range of items made from durable and versatile material, which includes bags and purses, wallets, belts, jackets and outerwear, gloves, shoes and boots, and accessories.',
     scale: 'Mainly small-scale',
   },

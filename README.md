@@ -39,13 +39,15 @@ server that also runs the forms API. Films rendered in Blender.
   stamps, the President's message printed on a stitched panel (`styles/leather.css`, `components/LeatherDefs.astro`).
 - **In ELIA's brand** (the brand guide ELIA sent, October 2026): the dark sections are the brand brown, the light
   ones the guide's cream, amber the light in the dark; sections slide in like sheets, cards sit like panels; titles
-  in Roboto at a condensed width, the word that carries the light in Roboto's light italic; Ge'ez beside the titles.
+  in Roboto at a condensed width, the word that carries the light in Roboto's light italic. The site is in English
+  only (ELIA asked for the Amharic to be taken out, October 2026).
 
 Brand colours (with the tints the guide shows, as CSS variables in `styles/global.css`): main `#E2A025` (amber),
 main second `#7A6762` (taupe), secondary `#3C1E16` (brown), on `#FFFCF5`. Amber is not used for text on the cream
-(it would not read); there, small accents are taupe. Type: Roboto (the brand face) for everything, Noto Sans Ethiopic
-for Ge'ez, both self-hosted. The full lockup (logo with the name in Amharic and English, as in the guide) is in
-`web/public/media/brand/`: `elia-lockup.svg` for light backgrounds, `-reverse` for dark ones, each also `-stacked`.
+(it would not read); there, small accents are taupe. Type: Roboto (the brand face) for everything, self-hosted. The
+guide's full lockup (logo with the name in Amharic and English) is in `web/public/media/brand/`: `elia-lockup.svg` for
+light backgrounds, `-reverse` for dark ones, each also `-stacked`. The footer uses `-reverse-en` and
+`-reverse-stacked-en`, the same lockups with the English line only.
 
 ## Run it
 
@@ -111,8 +113,6 @@ Measured with Lighthouse: 97 to 100 on a phone (slow 4G, mid-range phone) on the
 page with its film, and 99 to 100 on a desktop. Accessibility, best practices and SEO score 100. What keeps it fast:
 
 - The styles are written into each page, so no stylesheet request delays the first paint.
-- The Ge'ez font carries only the letters in use (`web/scripts/fonts.mjs`). New Amharic text is picked up at the
-  next build.
 - Photos come in several sizes and each screen downloads the one it needs (`srcset`; see `web/src/lib/media.ts`).
 - Each film poster is a picture under the video, so a phone downloads only the tall poster.
 - The leather and the 3D stage load only as their place comes near.
@@ -192,5 +192,4 @@ The data can come along: copy the data folder (or a backup) to the new hosting b
 - **The President's photo**, the **Board** and the **social media** addresses (`web/src/copy/about.ts`, `site.ts`).
 - **The fair's name**: the content document says "All Africa Leather Fair", the logo and the 2025 poster "All African
   Leather Fair". The site follows the document, except where it names the logo and the 14th edition.
-- **Amharic** labels and the association's Amharic name: have a native speaker check them.
 - **Photography**: new, high-resolution photographs of tanneries, workshops and products would lift the whole site.

@@ -32,10 +32,11 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     )}
 
     <div class="ftr__top">
-      <!-- the full lockup from the brand guide: the logo with the association's name in Amharic and English -->
+      <!-- the lockup from the brand guide, its English line only (the guide's own files, with the Amharic line too, stay
+           beside these in media/brand) -->
       <a href="/" class="ftr__lockup">
-        <img class="ftr__lockup-wide" src="/media/brand/elia-lockup-reverse.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="1244" height="184" loading="lazy" decoding="async" />
-        <img class="ftr__lockup-tall" src="/media/brand/elia-lockup-reverse-stacked.svg" alt={`ELIA, ${ORG.amharic}, ${ORG.name}`} width="640" height="286" loading="lazy" decoding="async" />
+        <img class="ftr__lockup-wide" src="/media/brand/elia-lockup-reverse-en.svg" alt={`ELIA, ${ORG.name}`} width="1244" height="184" loading="lazy" decoding="async" />
+        <img class="ftr__lockup-tall" src="/media/brand/elia-lockup-reverse-stacked-en.svg" alt={`ELIA, ${ORG.name}`} width="640" height="252" loading="lazy" decoding="async" />
       </a>
       <div class="ftr__cta">
         <a class="btn" href="/members#apply">Become a member <Fragment set:html={arrow} /></a>

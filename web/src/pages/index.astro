@@ -75,7 +75,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
                   <span class="sector__share">{Math.round((SECTOR_TOTALS[k] / ABOUT.count.value) * 100)}<i>%</i></span>
                 </span>
                 <span class="sector__name">{SECTORS[k].plural}</span>
-                <span class="sector__scale">{SECTORS[k].scale} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
+                <span class="sector__scale">{SECTORS[k].scale}</span>
                 <span class="stitches" aria-hidden="true">
                   {Array.from({ length: SECTOR_TOTALS[k] }, (_, i) => <i style={`--i:${i}`} />)}
                 </span>
@@ -288,7 +288,6 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   .sector__share i { font-size: 0.7em; }
   .sector__name { margin-top: 10px; font-family: var(--f-display); font-weight: 680; font-stretch: 85%; font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.05; letter-spacing: -0.02em; }
   .sector__scale { font-size: 14.5px; color: var(--taupe); }
-  .sector__scale .geez { margin-left: 4px; }
   /* the stitches: short slanted dashes of amber thread in rows, as a saddle stitch runs */
   .stitches { display: flex; flex-wrap: wrap; gap: 9px 7px; margin-top: 22px; }
   .stitches i { display: block; width: 11px; height: 3px; border-radius: 2px; background: var(--amber); transform: rotate(-24deg); box-shadow: 0 1px 0 rgb(60 30 22 / 0.18); }
