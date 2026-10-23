@@ -104,15 +104,57 @@ if (reduce) {
 }
 
 /* ── leather: a hide's picture loads when its place comes near (styles/leather.css); a spread's photographs too ── */
+const nearEls = document.querySelectorAll<HTMLElement>('.hide, .sec--saddle, .window')
 {
-  const els = document.querySelectorAll<HTMLElement>('.hide, .sec--saddle, .window')
-  if (!('IntersectionObserver' in window)) els.forEach((el) => el.classList.add('is-near'))
+  if (!('IntersectionObserver' in window)) nearEls.forEach((el) => el.classList.add('is-near'))
   else {
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-near'); io.unobserve(e.target) }
-    }, { rootMargin: '900px 0px' })
-    els.forEach((el) => io.observe(el))
+    }, { rootMargin: '1800px 0px' })
+    nearEls.forEach((el) => io.observe(el))
   }
+}
+
+/* ── pictures fetched ahead of the reader: a picture marked lazy waits until its place comes near, and on a slow line
+   that is too late (it comes in after its section). So once the page has loaded and the browser is idle, every
+   picture on it is fetched, three at a time, those nearest the screen first; then the leathers and the spreads. On
+   the home page this waits until the film can play, so the pictures do not take its line. Not on a connection that
+   asks to save data. ── */
+if (!(navigator as any).connection?.saveData) {
+  const ahead = () => {
+    const imgs = [...document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]')]
+      .filter((img) => !(img.complete && img.naturalWidth))
+      .map((img) => ({ img, d: Math.abs(img.getBoundingClientRect().top) }))
+      .sort((a, b) => a.d - b.d)
+      .map((x) => x.img)
+    let i = 0, busy = 0
+    const next = () => {
+      while (busy < 3 && i < imgs.length) {
+        const img = imgs[i++]
+        if (img.complete && img.naturalWidth) continue
+        busy++
+        const done = () => { busy--; next() }
+        img.addEventListener('load', done, { once: true })
+        img.addEventListener('error', done, { once: true })
+        img.loading = 'eager'
+      }
+      if (i >= imgs.length && !busy) nearEls.forEach((el) => el.classList.add('is-near'))
+    }
+    next()
+  }
+  const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 2500 }) : setTimeout(cb, 1200))
+  const film = document.querySelector<HTMLVideoElement>('[data-story] video')
+  const afterFilm = (cb: () => void) => {
+    if (!film) return cb()
+    let fired = false
+    const go = () => { if (!fired) { fired = true; cb() } }
+    film.addEventListener('canplaythrough', go, { once: true })
+    film.addEventListener('playing', go, { once: true })
+    setTimeout(go, 9000)
+  }
+  const start = () => afterFilm(() => idle(ahead))
+  if (document.readyState === 'complete') start()
+  else addEventListener('load', start, { once: true })
 }
 
 /* ── counters: <span data-count="194">194</span> counts up from 0 when it comes into view. The page carries the real

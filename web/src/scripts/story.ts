@@ -5,10 +5,10 @@
    the end of the rail plays it again. People who asked for less motion get that last frame and chapter at once.
    Before all that, the door (scripts/door-gl.ts, drawn on the graphics card): the logo plays its own opening, as in
    the brand film (the outline of Ethiopia, the e drawn out of its western point, the dot dropping in, the wordmark
-   sliding out), then the film's first frame fills the mark. A moment later the page goes on by itself: the e gives
-   way and it glides through the mark's dot until the film fills the screen (the same distance a visitor would scroll,
-   so scrolling back up closes the door again); only then does the film start, so the story begins at its first
-   chapter, and it plays at its own pace. Whoever scrolls, taps or presses a key first is in
+   sliding out), then the film fills the mark and starts, in slow motion. A moment later the page goes on by itself:
+   the e gives way and it glides through the mark's dot until the film fills the screen (the same distance a visitor
+   would scroll, so scrolling back up closes the door again). As the door opens the film comes up to its own pace,
+   gently, and the first chapter's words stay a few seconds whenever the door opened; then it plays at its own pace. Whoever scrolls, taps or presses a key first is in
    charge instead. Scrolling on, the film is held and the next section slides up over it (scripts/motion.ts). */
 import { mountFilm } from './film'
 import { gsap, ScrollTrigger, lenis } from './motion'
@@ -35,7 +35,10 @@ if (root) {
   let useDoor = !!doorCanvas && !reduce
   let open = !useDoor
   const DOOR = 1.6                                    // screens of scrolling to open it (as --door in Story.astro)
-  const BEHIND = 0.6                                  // the film's pace inside the mark, before the door opens
+  const BEHIND = 0.3                                  // the film's pace inside the mark, slow motion, before the door opens
+  const FIRST_FOR = 3.2                               // seconds the first chapter's words stay once the door is open
+  // the film waits at its first frame until it fills the mark (scripts/door-gl.ts), then runs on behind the door
+  let started = !useDoor
 
   // the pointer over the stage, smoothed (-1 to 1 each way): the last frame follows it
   const ptr = { x: 0, y: 0 }
@@ -76,7 +79,7 @@ if (root) {
     onEnded: () => { ended = true; root.classList.add('is-end'); draw(END); goLive() },
     // (it waits for the brand film, and at its first frame while the door is shut, so the story starts at its first
     // chapter as the door opens; it rests while covered, and once it has ended it stays on its last frame)
-    hold: () => holding || (useDoor && !open) || covered || ended,
+    hold: () => holding || !started || covered || ended,
   })
   video.loop = false
   if (holding) {
@@ -204,14 +207,29 @@ if (root) {
   // the pace: the film was rendered to run 20 s; it plays brisker. The walk through the works runs at FAST, the way
   // out of the door to the hills (the last chapter, where the logo comes together on the hillside) nearer its own
   // speed. About 14 s in all. The words, the pins and the rail all follow the film's own time, so they keep in step.
+  // The first chapter runs at FIRST: as slow as it takes for its words to stay FIRST_FOR seconds after the door opens
+  // (set again as it opens, from where the film has got to behind the door). The speed eases from one pace to the
+  // next, so it never jumps.
   const FAST = 1.6, SLOW = 1.1, SLOW_FROM = 15.6
-  let rate = 0
+  let FIRST = Math.min(FAST, chapters[0].t1 / FIRST_FOR)
+  let rate = 0, paced = 0
   const pace = (t: number) => {
-    const want = !open ? BEHIND : t < SLOW_FROM ? FAST : SLOW
-    if (want === rate && video.playbackRate === want) return
-    rate = want
-    video.defaultPlaybackRate = want
-    video.playbackRate = want
+    const want = !open ? BEHIND : t < chapters[0].t1 ? FIRST : t < SLOW_FROM ? FAST : SLOW
+    // eased in real time (about half a second), however many frames the film shows meanwhile
+    const now = performance.now(), dt = paced ? Math.min(0.25, (now - paced) / 1000) : 0
+    paced = now
+    rate = rate ? rate + (want - rate) * (1 - Math.exp(-dt / 0.35)) : want
+    if (Math.abs(want - rate) < 0.01) rate = want
+    if (Math.abs(video.playbackRate - rate) < 0.008) return
+    video.defaultPlaybackRate = rate
+    video.playbackRate = rate
+  }
+  // the film let go: at the end of the logo's opening as it fills the mark (or at once, when a visitor scrolls first)
+  const startFilm = () => {
+    if (started) return
+    started = true
+    arm()
+    video.dispatchEvent(new Event('elia-sync'))
   }
 
   // the clock: the film's time, every frame it shows (rVFC where there is one: it gives the shown frame's own time)
@@ -372,11 +390,12 @@ if (root) {
       .to(I, { wordX: 0, wordA: 1, duration: 0.65, ease: 'power3.out' }, 1.25)
       .call(() => root.classList.add('door-in'), [], 1.45)
       .to(I, { filmIn: 1, duration: 0.85, ease: 'power2.inOut' }, 1.6)
+      .call(startFilm, [], 1.6)
 
     mountDoor(doorCanvas, video, poster).then((d) => {
       if (!d) {                                                   // no WebGL here: no door, the film as it is
         useDoor = false; open = true
-        arm(); video.dispatchEvent(new Event('elia-sync'))
+        startFilm()
         root.classList.add('no-door', 'is-open'); root.classList.remove('door-anim')
         html.classList.remove('door-closed')
         root.dataset.tone = 'dark'; dispatchEvent(new Event('elia-tone'))
@@ -395,13 +414,19 @@ if (root) {
           p = st.progress
           // someone already scrolling: the opening is over at once
           if (p > 0.015 && intro.progress() < 1) intro.progress(1)
+          if (p > 0.015) startFilm()
           const isOpen = p >= 0.985
           if (isOpen !== open) {
             open = isOpen
             root.classList.toggle('is-open', open)
             html.classList.toggle('door-closed', !open)
             door?.run(!open)
-            if (open) { draw(video.currentTime || 0); arm() }
+            if (open) {
+              // the first chapter's pace, from where the film is now: its words stay FIRST_FOR seconds
+              const t = video.currentTime || 0
+              if (t < chapters[0].t1) FIRST = Math.min(FAST, Math.max(0.45, (chapters[0].t1 - t) / FIRST_FOR))
+              draw(t)
+            }
             video.dispatchEvent(new Event('elia-sync'))
           }
           const tone = p > 0.6 ? 'dark' : 'light'
