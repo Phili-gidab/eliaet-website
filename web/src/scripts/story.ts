@@ -273,7 +273,8 @@ if (root) {
     root.classList.add('has-door', 'door-anim')
     html.classList.add('door-closed')
     // the film waits at its first frame behind the door: load it meanwhile, so it starts at once when the door opens
-    video.preload = 'auto'
+    // (not on a connection that asks to save data: there it loads when it is let play)
+    if (!(navigator as any).connection?.saveData) video.preload = 'auto'
     root.dataset.tone = 'light'
     // the door is this visit's logo moment: the other pages skip their logo loader from now on
     try { sessionStorage.setItem('elia-intro', '1') } catch (e) { /* private mode */ }

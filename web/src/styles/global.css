@@ -500,11 +500,11 @@ html.lenis, html.lenis body { height: auto; }
   /* covered by the next one and passed: not drawn (scripts/motion.ts) */
   main > .is-stacked.is-covered { visibility: hidden; }
   main > .is-stacked:not(.window) {
-    transform: scale(calc(1 - var(--cover, 0) * 0.025)); transform-origin: 50% max(50%, calc(100% - 50vh));
+    transform-origin: 50% max(50%, calc(100% - 50vh));   /* (its scale is set as it is covered: scripts/motion.ts) */
   }
   .sheet-shade {
     position: absolute; inset: 0; z-index: 60; pointer-events: none; border-radius: inherit;
-    background: var(--brand-brown); opacity: calc(var(--cover, 0) * 0.6);
+    background: var(--brand-brown); opacity: 0;
   }
 }
 
@@ -524,10 +524,12 @@ html.lenis, html.lenis body { height: auto; }
   @view-transition { navigation: none; }
 }
 
-/* ── one grade for every photograph and film: a touch warm, a touch muted, so the fair, the studio and the
-   highlands read as one shoot (logos, drawings and the members' own pictures keep their colours) ── */
+/* ── one grade for every photograph: a touch warm, a touch muted, so the fair, the studio and the highlands read
+   as one shoot (logos, drawings and the members' own pictures keep their colours). Not on the films: a filter on a
+   playing video is redone every frame and keeps the browser from handing the video to the display directly (the
+   films are graded in their own render) ── */
 :root { --grade: sepia(0.07) saturate(0.94) contrast(1.03); }
-:where(main) :where(img, video):not([src$='.svg'], .plogo img, .roster img, .mem img, .sketch img) { filter: var(--grade); }
+:where(main) :where(img):not([src$='.svg'], .plogo img, .roster img, .mem img, .sketch img) { filter: var(--grade); }
 
 /* ── the thread (scripts/stitch.ts, the home page): saddle stitching down the sheets' left edge, sewn as they pass
    (its own class names: .seam and .stitch are the cards' and rules' stitched edges) ── */

@@ -164,15 +164,20 @@ export function mountDoor(canvas: HTMLCanvasElement, video: HTMLVideoElement, po
       filmW = posterImg.naturalWidth; filmH = posterImg.naturalHeight
     }
     const state: DoorState = { s: 1, tx: 0, ty: 0, sweep: 0, dot: 0, dotY: 0, wordX: 0, wordA: 0, filmIn: 0, rim: 0, view: 1.18, color: 0, eA: 1 }
-    let haveFrame = false
+    // the film's frame goes up to the graphics card only when it is a new one (the film waits at its first frame
+    // while the door is shut: that one frame, once)
+    let upFor = -1
     const upload = () => {
       if (video.readyState < 2 || !video.videoWidth) return
+      const at = video.currentTime
+      if (at === upFor && video.paused) return
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, filmTex)
       try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video) } catch { return }
-      filmW = video.videoWidth; filmH = video.videoHeight; haveFrame = true
+      filmW = video.videoWidth; filmH = video.videoHeight; upFor = at
     }
     const draw = () => {
-      const dpr = Math.min(devicePixelRatio || 1, 2)
+      // (at most 1.5 device pixels to a CSS pixel: the shapes are drawn from a distance field and stay sharp)
+      const dpr = Math.min(devicePixelRatio || 1, 1.5)
       const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr)
       if (!w || !h) return
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h) }
@@ -186,19 +191,25 @@ export function mountDoor(canvas: HTMLCanvasElement, video: HTMLVideoElement, po
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
     // the film's frames: drawn as they come (the frame callback where there is one), only while the door is in use
+    // and the film is playing; a paused film is drawn once more when a frame arrives or it is moved, and otherwise
+    // only when the door itself moves (the caller's draw)
     let on = false, raf = 0
     const vfc = 'requestVideoFrameCallback' in video
     const frame = () => {
+      raf = 0
       if (!on) return
       upload(); draw()
-      if (vfc && !video.paused) (video as any).requestVideoFrameCallback(frame)
+      if (video.paused) return
+      if (vfc) (video as any).requestVideoFrameCallback(frame)
       else raf = requestAnimationFrame(frame)
     }
-    video.addEventListener('play', () => { if (on) { cancelAnimationFrame(raf); frame() } })
+    const once = () => { if (on && !raf) raf = requestAnimationFrame(frame) }
+    video.addEventListener('play', () => { if (on) { cancelAnimationFrame(raf); raf = 0; frame() } })
+    for (const ev of ['loadeddata', 'seeked']) video.addEventListener(ev, once)
     const door: Door = {
       state,
-      draw: () => { if (!haveFrame) upload(); draw() },
-      run(v) { if (v === on) return; on = v; if (on) frame(); else cancelAnimationFrame(raf) },
+      draw: () => { upload(); draw() },
+      run(v) { if (v === on) return; on = v; if (on) frame(); else { cancelAnimationFrame(raf); raf = 0 } },
       destroy() { door.run(false); gl.getExtension('WEBGL_lose_context')?.loseContext() },
     }
     return door

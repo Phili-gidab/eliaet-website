@@ -83,9 +83,16 @@ if (lenis) {
         mark.className = 'sheet-mark'
         mark.setAttribute('aria-hidden', 'true')
         sec.after(mark)
+        // (set as the sheet's own transform and the shade's own opacity, not as a variable: a variable is inherited,
+        // and changing it every frame would restyle everything in the sheet every frame)
+        const scaleable = !sec.matches('.window')
         ScrollTrigger.create({
           trigger: mark, start: 'top bottom', end: 'top top', scrub: true,
-          onUpdate: (st) => sec.style.setProperty('--cover', st.progress.toFixed(3)),
+          onUpdate: (st) => {
+            const c = st.progress
+            if (scaleable) sec.style.transform = c > 0 ? `scale(${(1 - c * 0.025).toFixed(4)})` : ''
+            shade.style.opacity = (c * 0.6).toFixed(3)
+          },
           // while it shrinks it is drawn once and scaled as a picture, so its type does not shimmer
           onToggle: (st) => { sec.style.willChange = st.isActive ? 'transform' : '' },
         })

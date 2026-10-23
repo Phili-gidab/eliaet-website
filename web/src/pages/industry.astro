@@ -106,7 +106,8 @@ const down = 'M12 4v12m-5-5 5 5 5-5M5 20h14'
 </Base>
 
 <style>
-  .intro { padding-bottom: calc(clamp(88px, 11vw, 168px) + clamp(60px, 9vw, 150px)); }
+  /* (clip: the sketch runs off the page's sides, and must not widen it) */
+  .intro { padding-bottom: calc(clamp(88px, 11vw, 168px) + clamp(60px, 9vw, 150px)); overflow-x: clip; }
   .intro__in { position: relative; z-index: 1; row-gap: 24px; }
   /* the herder stands in the empty column left of the words, his flock grazing on under them; the drawing fades out
      at its ends and its foot, where the photograph was cropped */
