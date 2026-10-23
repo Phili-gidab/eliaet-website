@@ -1,41 +1,206 @@
 ---
+/* Appointments: one card, like an open diary. On the left its leather cover (chestnut hide, amber stitching): what an
+   appointment is for, the three steps, and the day chosen so far, written on a plate as it is picked. On the right the
+   page to fill in: the next working days as tiles to pick from (or another date), the time of day, who is coming, and
+   the project. Without script the tiles are not there and the plain date field does their work. */
 import { APPOINTMENT } from '../copy/home'
+import { CONTACT } from '../copy/site'
 interface Props { class?: string }
 const { class: cls = 'sec--paper sheet' } = Astro.props
 const today = new Date().toISOString().slice(0, 10)
+const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>'
 ---
 
-<section class:list={['appt sec sec--paper', cls]} id="appointment" data-tone="light" data-tab="Appointments">
-  <div class="wrap appt__in">
-    <div class="appt__text">
-      <h2 class="h2" data-reveal>{APPOINTMENT.title}</h2>
-      <p class="body mt-m" data-reveal style="--d:.1s">{APPOINTMENT.text}</p>
-    </div>
-    <form class="form appt__form card" action="/api/appointments" method="post" data-form="appointment"
-      data-ok="Thank you. The secretariat will call you to confirm the appointment." novalidate>
-      <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
-      <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
-      <label class="field"><span>Mobile</span><input name="mobile" type="tel" autocomplete="tel" required maxlength="40" placeholder="+251" /></label>
-      <label class="field"><span>Date</span><input name="date" type="date" min={today} required /></label>
-      <fieldset class="chips field full">
-        <legend>Sector</legend>
-        {APPOINTMENT.sectors.map((s, i) => (
-          <label class="chip"><input type="radio" name="sector" value={s} required checked={i === 0} /><span>{s}</span></label>
-        ))}
-      </fieldset>
-      <label class="field full"><span>About the project <b>(optional)</b></span><textarea name="message" maxlength="5000"></textarea></label>
-      <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <div class="form__end full">
-        <button class="btn btn--dark" type="submit">Request an appointment <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
-        <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+<section class:list={['appt sec sec--paper', cls]} id="appointment" data-tone="light" data-tab="Appointments" aria-labelledby="appt-title">
+  <div class="wrap">
+    <div class="appt__card">
+      <div class="appt__cover hide hide--chestnut stitched">
+        <div class="appt__cover-in">
+          <p class="appt__kicker">{APPOINTMENT.eyebrow}</p>
+          <h2 class="appt__t" id="appt-title">{APPOINTMENT.title[0]} <em>{APPOINTMENT.title[1]}</em></h2>
+          <p class="appt__lede">{APPOINTMENT.text}</p>
+          <ol class="appt__how" role="list">
+            {APPOINTMENT.steps.map(([b, t], i) => (
+              <li><span class="appt__n" aria-hidden="true"><span class="t-foil">{String(i + 1).padStart(2, '0')}</span></span><span><b>{b}</b> {t}</span></li>
+            ))}
+          </ol>
+          <p class="appt__plate" aria-live="polite">
+            <span class="appt__plate-k">Your appointment</span>
+            <span class="appt__plate-v" data-appt-when>Choose a day</span>
+          </p>
+          <p class="appt__call">Rather call? {CONTACT.phones.map((p, i) => <>{i > 0 && ' · '}<a href={p.href}>{p.value}</a></>)}</p>
+        </div>
       </div>
-    </form>
+
+      <form class="form appt__form" action="/api/appointments" method="post" data-form="appointment"
+        data-ok="Thank you. The secretariat will call you to confirm the appointment." novalidate>
+        <fieldset class="field full appt__dayset">
+          <legend>Choose a day</legend>
+          <div class="appt__days" data-days></div>
+          <label class="field appt__other"><span>Preferred date</span><input name="date" type="date" min={today} required /></label>
+        </fieldset>
+        <label class="field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="120" /></label>
+        <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
+        <label class="field"><span>Mobile</span><input name="mobile" type="tel" autocomplete="tel" required maxlength="40" placeholder="+251" /></label>
+        <fieldset class="chips field appt__time">
+          <legend>Time of day <b>(optional)</b></legend>
+          {APPOINTMENT.times.map((t) => <label class="chip"><input type="radio" name="time" value={t} /><span>{t}</span></label>)}
+        </fieldset>
+        <fieldset class="chips field full">
+          <legend>Sector</legend>
+          {APPOINTMENT.sectors.map((s) => (
+            <label class="chip"><input type="radio" name="sector" value={s} required /><span>{s === 'Other' ? 'Something else' : s}</span></label>
+          ))}
+        </fieldset>
+        <label class="field full"><span>About the project <b>(optional)</b></span><textarea name="message" maxlength="5000" rows="4" placeholder="What you would like to discuss, and who will come"></textarea></label>
+        <input class="hp" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="form__end full">
+          <button class="btn btn--dark" type="submit">Request the appointment <Fragment set:html={arrow} /></button>
+          <p class="form__msg" role="status" aria-live="polite" data-form-msg></p>
+        </div>
+      </form>
+    </div>
   </div>
 </section>
 
+<script>
+  /* the next seven working days in Addis Ababa (Monday to Friday) as tiles; picking one fills the date field, which is
+     what is sent; "Another date" shows that field instead. The leather's plate says what has been picked. */
+  const form = document.querySelector<HTMLFormElement>('.appt__form')
+  const box = form?.querySelector<HTMLElement>('[data-days]')
+  const date = form?.querySelector<HTMLInputElement>('input[name="date"]')
+  const plate = document.querySelector<HTMLElement>('[data-appt-when]')
+  if (form && box && date) {
+    const iso = (d: Date) => d.toISOString().slice(0, 10)
+    const fmt = (d: Date, o: Intl.DateTimeFormatOptions) => d.toLocaleDateString('en-GB', { timeZone: 'UTC', ...o })
+    const addis = new Date(Date.now() + 3 * 3600e3)
+    let d = new Date(Date.UTC(addis.getUTCFullYear(), addis.getUTCMonth(), addis.getUTCDate()))
+    const days: Date[] = []
+    while (days.length < 7) {
+      d = new Date(d.getTime() + 864e5)
+      if (d.getUTCDay() % 6 !== 0) days.push(d)
+    }
+    date.min = iso(days[0])
+    const cal = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M8 4v5M16 4v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+    box.innerHTML = days.map((x) => `<label class="appt__day"><input type="radio" name="day" value="${iso(x)}" required aria-label="${fmt(x, { weekday: 'long', day: 'numeric', month: 'long' })}"><span><small>${fmt(x, { weekday: 'short' })}</small><b>${x.getUTCDate()}</b><small>${fmt(x, { month: 'short' })}</small></span></label>`).join('')
+      + `<label class="appt__day appt__day--other"><input type="radio" name="day" value="other" required><span>${cal}<small>Another date</small></span></label>`
+    form.classList.add('has-days')
+
+    const say = () => {
+      if (!plate) return
+      const v = date.value
+      const t = form.querySelector<HTMLInputElement>('input[name="time"]:checked')?.value
+      const picked = v ? new Date(v + 'T00:00:00Z') : null
+      plate.textContent = picked && !isNaN(+picked)
+        ? fmt(picked, { weekday: 'long', day: 'numeric', month: 'long' }) + (t ? `, ${t.toLowerCase()}` : '')
+        : form.classList.contains('is-other') ? 'Pick the date' : 'Choose a day'
+    }
+    const sync = (focus = false) => {
+      const v = form.querySelector<HTMLInputElement>('input[name="day"]:checked')?.value
+      const other = v === 'other'
+      form.classList.toggle('is-other', other)
+      if (v && !other) date.value = v
+      else if (other && days.some((x) => iso(x) === date.value)) date.value = ''
+      if (other && focus) date.focus()
+      say()
+    }
+    box.addEventListener('change', () => sync(true))
+    date.addEventListener('input', say)
+    form.addEventListener('change', (e) => { if ((e.target as HTMLInputElement).name === 'time') say() })
+    // after a send the form is reset: the tiles and the plate with it
+    form.addEventListener('reset', () => setTimeout(() => sync()))
+  }
+</script>
+
 <style>
-  .appt__in { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 110px); align-items: start; }
-  .appt__text .h2 { max-width: 14ch; }
-  .appt__form { padding: clamp(24px, 3.2vw, 44px); box-shadow: inset 0 0 0 1px var(--line-dark), 0 40px 80px -50px rgb(60 30 22 / 0.55) !important; }
-  @media (max-width: 960px) { .appt__in { grid-template-columns: 1fr; } }
+  /* the card: the cover and the page, side by side */
+  .appt__card {
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); border-radius: var(--radius-l); overflow: hidden;
+    background: linear-gradient(180deg, #fffcf5, var(--paper-2));
+    box-shadow: inset 0 0 0 1px var(--line-dark), 0 60px 100px -70px rgb(60 30 22 / 0.7);
+  }
+
+  /* the cover: chestnut hide, stitched, a warm light from its top */
+  .appt__cover {
+    --panel-r: var(--radius-l); --stitch-in: 14px; color: var(--cream);
+    --hide-veil: radial-gradient(110% 70% at 18% 0%, rgb(226 160 37 / 0.16), transparent 62%), linear-gradient(180deg, transparent 55%, rgb(60 30 22 / 0.45));
+  }
+  .appt__cover-in { position: relative; z-index: 1; display: grid; align-content: start; gap: 22px; height: 100%; padding: clamp(40px, 4.4vw, 68px) clamp(32px, 4vw, 64px); }
+  .appt__kicker { font-size: 11.5px; font-weight: 650; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
+  .appt__t {
+    max-width: 11ch; font-family: var(--f-display); font-weight: 760; font-stretch: 80%; color: var(--cream);
+    font-size: clamp(2.3rem, 1.3rem + 2.7vw, 3.9rem); line-height: 0.95; letter-spacing: -0.035em; text-wrap: balance;
+  }
+  .appt__t em { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; color: var(--amber); letter-spacing: -0.03em; }
+  .appt__lede { max-width: 40ch; color: rgb(255 252 245 / 0.78); font-size: 16px; line-height: 1.6; }
+  .appt__how { list-style: none; margin: 4px 0 0; padding: 0; border-top: 1px solid rgb(255 252 245 / 0.14); }
+  .appt__how li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 13px 0; border-bottom: 1px solid rgb(255 252 245 / 0.14); color: rgb(255 252 245 / 0.72); font-size: 15px; line-height: 1.45; }
+  .appt__how b { color: var(--cream); font-weight: 650; }
+  .appt__n { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; font-size: 1.35rem; line-height: 1; }
+
+  /* the plate: the day picked so far */
+  .appt__plate {
+    display: grid; gap: 4px; margin-top: auto; padding: 16px 20px; border-radius: 14px;
+    background: rgb(60 30 22 / 0.42); box-shadow: inset 0 1px 3px rgb(30 14 10 / 0.6), inset 0 0 0 1px rgb(231 176 73 / 0.32);
+  }
+  .appt__plate-k { font-size: 11px; font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(255 252 245 / 0.6); }
+  .appt__plate-v { font-family: var(--f-display); font-weight: 700; font-stretch: 84%; font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.65rem); line-height: 1.1; color: var(--cream); }
+  .appt__call { font-size: 14px; color: rgb(255 252 245 / 0.64); }
+  .appt__call a { color: var(--cream); font-weight: 600; white-space: nowrap; text-decoration: underline; text-decoration-color: rgb(226 160 37 / 0.6); text-underline-offset: 3px; }
+  .appt__call a:hover { color: var(--amber); }
+
+  /* the page */
+  .appt__form { padding: clamp(32px, 4vw, 60px); align-content: start; gap: 22px 20px; }
+  .appt__dayset { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .appt__dayset legend { margin-bottom: 12px; }
+  .appt__days { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+  .appt__days:empty { display: none; }
+  .appt__days :global(.appt__day) { position: relative; display: block; }
+  .appt__days :global(.appt__day input) { position: absolute; inset: 0; z-index: 1; margin: 0; opacity: 0; cursor: pointer; }
+  .appt__days :global(.appt__day span) {
+    display: grid; justify-items: center; align-content: center; gap: 3px; height: 92px; padding: 0 4px; border-radius: 14px; text-align: center;
+    background: #fffcf5; color: var(--ink); box-shadow: inset 0 1px 2px rgb(60 30 22 / 0.12), inset 0 0 0 1px rgb(60 30 22 / 0.18);
+    transition: background 0.2s, color 0.2s, box-shadow 0.25s, transform 0.35s var(--ease);
+  }
+  .appt__days :global(.appt__day small) { font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--taupe); line-height: 1.15; }
+  .appt__days :global(.appt__day b) { font-family: var(--f-display); font-weight: 740; font-stretch: 80%; font-size: 2rem; line-height: 1; letter-spacing: -0.02em; }
+  .appt__days :global(.appt__day svg) { width: 24px; height: 24px; color: var(--ink); }
+  .appt__days :global(.appt__day--other small) { letter-spacing: 0.04em; }
+  .appt__days :global(.appt__day input:hover + span) { box-shadow: inset 0 0 0 1.5px var(--ink); transform: translateY(-2px); }
+  .appt__days :global(.appt__day input:checked + span) {
+    background: var(--ink); color: var(--cream); transform: translateY(-2px);
+    box-shadow: 0 16px 26px -16px rgb(60 30 22 / 0.8), inset 0 0 0 1px rgb(231 176 73 / 0.45);
+  }
+  .appt__days :global(.appt__day input:checked + span small), .appt__days :global(.appt__day input:checked + span svg) { color: var(--amber); }
+  .appt__days :global(.appt__day input:focus-visible + span) { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .appt__days:has([aria-invalid='true']) :global(.appt__day span) { box-shadow: inset 0 0 0 2px #3c1e16; }
+
+  /* the plain date field: without script, the only way to choose; with it, behind "Another date" */
+  .appt__other { margin-top: 0; }
+  .appt__form:global(.has-days) .appt__other { display: none; margin-top: 14px; max-width: 320px; }
+  .appt__form:global(.has-days.is-other) .appt__other { display: grid; }
+  .appt__time { align-content: start; }
+  .appt__form textarea { min-height: 120px; }
+
+  @media (max-width: 1080px) {
+    .appt__card { grid-template-columns: 1fr; }
+    .appt__t { max-width: 14ch; }
+    .appt__plate { margin-top: 4px; }
+  }
+  @media (max-width: 720px) {
+    .appt__cover { --stitch-in: 10px; }
+    /* the days scroll sideways, from edge to edge of the page */
+    .appt__days {
+      display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+      margin-inline: calc(-1 * clamp(32px, 4vw, 60px)); padding: 4px clamp(32px, 4vw, 60px) 8px; scroll-padding-inline: clamp(32px, 4vw, 60px);
+    }
+    .appt__days::-webkit-scrollbar { display: none; }
+    .appt__days :global(.appt__day) { flex: none; width: 74px; scroll-snap-align: start; }
+    .appt__form:global(.has-days) .appt__other { max-width: none; }
+  }
+  @media (max-width: 480px) {
+    .appt__form { padding: 28px 20px 32px; }
+    .appt__days { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
+    .appt__cover-in { padding: 36px 26px; }
+  }
 </style>

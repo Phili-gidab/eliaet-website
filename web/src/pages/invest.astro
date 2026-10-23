@@ -8,7 +8,7 @@ import Steps from '../components/Steps.astro'
 import FactTable from '../components/FactTable.astro'
 import Stage3D from '../components/Stage3D.astro'
 import { PIECES } from '../copy/stage'
-import { INVEST_HEAD, WHY_ETHIOPIA, BUYERS, INVESTORS, MEET_AT_AALF } from '../copy/invest'
+import { INVEST_HEAD, WHY_ETHIOPIA, BUYERS, INVESTORS, MEET_AT_AALF, PARTNERSHIP } from '../copy/invest'
 import { AALF_2026 } from '../copy/aalf'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -107,11 +107,23 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
     </div>
   </section>
 
-  <!-- 05 · meet us at AALF 2026 -->
+  <!-- 05 · ways to work together (ELIA's 2026 profile) -->
+  <section class="sec sec--paper sec--mist sheet partnering" aria-labelledby="part-h">
+    <div class="wrap">
+      <div class="partnering__head">
+        <p class="label label--rule" data-reveal="fade"><b>05</b> {PARTNERSHIP.title}</p>
+        <h2 class="h2 mt-m" id="part-h" data-reveal>Six ways to <em>work</em> with Ethiopian makers.</h2>
+        <p class="body mt-m partnering__text" data-reveal style="--d:.08s">{PARTNERSHIP.text}</p>
+      </div>
+      <ItemGrid items={PARTNERSHIP.models} cols={3} class="mt-l" />
+    </div>
+  </section>
+
+  <!-- 06 · meet us at AALF 2026 -->
   <section class="sec sec--amber meet" aria-labelledby="meet-h">
     <div class="wrap meet__in">
       <div>
-        <p class="label label--rule" data-reveal="fade"><b>05</b> {MEET_AT_AALF.title}</p>
+        <p class="label label--rule" data-reveal="fade"><b>06</b> {MEET_AT_AALF.title}</p>
         <h2 class="h1 mt-m meet__date" id="meet-h" data-reveal><span class="t-foil">{fairDays}</span> <em class="t-foil">{fairMonth}</em><span class="sr-only"> 2026: {MEET_AT_AALF.title}</span></h2>
         <p class="lede mt-m meet__text" data-reveal style="--d:.08s">{MEET_AT_AALF.text}</p>
         <div class="row mt-l" data-reveal style="--d:.14s">
@@ -125,10 +137,10 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
     </div>
   </section>
 
-  <!-- 06 · send an inquiry -->
+  <!-- 07 · send an inquiry -->
   <section class="sec sec--paper sheet ask" aria-labelledby="ask-h">
     <div class="wrap">
-      <p class="label label--rule" data-reveal="fade"><b>06</b> Send an inquiry</p>
+      <p class="label label--rule" data-reveal="fade"><b>07</b> Send an inquiry</p>
       <h2 class="h2 mt-m" id="ask-h" data-reveal>Tell us what you <em>need</em>.</h2>
       <div class="ask__grid">
         <a class="ask__card card" href="/contact?form=buyer#forms" data-reveal>
@@ -176,7 +188,11 @@ const [fairDays, fairMonth] = AALF_2026.dates.split(' ') // '12–15 November 20
   .opps li { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line-dark); color: var(--ink); font-size: 16px; line-height: 1.5; }
   .opps span { font-weight: 600; font-size: 13px; color: var(--taupe); padding-top: 3px; font-variant-numeric: tabular-nums; }
 
-  /* 05 · meet us at the fair */
+  /* 05 · ways to work together */
+  .partnering__head { max-width: 760px; }
+  .partnering__text { max-width: 56ch; }
+
+  /* 06 · meet us at the fair */
   .meet__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 88px); align-items: center; }
   .meet__date { font-size: clamp(3.2rem, 1.6rem + 6.4vw, 7.6rem); }
   .meet__date em { display: block; }

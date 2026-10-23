@@ -337,7 +337,7 @@ function Membership() {
         </div>
       </dl>
       {c.dues_note && <p class="ms__dues"><b>From the Secretariat:</b> {c.dues_note}</p>}
-      <p class="ms__help">For renewal, dues and receipts, contact the Secretariat: <a href="mailto:info@eliaet.com">info@eliaet.com</a>, +251 911 635 644.</p>
+      <p class="ms__help">For renewal, dues and receipts, contact the Secretariat: <a href="mailto:info@eliaet.com">info@eliaet.com</a>, +251 115 156 144 or +251 911 635 644.</p>
     </div>
   )
 }

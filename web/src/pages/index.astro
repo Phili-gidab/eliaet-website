@@ -82,10 +82,10 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     </div>
   </section>
 
-  <!-- a spread: the highlands -->
+  <!-- a spread: where the leather starts (ELIA's 2026 profile: "Born at 3,000 meters") -->
   <Window image="/media/profile/highland-sheep.webp" cut="/media/cut/highland-sheep.webp" decorative n={1}
     alt="Highland sheep on a grassy ridge, with the mountains of the Ethiopian highlands behind"
-    words={['_From the_', 'highlands,']} kicker="Where it starts" note="Highland sheepskin is thin and light, yet strong and durable: the start of Ethiopian leather."
+    words={['_Born above_', '3,000 m']} kicker="Ethiopian Highland Leather" note="Hair sheep grazing free on the highland pastures grow a skin like no other: thinner, lighter and softer, yet remarkably strong."
     place="--hx:4vw;--hy:12vh;--hs:clamp(4.6rem,1rem + 16vw,19rem)" focus="50% 40%" focusM="66% 40%" />
 
   <!-- what we do -->
@@ -128,7 +128,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
         <ol class="why__points" role="list">
           {WHY.points.map((p, i) => (
             <li data-reveal style={`--d:${i * 0.08}s`}>
-              <span class="figure-num why__fig">{p.figure.value}</span>
+              <span class="figure-num why__fig">{p.figure.value}{p.figure.unit && <small>{p.figure.unit}</small>}</span>
               <div>
                 <h3 class="why__h">{p.title}</h3>
                 <p>{p.text}</p>
@@ -147,10 +147,10 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     </div>
   </section>
 
-  <!-- a spread: the fair, to the world -->
+  <!-- a spread: the fair (the content document: "Africa's Leather Trade Show, Organized by ELIA Since 2008") -->
   <Window image="/media/profile/fair-hall.webp" decorative n={2} align="end"
     alt="The All Africa Leather Fair’s exhibition hall from above, its stands laid out in rows under the lights"
-    words={['_to the_', 'world.']} kicker="The fair" note="Every year the All Africa Leather Fair brings buyers from around the world to Ethiopian makers."
+    words={['_Africa’s leather fair,_', 'since 2008.']} kicker="All Africa Leather Fair" note="Tanners, manufacturers, buyers, investors, and machinery and chemical suppliers from across Africa and beyond, in Addis Ababa."
     place="--hx:4vw;--hy:13vh;--hs:clamp(4.6rem,1rem + 15vw,18rem)" focus="50% 30%" focusM="50% 30%" />
 
   <!-- the fair, on amber: an event poster. Its name and city on a rule, the dates as large as the column allows on one
@@ -178,7 +178,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
         </div>
         <div class="fair__where" data-reveal style="--d:.06s">
           <p class="fair__k">Where</p>
-          <p>{AALF_2026.venue}, {AALF_2026.city.split(',')[0]}. {AALF_2026.cobrand}.</p>
+          <p>{AALF_2026.venue}, {AALF_2026.city.split(',')[0]}. {AALF_2026.cobrand}. Closing night: the ELIA Award and Gala Night, 15 November, Sheraton Addis.</p>
         </div>
         <div class="fair__go" data-reveal style="--d:.12s">
           <a class="btn btn--dark" href={AALF_2026.register} target="_blank" rel="noopener">Register for the fair <Fragment set:html={arrow} /><span class="sr-only"> (opens {new URL(AALF_2026.register).host} in a new tab)</span></a>
@@ -317,7 +317,8 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   .why__title { max-width: 11ch; font-size: clamp(2.8rem, 1.4rem + 4.4vw, 6rem); }
   .why__points { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; border-top: 1px solid var(--line-dark); }
   .why__points li { display: grid; grid-template-columns: minmax(120px, 0.32fr) 1fr; gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line-dark); }
-  .why__fig { font-size: clamp(2.8rem, 1.8rem + 2.6vw, 4.4rem); color: var(--ink); }
+  .why__fig { font-size: clamp(2.8rem, 1.8rem + 2.6vw, 4.4rem); color: var(--ink); white-space: nowrap; }
+  .why__fig small { margin-left: 0.06em; font-size: 0.42em; font-weight: 600; letter-spacing: 0; color: var(--brown-80); }
   .why__h { font-family: var(--f-display); font-weight: 650; font-stretch: 85%; letter-spacing: -0.02em; font-size: 1.45rem; line-height: 1.1; margin-bottom: 8px; }
   .why__points p { color: var(--brown-80); font-size: 15.5px; }
   .why__stage { position: sticky; top: 104px; }

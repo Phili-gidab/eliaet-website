@@ -55,3 +55,17 @@ export const MEET_AT_AALF = {
   title: 'Meet Us at AALF 2026',
   text: 'The All Africa Leather Fair, 12 to 15 November 2026 at the Addis International Convention Center, is the best place to meet Ethiopian manufacturers in one location.',
 }
+
+/* From ELIA's 2026 profile: the ways buyers, brands and investors work with Ethiopian manufacturers */
+export const PARTNERSHIP = {
+  title: 'Ways to work together',
+  text: 'Ethiopian tanneries and manufacturers work with international partners in several ways. ELIA helps find the right partner for each.',
+  models: [
+    { title: 'Direct sourcing and private label', text: 'Leather and finished goods made to your specification, under your brand.' },
+    { title: 'Contract manufacturing', text: 'Production runs in Ethiopian factories for your collections.' },
+    { title: 'Joint ventures', text: 'Shared ownership with established Ethiopian manufacturers.' },
+    { title: 'Technology licensing', text: 'Processes, machinery and know-how brought to Ethiopian producers.' },
+    { title: 'Buyer–supplier development', text: 'Programmes that bring a supplier up to a buyer’s standards over time.' },
+    { title: 'Institutional twinning', text: 'Training institutes, laboratories and associations working with their Ethiopian counterparts.' },
+  ],
+}

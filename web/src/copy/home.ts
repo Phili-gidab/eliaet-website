@@ -31,8 +31,8 @@ export const STORY = {
     },
     {
       id: 'world', t0: 12, t1: 16, in: 12.1, out: 15.9, label: 'Out of the door', amharic: '',
-      title: 'Shipped from the <em>highlands</em>.',
-      line: 'Finished leather and leather goods leave the tannery for buyers around the world.',
+      title: 'Out to <em>market</em>.',
+      line: 'Finished leather and leather goods leave the tannery for buyers in Europe, Asia, North America and Africa.',
     },
   ],
   final: { id: 'elia', t0: 16, in: 16.1, label: 'ELIA' },
@@ -51,19 +51,20 @@ export const PINS: { id: string; label: string; n?: string }[] = [
   { id: 'leather', label: 'Finished leather' },
 ]
 
-/* legacy: the four slides of the current home-page carousel (the fair's slide brought up to its 2026 edition) */
+/* the four cards under "Programmes that open markets": the old home page's carousel (the fair, ELDSC, EHL, the
+   styles), its words now from ELIA's website content document (October 2026) */
 export const HIGHLIGHTS = [
   {
     title: `${AALF_2026.edition.replace(' edition', '')} All Africa Leather Fair`,
-    text: `${AALF_2026.dates}, at the ${AALF_2026.venue}: brings together leather goods manufacturers and technology suppliers, chemical and inputs suppliers, training institutions, trade promotion organizations, etc. from all over the world.`,
+    text: `${AALF_2026.dates}, ${AALF_2026.venue}. Africa’s leather trade show, organized by ELIA since 2008: tanners, manufacturers, buyers, investors and suppliers from Africa and beyond.`,
     to: '/aalf',
     image: '/media/fair/aalf-film.jpg',
     /** the fair's own film (from the AALF site's hero): the hides come together as Africa, then the fair's mark */
     video: { av1: '/media/fair/aalf-film-av1.mp4', mp4: '/media/fair/aalf-film.mp4' },
   },
   {
-    title: 'Enhancing Ethiopian leather industries',
-    text: 'Building up the leather industrial sector with the highest manufacturing capability in Africa.',
+    title: 'Building manufacturing capability',
+    text: 'With the Ethiopian Leather Development S.C.: the Highland Leather project, the AfCFTA, the Modjo leather cluster and cleaner production.',
     to: '/eldsc',
     image: '/media/eldsc/eldsc.webp',
     /** hands cutting leather at the bench: keep the knife and the hide in */
@@ -71,13 +72,13 @@ export const HIGHLIGHTS = [
   },
   {
     title: 'Ethiopian Highland Leather',
-    text: 'The Ethiopian Highland Leather Project is an industrial project to promote exports from Ethiopia by adding value to Ethiopian sheep leather.',
+    text: 'The national brand of premium sheepskin, developed in 2015 and owned and managed by ELIA, with four certified producers.',
     to: '/ehl',
     image: '/media/EHL01.webp',
   },
   {
-    title: 'Styles you have to see',
-    text: 'A modern classic style that lasts a lifetime.',
+    title: 'Source from Ethiopia',
+    text: 'Leather, footwear, gloves, bags and garments from ELIA’s members. Tell us what you need and we make the introductions.',
     to: '/invest#buyers',
     image: '/media/studio/goods-styles.webp',
     /** the card is wider than the picture on large screens: keep the handles in */
@@ -85,67 +86,81 @@ export const HIGHLIGHTS = [
   },
 ]
 
-/* legacy: "Our Vision / Our Mission / What We Do" */
+/* "Our vision / Our mission / What we do": vision and mission as ELIA's website content document words them, what
+   ELIA does in a line from its six parts (advocacy, market development, capacity building, sustainability,
+   partnerships, information) */
 export const PILLARS = [
   {
     key: 'vision',
     label: 'Our vision',
-    text: 'To be the premier association spearheading the emergence of the Ethiopian leather industry as a key global player representative of its members who are producing and exporting first choice leather and leather products.',
+    text: 'To be the leading association driving the Ethiopian leather industry to become a key global player, representing members who produce and export first-choice leather and leather products.',
   },
   {
     key: 'mission',
     label: 'Our mission',
-    text: 'Contribute to the development of an enabling business environment and service provision such as advocacy, trade and technology transfer facilitation to its members for the sustainable development of the Ethiopian leather sector.',
+    text: 'To build an enabling business environment for the sustainable development of the Ethiopian leather sector, through advocacy, trade facilitation and technology transfer services for our members.',
   },
   {
     key: 'what',
     label: 'What we do',
-    text: 'Promoting export of leather, shoes and leather goods and garment, protecting the rights of members, and assisting businesses to improve.',
+    text: 'We speak for the industry in policy, open markets through the All Africa Leather Fair and buyer linkages, and bring members training, technology and cleaner production.',
   },
 ]
 
-/* legacy: "About Us" block on the home page */
+/* "About us" on the home page: "Who we are", from the content document */
 export const ABOUT = {
   eyebrow: 'About us',
   title: 'Ethiopian Leather Industries Association',
   body: [
-    'A sectoral trade association of 194 leather manufacturing industries in Ethiopia. ELIA is working to enhance (build up) the capacity of the leather industries with the highest manufacturing capacity and the entire business climate, so that the leather industries produce diversified, globally competitive, environmentally friendly products and contribute significantly to improving the living standard of the people.',
-    'ELIA was first established in 1994 as the Ethiopian Tanners Association. In 2004 the name was changed to the Ethiopian Tanners, Footwear and Leather Products Manufacturing Association to allow footwear and leather garments and goods full participation in the Association.',
+    'The sectoral association of Ethiopia’s leather manufacturers: tanneries, footwear manufacturers, and leather goods and garment producers, covering the whole value chain from hide processing to finished products.',
+    'ELIA represents the industry before the government, connects members with buyers and partners, and helps them improve quality, meet international standards and grow exports. It owns and organizes the All Africa Leather Fair and manages the Ethiopian Highland Leather national brand.',
   ],
   count: { value: 194, label: ['Leather', 'manufacturing', 'industries'] },
 }
 
-/* legacy: "Why You Should Choose Ethiopian Leather" */
+/* "Why Ethiopia. Why now.": from ELIA's 2026 profile and the content document's "Why Ethiopia" */
 export const WHY = {
-  eyebrow: 'Why choose us',
-  title: 'Why you should choose Ethiopian leather.',
+  eyebrow: 'Why Ethiopia',
+  title: 'Why Ethiopia. Why now.',
   intro:
-    'Ethiopia’s leather and leather product sector already produces a range of products, from semi-processed leather in various forms to processed leathers including shoe uppers, leather garments, stitched upholstery, backpacks, purses, industrial gloves and finished leather.',
+    'Ethiopia has the largest livestock population in Africa and a leather industry dating back to the early 20th century. Today it is moving from exporting raw and semi-processed leather to making finished footwear, garments and leather goods for markets at home and abroad.',
   points: [
     {
-      title: 'Livestock potential',
-      text: 'Ethiopia is home to the largest population of cattle in Africa and the 10th largest in the world.',
-      figure: { value: '1st', label: 'cattle population in Africa' },
+      title: 'Africa’s largest herd',
+      text: 'The largest livestock population in Africa, and highland hides and skins preferred by international buyers.',
+      figure: { value: '1st', unit: '', label: 'livestock population in Africa' },
     },
     {
-      title: 'Livestock Master Plan',
-      text: 'A national Livestock Master Plan is prepared by the Ministry of Agriculture and implemented by the Agricultural Transformation Agency (ATA).',
-      figure: { value: 'MoA', label: 'with the ATA' },
+      title: 'A material no one can copy',
+      text: 'Ethiopian Highland Leather: sheepskin thinned to under 0.35 mm, light and soft yet strong, and a registered national brand.',
+      figure: { value: '0.35', unit: 'mm', label: 'highland leather' },
     },
     {
-      title: 'Opportunity for investors',
-      text: 'As one of the government’s priority sectors, investors in leather enjoy incentives including duty exemptions on capital goods and construction materials, and five-plus years of an income tax holiday.',
-      figure: { value: '5+', label: 'years income tax holiday' },
+      title: 'A continental market',
+      text: 'The African Continental Free Trade Area opens a market of 1.4 billion people, and Ethiopian Airlines cargo links Addis Ababa to more than 130 destinations.',
+      figure: { value: '1.4', unit: 'bn', label: 'people in the AfCFTA' },
+    },
+    {
+      title: 'A priority sector',
+      text: 'Investors in leather get income tax holidays and duty-free import of capital goods and construction materials.',
+      figure: { value: '0', unit: '%', label: 'duty on capital goods' },
     },
   ],
 }
 
 /* legacy: "Make An Appointment To Discuss About A Project" */
 export const APPOINTMENT = {
-  eyebrow: 'Appointment',
-  title: 'Make an appointment to discuss a project.',
-  text: 'Shop our collection of fine leather bags, wallets and other leather goods from manufacturers. In addition, make contact with equipment and technology suppliers, chemical and inputs suppliers, manpower training institutions, trade promotion organizations, etc. from all over the world.',
-  sectors: ['Tannery', 'Shoe manufacturing', 'Leather products'],
+  eyebrow: 'Appointments · ELIA Secretariat',
+  title: ['Make an appointment', 'to discuss a project.'],
+  text: 'Sourcing from Ethiopian manufacturers, planning an investment, exhibiting at the All Africa Leather Fair or joining ELIA: meet the Secretariat in Addis Ababa.',
+  steps: [
+    ['Choose a day', 'and, if you like, a time of day.'],
+    ['We call you', 'to confirm the time.'],
+    ['Meet the Secretariat', 'at the ELIA office, Meskel Square.'],
+  ],
+  // the server accepts these and no others (server/src/routes/forms.ts)
+  sectors: ['Tannery', 'Shoe manufacturing', 'Leather products', 'Other'],
+  times: ['Morning', 'Afternoon'],
 }
 
 /* legacy: the "Subscribe for New Updates" band */

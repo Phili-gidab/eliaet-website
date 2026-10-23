@@ -9,7 +9,8 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
 ---
 
 <!-- the footer, on the brand brown: the newsletter, the association's lockup with the two ways in (join, write), its
-     address and links in four columns, and the brand line set large across the whole width as its signature -->
+     address and links in four columns, and, set large across the whole width as its signature, the last words of
+     ELIA's 2026 profile (the brand line itself heads the home page) -->
 <footer class="ftr sheet" data-footer data-tone="dark">
   <div class="wrap">
     {newsletter && (
@@ -67,8 +68,8 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
     </div>
   </div>
 
-  <!-- the brand line, as large as the page is wide: its first half in the grain of tan leather, the second in amber -->
-  <p class="ftr__sign" aria-hidden="true"><span class="ftr__s1">From the highlands,</span> <span class="ftr__s2">to the world.</span></p>
+  <!-- the signature, as large as the page is wide: three short invitations, the first in the grain of tan leather -->
+  <p class="ftr__sign"><span class="ftr__s1">Meet us.</span> <span class="ftr__s2">Source from us.</span> <span class="ftr__s3">Invest with us.</span></p>
 
   <div class="wrap">
     <div class="ftr__base">
@@ -135,17 +136,20 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   .ftr__more :global(svg) { width: 16px; height: 16px; transition: transform 0.4s var(--ease); }
   .ftr__more:hover :global(svg) { transform: translateX(4px); }
 
-  /* the signature: the brand line across the whole width, its first half cut from tan leather */
+  /* the signature across the whole width: "Meet us." cut from tan leather, "Source from us." in a light italic,
+     "Invest with us." drawn in amber outline */
   .ftr__sign {
     margin: clamp(64px, 8vw, 120px) 0 0; padding-inline: 2vw; white-space: nowrap; text-align: center;
     font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.04em; line-height: 0.9;
-    font-size: 8.1vw; user-select: none;
+    font-size: 6.5vw; user-select: none;
   }
   .ftr__s1 {
     color: var(--amber); background: url('/media/leather/tan.webp') 30% 40% / 640px auto, var(--amber); background-blend-mode: soft-light;
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
   .ftr__s2 { font-family: var(--f-text); font-style: italic; font-weight: 300; font-stretch: 88%; letter-spacing: -0.03em; color: rgb(255 252 245 / 0.92); }
+  .ftr__s3 { color: transparent; -webkit-text-stroke: max(1.2px, 0.022em) var(--amber); paint-order: stroke; }
+  @media (forced-colors: active) { .ftr__s3 { color: CanvasText; -webkit-text-stroke: 0; } }
 
   .ftr__base {
     display: flex; flex-wrap: wrap; gap: 10px 32px; margin-top: clamp(28px, 3vw, 44px); padding-top: 22px;
@@ -161,8 +165,8 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   @media (max-width: 760px) {
     .ftr__news { grid-template-columns: 1fr; }
     .ftr__base .ftr__links { margin-left: 0; }
-    .ftr__sign { white-space: normal; font-size: 15.5vw; line-height: 0.92; text-align: left; padding-inline: var(--gutter); }
-    .ftr__s1, .ftr__s2 { display: block; }
+    .ftr__sign { white-space: normal; font-size: 13vw; line-height: 0.92; text-align: left; padding-inline: var(--gutter); }
+    .ftr__s1, .ftr__s2, .ftr__s3 { display: block; }
   }
   @media (max-width: 700px) {
     .ftr__lockup { width: min(100%, 360px); }

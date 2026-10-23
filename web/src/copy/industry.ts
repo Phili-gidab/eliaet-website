@@ -10,13 +10,18 @@ export const INDUSTRY_INTRO =
 
 export const FIGURES: { indicator: string; figure: string; big?: string }[] = [
   { indicator: 'Livestock population', figure: 'About 65 million cattle, 40 million sheep and 50 million goats', big: '155M' },
+  // from ELIA's 2026 profile
+  { indicator: 'Hides and skins', figure: 'About 41 million produced a year, of which about 22 million reach the tanneries', big: '41M' },
   { indicator: 'ELIA member enterprises', figure: '194 (28 tanneries, 37 shoe manufacturers, 129 other leather product manufacturers)', big: '194' },
   { indicator: 'Annual export earnings', figure: 'USD 30 to 40 million', big: '$30–40M' },
   { indicator: 'Domestic import-substitute production', figure: 'Up to USD 3 billion per year, including footwear for the military and police', big: '$3B' },
   { indicator: 'Gelatin exports from leather by-products', figure: 'About USD 180 million over the past five years', big: '$180M' },
   { indicator: 'Global leather and leather fashion market', figure: 'More than USD 500 billion per year', big: '$500B+' },
+  // from ELIA's 2026 profile
+  { indicator: 'Ethiopia’s leather and tannery market', figure: 'About USD 1 billion by 2034, growing about 6% a year', big: '$1B' },
+  { indicator: 'Jobs in the leather value chain', figure: 'The government’s target: 300,000 by 2030', big: '300K' },
 ]
-export const FIGURES_SOURCE = 'Sources: ELIA; remarks by ELIA President Zelalem Merawi reported by The Reporter and Capital, February 2026.'
+export const FIGURES_SOURCE = 'Sources: ELIA and its Institutional Profile 2026; remarks by ELIA President Zelalem Merawi reported by The Reporter and Capital, February 2026.'
 
 export const HIGHLAND = {
   title: 'Ethiopian Highland Hides and Skins',

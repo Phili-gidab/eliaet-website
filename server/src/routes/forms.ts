@@ -63,6 +63,10 @@ async function confirm(to: string, subject: string, text: string) {
   await send({ to, subject, text: `Hello,\n\n${text}\n\nIf you did not write to ELIA through its website, please ignore this e-mail.` })
 }
 
+/** 2026-10-26 → Monday 26 October 2026 (for people reading the e-mails) */
+const longDay = (v: string | null | undefined) =>
+  v ? new Date(`${v}T00:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : v
+
 const refCode = () => 'ELIA-' + randomToken(6).replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6).padEnd(6, 'X')
 
 /* ---- the inquiry forms ---- */
@@ -88,8 +92,8 @@ const SCHEMAS: Record<Exclude<InquiryKind, never>, z.ZodTypeAny> = {
     name: req(120), outlet: req(160), email, phone: opt(40), deadline: day, request: req(5000),
   }),
   appointment: z.object({
-    name: req(120), email, mobile: req(40), sector: z.enum(['Tannery', 'Shoe manufacturing', 'Leather products'], { error: 'Choose one' }),
-    date: z.iso.date('Pick a date'), message: opt(5000),
+    name: req(120), email, mobile: req(40), sector: z.enum(['Tannery', 'Shoe manufacturing', 'Leather products', 'Other'], { error: 'Choose one' }),
+    date: z.iso.date('Pick a date'), time: z.enum(['Morning', 'Afternoon'], { error: 'Choose one' }).optional(), message: opt(5000),
   }),
 }
 
@@ -98,7 +102,7 @@ const LABELS: Record<string, string> = {
   message: 'Message', company: 'Company', product: 'Product category', quantity: 'Quantity', quality: 'Quality requirements',
   delivery: 'Target delivery date', area: 'Investment area', size: 'Estimated investment size', location: 'Preferred location',
   interest: 'Interest', booth: 'Booth size', outlet: 'Media outlet', deadline: 'Deadline', request: 'Request',
-  mobile: 'Mobile', sector: 'Sector', date: 'Preferred date',
+  mobile: 'Mobile', sector: 'Sector', date: 'Preferred date', time: 'Time of day',
 }
 
 /* ---- the newsletter ---- */
@@ -241,12 +245,12 @@ forms.post('/forms/:kind', wrap(async (req, res) => {
   const team = INQUIRIES[kind].team as Team
   const ref = refCode()
   const subject = d.subject || d.product || d.area || (d.interest ? `${d.interest} at AALF` : '') || (kind === 'media' ? `Media: ${d.outlet}` : '') ||
-    (kind === 'appointment' ? `Appointment on ${d.date}` : INQUIRIES[kind].label)
+    (kind === 'appointment' ? `Appointment on ${longDay(d.date)}${d.time ? `, ${d.time.toLowerCase()}` : ''}` : INQUIRIES[kind].label)
   run(`INSERT INTO inquiries (ref, kind, team, name, email, organization, subject, data, status, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)`,
     ref, kind, team, d.name ?? '', d.email ?? '', d.organization || d.company || d.outlet || '', String(subject).slice(0, 200), toJson(d), now())
   if (quiet) return void res.status(201).json({ ok: true, ref })
-  const body = lines(Object.entries(d).map(([k, v]) => [LABELS[k] ?? k, v]))
+  const body = lines(Object.entries(d).map(([k, v]) => [LABELS[k] ?? k, k === 'date' ? longDay(v) : v]))
   await send({
     to: config.teams[team],
     subject: `[ELIA website] ${INQUIRIES[kind].label} · ${d.organization || d.company || d.outlet || d.name} (${ref})`,

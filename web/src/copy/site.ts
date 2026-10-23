@@ -17,8 +17,10 @@ export const CONTACT = {
     full: 'Kirikos Sub-city; Wereda 19, Meskel Square, Ras Mekonen St., Lion Building 6th floor, Addis Ababa, Ethiopia',
   },
   phones: [
-    { label: 'Phone', value: '+251 911 635 644', href: 'tel:+251911635644' },
-    { label: 'Phone', value: '+251 902 224 728', href: 'tel:+251902224728' },
+    // the office line: on the current eliaet.com and in ELIA's 2026 profile (the content document gives the mobiles)
+    { label: 'Office', value: '+251 115 156 144', href: 'tel:+251115156144' },
+    { label: 'Mobile', value: '+251 911 635 644', href: 'tel:+251911635644' },
+    { label: 'Mobile', value: '+251 902 224 728', href: 'tel:+251902224728' },
   ],
   poBox: '12898',
   emails: [
