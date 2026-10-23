@@ -135,6 +135,24 @@ if (!reduce) {
     set.fromTo(w.querySelector('.window__note'), { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.1 }, 0.38)
     set.fromTo(w.querySelector('.window__cap'), { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power3.inOut' }, 0.5)
     ScrollTrigger.create({ trigger: w, start: 'top 58%', onEnter: () => set.play(), onLeaveBack: () => set.reverse() })
+
+    // on a phone the scene is too narrow to set the standfirst beside the headline: as the spread leaves, the
+    // standfirst at its foot rises into the headline, so the headline gives way just before they meet
+    const foot = w.querySelector<HTMLElement>('.window__foot')
+    if (words && foot) {
+      gsap.matchMedia().add('(max-width: 700px)', () => {
+        // the room between them with the spread at rest (its top at the screen's top)
+        const gap = () => foot.getBoundingClientRect().top - w.getBoundingClientRect().top - (words.offsetTop + words.offsetHeight)
+        gsap.fromTo(words, { autoAlpha: 1 }, {
+          autoAlpha: 0, ease: 'none', immediateRender: false,
+          scrollTrigger: {
+            trigger: w, scrub: true, invalidateOnRefresh: true,
+            start: () => `top top-=${Math.max(0, gap() - innerHeight * 0.1)}`,
+            end: () => `top top-=${Math.max(0, gap()) + innerHeight * 0.05}`,
+          },
+        })
+      })
+    }
   })
 
   /* ── pictures that drift inside their frames (the frame clips them): data-parallax="12" moves them 12% ── */
