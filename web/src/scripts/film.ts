@@ -97,4 +97,5 @@ export function mountFilm(el: HTMLElement, opts: { onEnded?: () => void; hold?: 
   return video
 }
 
-document.querySelectorAll<HTMLElement>('[data-film]:not([data-film-manual])').forEach((el) => mountFilm(el))
+// the players only: a bare <video data-film> (the home page's bento clips) is played by its own page script
+document.querySelectorAll<HTMLElement>('[data-film]:not([data-film-manual]):not(video)').forEach((el) => mountFilm(el))
