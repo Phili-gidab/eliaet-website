@@ -108,8 +108,23 @@ pages.get('/news/:slug', wrap((req, res, next) => {
   if (!html) return next()
   const image = post.image ?? '/media/og/elia-og.jpg'
   const more = posts({ limit: 4 }).items.filter((x) => x.slug !== post.slug).slice(0, 3)
+  // a title in two parts ("Ethiopian Highland Leather: From Raw Material to National Brand") sets its second part in
+  // the light italic, as the site's headings do
+  const cut = post.title.indexOf(': ')
+  const titleHtml = cut > 0 ? `${esc(post.title.slice(0, cut))}: <em>${esc(post.title.slice(cut + 2))}</em>` : esc(post.title)
+  const hasBody = !!post.body?.trim()
+  const words = plain(post.body || post.summary || '', 100000).split(/\s+/).filter(Boolean).length
+  const url = `${config.siteUrl}/news/${post.slug}`
   sendHtml(res, fill(fill(tokens(html, {
     title: esc(post.title),
+    title_html: titleHtml,
+    dek: esc(hasBody ? post.summary ?? '' : ''),
+    dek_hidden: hasBody && post.summary ? '' : 'hidden',
+    read_time: String(Math.max(1, Math.round(words / 200))),
+    url: esc(url),
+    url_enc: encodeURIComponent(url),
+    title_enc: encodeURIComponent(post.title),
+    image_srcset: post.image ? esc(srcset(post.image) ?? post.image) : '',
     description: esc(brief(post.summary || plain(post.body, 400))),
     slug: esc(post.slug),
     category: esc(post.category),

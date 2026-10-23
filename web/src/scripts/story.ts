@@ -5,9 +5,10 @@
    the end of the rail plays it again. People who asked for less motion get that last frame and chapter at once.
    Before all that, the door (scripts/door-gl.ts, drawn on the graphics card): the logo plays its own opening, as in
    the brand film (the outline of Ethiopia, the e drawn out of its western point, the dot dropping in, the wordmark
-   sliding out), then the film fills the mark, playing slowly. A moment later the page goes on by itself: it glides
-   through the mark's dot until the film fills the screen (the same distance a visitor would scroll, so scrolling back
-   up closes the door again), and the story plays at its own pace. Whoever scrolls, taps or presses a key first is in
+   sliding out), then the film's first frame fills the mark. A moment later the page goes on by itself: the e gives
+   way and it glides through the mark's dot until the film fills the screen (the same distance a visitor would scroll,
+   so scrolling back up closes the door again); only then does the film start, so the story begins at its first
+   chapter, and it plays at its own pace. Whoever scrolls, taps or presses a key first is in
    charge instead. Scrolling on, the film is held and the next section slides up over it (scripts/motion.ts). */
 import { mountFilm } from './film'
 import { gsap, ScrollTrigger, lenis } from './motion'
@@ -73,8 +74,9 @@ if (root) {
 
   const video = mountFilm(filmEl, {
     onEnded: () => { ended = true; root.classList.add('is-end'); draw(END); goLive() },
-    // (it waits for the brand film, rests while covered, and once it has ended it stays on its last frame)
-    hold: () => holding || covered || ended,
+    // (it waits for the brand film, and at its first frame while the door is shut, so the story starts at its first
+    // chapter as the door opens; it rests while covered, and once it has ended it stays on its last frame)
+    hold: () => holding || (useDoor && !open) || covered || ended,
   })
   video.loop = false
   if (holding) {
@@ -251,7 +253,10 @@ if (root) {
   video.addEventListener('playing', () => {
     if (ended && video.currentTime < END - 1) { ended = false; root.classList.remove('is-end') }
   })
-  setTimeout(() => { if (!holding) giveUp() }, 7000)
+  // (counted from when the film is first let play: while the door is shut it waits at its first frame on purpose)
+  let armed = false
+  const arm = () => { if (!armed) { armed = true; setTimeout(() => { if (!holding) giveUp() }, 7000) } }
+  if (!useDoor) arm()
 
   // less motion: the last frame and the last chapter, the film one click away
   if (reduce) {
@@ -267,6 +272,8 @@ if (root) {
   if (useDoor && doorCanvas) {
     root.classList.add('has-door', 'door-anim')
     html.classList.add('door-closed')
+    // the film waits at its first frame behind the door: load it meanwhile, so it starts at once when the door opens
+    video.preload = 'auto'
     root.dataset.tone = 'light'
     // the door is this visit's logo moment: the other pages skip their logo loader from now on
     try { sessionStorage.setItem('elia-intro', '1') } catch (e) { /* private mode */ }
@@ -305,6 +312,9 @@ if (root) {
       const exit = smooth(0, 0.14, p)                             // the wordmark goes back behind the e
       Object.assign(door.state, {
         s: sc, tx, ty, sweep: I.sweep, dot: I.dot, dotY: I.dotY,
+        // the e gives way as the page goes in, so only the dot opens onto the film (at the dot's scale the e's curve
+        // would sweep past the screen's edge)
+        eA: 1 - smooth(0.05, 0.3, p),
         wordX: I.wordX - 70 * exit, wordA: wide ? I.wordA * (1 - exit) : 0,
         filmIn: I.filmIn, rim: I.rim * (1 - smooth(0, 0.16, p)), view: 1.18 - 0.18 * smooth(0, 1, p),
         color: smooth(0.06, 0.5, p),
@@ -365,6 +375,7 @@ if (root) {
     mountDoor(doorCanvas, video, poster).then((d) => {
       if (!d) {                                                   // no WebGL here: no door, the film as it is
         useDoor = false; open = true
+        arm(); video.dispatchEvent(new Event('elia-sync'))
         root.classList.add('no-door', 'is-open'); root.classList.remove('door-anim')
         html.classList.remove('door-closed')
         root.dataset.tone = 'dark'; dispatchEvent(new Event('elia-tone'))
@@ -389,7 +400,8 @@ if (root) {
             root.classList.toggle('is-open', open)
             html.classList.toggle('door-closed', !open)
             door?.run(!open)
-            if (open) { draw(video.currentTime || 0); video.dispatchEvent(new Event('elia-sync')) }
+            if (open) { draw(video.currentTime || 0); arm() }
+            video.dispatchEvent(new Event('elia-sync'))
           }
           const tone = p > 0.6 ? 'dark' : 'light'
           if (root.dataset.tone !== tone) { root.dataset.tone = tone; dispatchEvent(new Event('elia-tone')) }

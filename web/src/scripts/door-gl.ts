@@ -14,7 +14,7 @@ precision highp float;
 uniform sampler2D uSdf, uFilm;
 uniform vec2 uRes, uT, uFilmSize;
 uniform vec4 uBox;
-uniform float uS, uRange, uK, uSweep, uDot, uDotY, uWordX, uWordA, uFilmIn, uRim, uView, uColor;
+uniform float uS, uRange, uK, uSweep, uDot, uDotY, uWordX, uWordA, uFilmIn, uRim, uView, uColor, uEA;
 varying vec2 vUv;
 
 const vec3 CREAM = vec3(1.0, 0.988, 0.961);
@@ -46,7 +46,8 @@ void main() {
   vec2 q = L - EC;
   float turn = mod(atan(q.y, q.x) - PI, 2.0 * PI) / (2.0 * PI);
   float swept = uSweep >= 1.0 ? 1.0 : smoothstep(turn - 0.02, turn, uSweep);
-  float mE = smoothstep(-aa, aa, dE) * swept;
+  // (uEA: the e itself, which gives way as the page goes in through the dot, so only the dot opens onto the film)
+  float mE = smoothstep(-aa, aa, dE) * swept * uEA;
 
   // the dot, dropping in and settling
   float r = DOTR * uDot;
@@ -81,7 +82,7 @@ void main() {
   // an amber hairline round the cut while the film is in it
   float edge = max(min(dE, 1e3), dD);
   float rimW = 1.3 / uS;
-  float rim = (1.0 - smoothstep(rimW * 0.5, rimW * 1.5, abs(edge))) * uRim * max(swept, step(0.0, uDot) * mD);
+  float rim = (1.0 - smoothstep(rimW * 0.5, rimW * 1.5, abs(edge))) * uRim * max(swept * uEA, step(0.0, uDot) * mD);
   col = mix(col, AMBER, rim);
   gl_FragColor = vec4(col, 1.0);
 }`
@@ -94,6 +95,8 @@ export interface DoorState {
   filmIn: number; rim: number; view: number
   /** 0: the film in the logo's amber; 1: in its own colours */
   color: number
+  /** the e: 1 drawn, 0 gone (only the dot is left to go in through) */
+  eA: number
 }
 
 export interface Door {
@@ -128,7 +131,7 @@ export function mountDoor(canvas: HTMLCanvasElement, video: HTMLVideoElement, po
   gl.enableVertexAttribArray(loc)
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
   const U: Record<string, WebGLUniformLocation | null> = {}
-  for (const n of ['uSdf', 'uFilm', 'uRes', 'uT', 'uFilmSize', 'uBox', 'uS', 'uRange', 'uK', 'uSweep', 'uDot', 'uDotY', 'uWordX', 'uWordA', 'uFilmIn', 'uRim', 'uView', 'uColor']) U[n] = gl.getUniformLocation(prog, n)
+  for (const n of ['uSdf', 'uFilm', 'uRes', 'uT', 'uFilmSize', 'uBox', 'uS', 'uRange', 'uK', 'uSweep', 'uDot', 'uDotY', 'uWordX', 'uWordA', 'uFilmIn', 'uRim', 'uView', 'uColor', 'uEA']) U[n] = gl.getUniformLocation(prog, n)
   gl.uniform4f(U.uBox, SDF.x0, SDF.y0, SDF.w, SDF.h)
   gl.uniform1f(U.uRange, SDF.range)
   gl.uniform1f(U.uK, SDF.texW / SDF.w)
@@ -160,7 +163,7 @@ export function mountDoor(canvas: HTMLCanvasElement, video: HTMLVideoElement, po
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, posterImg)
       filmW = posterImg.naturalWidth; filmH = posterImg.naturalHeight
     }
-    const state: DoorState = { s: 1, tx: 0, ty: 0, sweep: 0, dot: 0, dotY: 0, wordX: 0, wordA: 0, filmIn: 0, rim: 0, view: 1.18, color: 0 }
+    const state: DoorState = { s: 1, tx: 0, ty: 0, sweep: 0, dot: 0, dotY: 0, wordX: 0, wordA: 0, filmIn: 0, rim: 0, view: 1.18, color: 0, eA: 1 }
     let haveFrame = false
     const upload = () => {
       if (video.readyState < 2 || !video.videoWidth) return
@@ -179,7 +182,7 @@ export function mountDoor(canvas: HTMLCanvasElement, video: HTMLVideoElement, po
       gl.uniform2f(U.uFilmSize, filmW, filmH)
       gl.uniform1f(U.uSweep, state.sweep); gl.uniform1f(U.uDot, state.dot); gl.uniform1f(U.uDotY, state.dotY)
       gl.uniform1f(U.uWordX, state.wordX); gl.uniform1f(U.uWordA, state.wordA)
-      gl.uniform1f(U.uFilmIn, state.filmIn); gl.uniform1f(U.uRim, state.rim); gl.uniform1f(U.uView, state.view); gl.uniform1f(U.uColor, state.color)
+      gl.uniform1f(U.uFilmIn, state.filmIn); gl.uniform1f(U.uRim, state.rim); gl.uniform1f(U.uView, state.view); gl.uniform1f(U.uColor, state.color); gl.uniform1f(U.uEA, state.eA)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
     // the film's frames: drawn as they come (the frame callback where there is one), only while the door is in use

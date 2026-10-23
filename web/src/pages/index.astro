@@ -16,6 +16,8 @@ import { posts, html } from '../data/cms'
 /* the latest three posts as built; the server puts the current three in their place on every visit */
 const news = html.posts(posts({ limit: 3 }))
 const sectorKeys = Object.keys(SECTORS) as SectorKey[]
+// each sector's leather: the natural tan of the tanneries' hides, the shoemakers' chestnut, the saddle of the goods
+const HIDE: Record<SectorKey, 'tan' | 'chestnut' | 'saddle'> = { tannery: 'tan', footwear: 'chestnut', 'leather-goods': 'saddle' }
 const rowA = [...BRANDS, ...PARTNERS.filter((p) => p.kind !== 'Government office')].filter((p) => p.logo)
 const rowB = PARTNERS.filter((p) => p.kind === 'Government office' && p.logo)
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -53,23 +55,35 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
         <div class="about__side">
           <p class="about__count" data-reveal>
             <span class="figure-num about__num" data-count={ABOUT.count.value}>{ABOUT.count.value}</span>
-            <span class="about__countlbl">leather manufacturing industries, one association since {ORG.founded}</span>
+            <span class="about__countlbl"><b>member companies,</b> one association since {ORG.founded}</span>
           </p>
           <div class="body about__body" data-reveal style="--d:.1s">{ABOUT.body.map((p) => <p>{p}</p>)}</div>
         </div>
       </div>
 
-      <ul class="sectors" role="list">
-        {sectorKeys.map((k, i) => (
-          <li data-reveal style={`--d:${i * 0.08}s`}>
-            <a class="sector" href="/members#at-a-glance">
-              <span class="figure-num sector__num" data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span>
-              <span class="sector__name">{SECTORS[k].plural}</span>
-              <span class="sector__scale">{SECTORS[k].scale} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <!-- the membership by sector: a strap of the three leathers, each as long as its share, and a stitched patch of
+           each leather with its number stamped in (foil on the dark hides, pressed into the tan) -->
+      <div class="mship">
+        <div class="mship__head">
+          <p class="mship__k">The membership, by sector</p>
+          <a class="link mship__link" href="/members#at-a-glance">The membership at a glance <Fragment set:html={arrow} /></a>
+        </div>
+        <div class="strap" role="img" aria-label={`Of ${ABOUT.count.value} members: ${sectorKeys.map((k) => `${SECTOR_TOTALS[k]} ${SECTORS[k].plural.toLowerCase()}`).join(', ')}`}>
+          {sectorKeys.map((k) => <span class={`strap__seg hide hide--${HIDE[k]}`} style={`--w:${SECTOR_TOTALS[k]}`} />)}
+        </div>
+        <ul class="sectors" role="list">
+          {sectorKeys.map((k, i) => (
+            <li data-reveal style={`--d:${i * 0.08}s`}>
+              <a class={`sector hide hide--${HIDE[k]} stitched`} href="/members#at-a-glance">
+                <span class="sector__top"><span>{Math.round((SECTOR_TOTALS[k] / ABOUT.count.value) * 100)}% of members</span><Fragment set:html={arrow} /></span>
+                <span class="figure-num sector__num"><span class={HIDE[k] === 'tan' ? 't-press' : 't-foil'} data-count={SECTOR_TOTALS[k]}>{SECTOR_TOTALS[k]}</span></span>
+                <span class="sector__name">{SECTORS[k].plural}</span>
+                <span class="sector__scale">{SECTORS[k].scale} <span class="geez" lang="am">{SECTORS[k].amharic}</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div class="pillars">
         {PILLARS.map((p, i) => (
@@ -251,19 +265,41 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   .about__grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: clamp(28px, 5vw, 96px); align-items: end; }
   .about__title { font-size: clamp(3rem, 1.4rem + 5vw, 6.8rem); }
   .about__title :global(.inlay) { width: 1.5em; height: 0.78em; }
-  .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 18px; }
+  .about__count { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 22px; }
   .about__num { font-size: clamp(5rem, 2rem + 8vw, 9.5rem); color: var(--ink); }
-  .about__countlbl { max-width: 15ch; padding-bottom: 0.6em; font-size: 15px; line-height: 1.35; color: var(--taupe); }
+  .about__countlbl { max-width: 17ch; padding-bottom: 0.7em; font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.3rem); line-height: 1.3; color: var(--brown-80); }
+  .about__countlbl b { display: block; font-family: var(--f-display); font-weight: 680; font-stretch: 85%; font-size: 1.25em; letter-spacing: -0.015em; color: var(--ink); }
   .about__body { margin-top: clamp(24px, 3vw, 36px); }
-  .sectors { list-style: none; margin: clamp(64px, 8vw, 120px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line-dark); }
-  .sectors li + li { border-left: 1px solid var(--line-dark); }
-  .sector { position: relative; display: grid; gap: 8px; padding: clamp(24px, 3vw, 40px) clamp(18px, 2.4vw, 36px) clamp(26px, 3vw, 40px); height: 100%; transition: background 0.4s var(--ease); }
-  .sector::after { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 3px; background: var(--amber); transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease); }
-  .sector:hover { background: rgb(226 160 37 / 0.08); }
-  .sector:hover::after { transform: scaleX(1); }
-  .sector__num { font-size: clamp(4rem, 2rem + 5vw, 7.5rem); color: var(--ink); }
-  .sector__name { font-family: var(--f-display); font-weight: 650; font-stretch: 85%; font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.05; letter-spacing: -0.02em; }
-  .sector__scale { font-size: 14.5px; color: var(--taupe); }
+
+  /* the membership by sector */
+  .mship { margin-top: clamp(64px, 8vw, 120px); }
+  .mship__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 24px; margin-bottom: 16px; }
+  .mship__k { font-size: 12px; font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe); }
+  .mship__link { color: var(--ink); }
+  /* the strap: one length of leather in three pieces, sewn end to end */
+  .strap { display: flex; height: 20px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 22px -14px rgb(60 30 22 / 0.7); }
+  .strap__seg { position: relative; flex: var(--w) 1 0; --hide-size: 360px; }
+  .strap__seg + .strap__seg { box-shadow: inset 2px 0 0 rgb(30 14 10 / 0.45); }
+  .strap__seg::after { content: ''; position: absolute; inset: 50% 8px auto; border-top: 1.3px dashed rgb(231 176 73 / 0.7); }
+  .strap__seg.hide--tan::after { border-color: rgb(60 30 22 / 0.5); }
+  /* the patches */
+  .sectors { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .sector {
+    --panel-r: 22px; --stitch-in: 10px; --hide-size: 640px;
+    --hide-veil: radial-gradient(120% 90% at 18% 0%, rgb(255 252 245 / 0.16), transparent 60%), linear-gradient(180deg, transparent 45%, rgb(30 14 10 / 0.22));
+    position: relative; display: grid; gap: 6px; align-content: end; height: 100%; min-height: clamp(240px, 21vw, 320px);
+    padding: clamp(26px, 2.6vw, 38px); border-radius: 22px; color: var(--cream); overflow: hidden;
+    box-shadow: 0 30px 50px -34px rgb(60 30 22 / 0.85); transition: transform 0.5s var(--ease), box-shadow 0.35s;
+  }
+  .sector.hide--tan { color: var(--ink); --hide-veil: radial-gradient(120% 90% at 18% 0%, rgb(255 252 245 / 0.22), transparent 60%), linear-gradient(180deg, transparent 50%, rgb(60 30 22 / 0.12)); }
+  .sector:hover { transform: translateY(-5px); box-shadow: 0 44px 64px -36px rgb(60 30 22 / 0.95); }
+  .sector > * { position: relative; z-index: 1; }
+  .sector__top { position: absolute !important; top: clamp(26px, 2.6vw, 38px); left: clamp(26px, 2.6vw, 38px); right: clamp(26px, 2.6vw, 38px); display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 650; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+  .sector__top :global(svg) { width: 20px; height: 20px; transition: transform 0.45s var(--ease); }
+  .sector:hover .sector__top :global(svg) { transform: translateX(4px); }
+  .sector__num { font-size: clamp(4.2rem, 2rem + 5vw, 7.8rem); line-height: 0.9; }
+  .sector__name { margin-top: 6px; font-family: var(--f-display); font-weight: 680; font-stretch: 85%; font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .sector__scale { font-size: 14.5px; opacity: 0.8; }
   .sector__scale .geez { margin-left: 4px; }
   .pillars { margin-top: clamp(56px, 7vw, 96px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px); }
   .pillar { display: grid; gap: 14px; align-content: start; padding-top: 22px; border-top: 1px solid var(--ink); }
@@ -272,7 +308,7 @@ const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-
   @media (max-width: 900px) {
     .about__grid, .pillars { grid-template-columns: 1fr; }
     .sectors { grid-template-columns: 1fr; }
-    .sectors li + li { border-left: 0; border-top: 1px solid var(--line-dark); }
+    .sector { min-height: 200px; }
   }
 
   /* what we do */
